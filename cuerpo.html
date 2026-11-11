@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cuerpo Explorador</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+img{max-width:100%}
+
+body{margin:0;background:#EEF5FF;color:#1B2A4A}
+a{color:#1D4ED8}a:hover{color:#1E3A8A}
+button{font:inherit}
+button:focus-visible{outline:3px solid #1B2A4A;outline-offset:3px}
+.spot-live{animation:spotpulse 1.4s ease-in-out infinite}
+@keyframes spotpulse{0%,100%{box-shadow:0 0 0 0 rgba(27,42,74,.35)}50%{box-shadow:0 0 0 12px rgba(27,42,74,0)}}
+.bn{fill:#FFFDF6;stroke:#55627E;stroke-width:1.5;stroke-linejoin:round}
+.bnd{fill:#C9D1E0;stroke:#55627E;stroke-width:1.2;stroke-linejoin:round}
+.bnl{fill:none;stroke:#55627E;stroke-width:1.2;stroke-linecap:round}
+.bo,.bo2,.bo3,.bo4,.bo5,.ro{fill:none;stroke:#55627E;stroke-linecap:round;stroke-linejoin:round}
+.bi,.bi2,.bi3,.bi4,.bi5,.ri{fill:none;stroke:#FFFDF6;stroke-linecap:round;stroke-linejoin:round}
+.bo{stroke-width:8}.bi{stroke-width:5}
+.bo2{stroke-width:12}.bi2{stroke-width:8.5}
+.bo3{stroke-width:7}.bi3{stroke-width:4}
+.bo4{stroke-width:5}.bi4{stroke-width:2.4}
+.bo5{stroke-width:15}.bi5{stroke-width:11}
+.ro{stroke-width:6}.ri{stroke-width:3.2}
+.ms{fill:#E07A6C;stroke:#9E3B31;stroke-width:1.2;stroke-linejoin:round}
+.ms2{fill:#C9594D;stroke:#9E3B31;stroke-width:1.2;stroke-linejoin:round}
+.msl{fill:none;stroke:#9E3B31;stroke-width:1;stroke-linecap:round;opacity:.55}
+.jt{fill:#FFFFFF;stroke:#0F766E;stroke-width:3}
+.og{stroke:#5B2333;stroke-width:1.3;stroke-linejoin:round}
+.br{fill:#F4A7B9}.brl{fill:none;stroke:#9D2D55;stroke-width:1.4;stroke-linecap:round}
+.tr{fill:#CFE3F5;stroke:#4B6B8F;stroke-width:1.3}.trl{fill:none;stroke:#4B6B8F;stroke-width:1}
+.trb{fill:none;stroke:#8FB3D9;stroke-width:5;stroke-linecap:round}
+.lu{fill:#F6B5BF}.ht{fill:#D9344B}.htv{fill:none;stroke:#8E1B2C;stroke-width:4;stroke-linecap:round}
+.lv{fill:#A1473A}.st{fill:#F2A65A}.kd{fill:#B5484A}.bl{fill:#F4D35E}
+.lio{fill:none;stroke:#8A5A2B;stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+.lii{fill:none;stroke:#E3A56A;stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.sio{fill:none;stroke:#8A5A2B;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+.sii{fill:none;stroke:#F5C99A;stroke-width:5.5;stroke-linecap:round;stroke-linejoin:round}
+.lift{transition:transform .15s ease, box-shadow .15s ease}
+.lift:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(27,42,74,.14)}
+</style>
+</head>
+<body>
+<a id="lupiExitBtn" href="./" aria-label="Salir a la portada" title="Salir a la portada" style="position:fixed;left:16px;bottom:16px;z-index:9999;display:flex;align-items:center;gap:8px;min-height:52px;padding:0 20px 0 14px;border-radius:999px;background:#FF6B4A;color:#FFFFFF;border:3px solid #FFFFFF;box-shadow:0 6px 16px rgba(0,0,0,.3);font:800 20px/1 'Baloo 2','Nunito',system-ui,sans-serif;text-decoration:none;box-sizing:border-box"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h8"/><path d="M10 12h10"/><path d="M16 8l4 4-4 4"/></svg><span>Salir</span></a>
+<script>
+(function(){
+  var KEY = 'lupi-progreso-v1';
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+  function dateKey(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function load(){
+    var o;
+    try { o = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { o = {}; }
+    if (!o || typeof o !== 'object') o = {};
+    if (!o.days || typeof o.days !== 'object') o.days = {};
+    if (!o.total || typeof o.total !== 'object') o.total = {};
+    return o;
+  }
+  function add(game, n){
+    n = Number(n) || 0;
+    if (n <= 0) return;
+    var o = load();
+    var k = dateKey(new Date());
+    if (!o.days[k]) o.days[k] = {};
+    o.days[k][game] = (o.days[k][game] || 0) + n;
+    o.total[game] = (o.total[game] || 0) + n;
+    var cut = new Date(); cut.setDate(cut.getDate() - 400);
+    var cutKey = dateKey(cut);
+    Object.keys(o.days).forEach(function(d){ if (d < cutKey) delete o.days[d]; });
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  /* Estrellas del mes en curso: el marcador vuelve a cero el día 1 de cada mes. */
+  function month(){
+    var o = load(), pre = dateKey(new Date()).slice(0, 7), per = {}, sum = 0;
+    Object.keys(o.days).forEach(function(d){
+      if (d.slice(0, 7) !== pre) return;
+      Object.keys(o.days[d]).forEach(function(g){ var n = Number(o.days[d][g]) || 0; per[g] = (per[g] || 0) + n; sum += n; });
+    });
+    return { key: pre, sum: sum, per: per };
+  }
+  /* ----- tiempo dedicado: segundos por día y por juego, solo mientras se juega de verdad ----- */
+  var TKEY = 'lupi-tiempo-v1';
+  function loadTime(){ var o; try { o = JSON.parse(localStorage.getItem(TKEY) || '{}'); } catch (e) { o = {}; } return (o && typeof o === 'object') ? o : {}; }
+  function addTime(game, secs){
+    var o = loadTime(), k = dateKey(new Date());
+    if (!o[k] || typeof o[k] !== 'object') o[k] = {};
+    o[k][game] = (Number(o[k][game]) || 0) + secs;
+    var cut = new Date(); cut.setDate(cut.getDate() - 400); var ck = dateKey(cut);
+    Object.keys(o).forEach(function(d){ if (d < ck) delete o[d]; });
+    try { localStorage.setItem(TKEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function timeOf(key){ var r = loadTime()[key] || {}, per = {}, sum = 0; Object.keys(r).forEach(function(g){ var n = Number(r[g]) || 0; per[g] = n; sum += n; }); return { sum: sum, per: per }; }
+  function fmtTime(s){ var m = Math.floor((Number(s) || 0) / 60); if (m < 60) return m + ' min'; return Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : ''); }
+  /* cuenta de 5 en 5 segundos si la página está a la vista y ha habido actividad en los últimos 3 minutos */
+  function startTimer(game, isActive){
+    var last = Date.now(), STEP = 5000, IDLE = 180000;
+    ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(function(ev){ window.addEventListener(ev, function(){ last = Date.now(); }, { passive: true, capture: true }); });
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) last = Date.now(); });
+    setInterval(function(){
+      if (document.hidden || Date.now() - last > IDLE) return;
+      if (isActive && !isActive()) return;
+      addTime(game, STEP / 1000);
+    }, STEP);
+  }
+  window.LupiScore = { add: add, load: load, dateKey: dateKey, month: month, timeOf: timeOf, fmtTime: fmtTime, startTimer: startTimer };
+})();
+(function(){var a=document.getElementById("lupiExitBtn");if(!a)return;a.addEventListener("click",function(e){var r=document.referrer;try{if(r&&new URL(r).origin===location.origin&&new URL(r).pathname!==location.pathname){e.preventDefault();location.href=r;}}catch(err){}});})();
+(function(){var g=(location.pathname.match(/(abecedario|tablas|cuerpo|mates|obby)\.html/)||[])[1];if(g==="obby")g="mundo";if(g&&window.LupiScore)window.LupiScore.startTimer(g);})();
+</script>
+<div id="app"></div>
+<template id="tpl">
+<div style="min-height: 100vh; box-sizing: border-box; padding: 24px 16px 56px; background: #EEF5FF; color: #1B2A4A; font-family: 'Nunito', system-ui, sans-serif">
+<div style="max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 14px">
+<div style="width: 56px; height: 56px; border-radius: 18px; background: #1B2A4A; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="heart" size="32" color="#FFFFFF" hint-size="32px,32px"></dc-import>
+</div>
+<div style="display: flex; flex-direction: column">
+<div style="font-family: 'Baloo 2', system-ui, sans-serif; font-size: 28px; font-weight: 800; line-height: 1.1">Cuerpo Explorador</div>
+<div style="font-size: 16px; color: #43536F; font-weight: 600">Aprende cómo funciona tu cuerpo</div>
+</div>
+</div>
+<sc-if value="{{notHome}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border-radius: 999px; background: #FFFFFF; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 22px; font-weight: 800">
+<dc-import name="Icon" kind="star" size="26" color="#D97706" hint-size="26px,26px"></dc-import>
+<span>{{stars}}</span>
+<span style="font-family: 'Nunito', system-ui, sans-serif; font-size: 15px; font-weight: 700; color: #43536F">estrellas</span>
+</div>
+<button onClick="{{goHome}}" aria-label="Volver al inicio" style="display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 18px; border: none; border-radius: 999px; background: #1B2A4A; color: #FFFFFF; font-size: 17px; font-weight: 800; cursor: pointer">
+<dc-import name="Icon" kind="home" size="22" color="#FFFFFF" hint-size="22px,22px"></dc-import>
+<span>Inicio</span>
+</button>
+</div>
+</sc-if>
+</header>
+
+<sc-if value="{{isHome}}" hint-placeholder-val="{{ true }}">
+<section style="display: flex; flex-direction: column; gap: 24px">
+<div style="background: #1B2A4A; color: #FFFFFF; border-radius: 32px; padding: 36px 32px; display: flex; flex-direction: column; gap: 10px">
+<h1 style="margin: 0; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 48px; font-weight: 800; line-height: 1.05">¡Explora tu cuerpo!</h1>
+<p style="margin: 0; font-size: 20px; line-height: 1.5; max-width: 640px; color: #DCE7F7">Elige un juego para empezar. En cada pregunta verás un dibujo que te da una pista de para qué sirve esa parte del cuerpo.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="5">
+<button class="lift" onClick="{{m.start}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 24px; border: none; border-radius: 28px; background: #FFFFFF; color: #1B2A4A; text-align: left; cursor: pointer; box-shadow: 0 2px 0 rgba(27,42,74,.08)">
+<div style="width: 76px; height: 76px; border-radius: 24px; background: {{m.color}}; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="{{m.icon}}" size="44" color="#FFFFFF" hint-size="44px,44px"></dc-import>
+</div>
+<div style="font-family: 'Baloo 2', system-ui, sans-serif; font-size: 28px; font-weight: 800; line-height: 1.1">{{m.name}}</div>
+<div style="font-size: 17px; line-height: 1.4; color: #43536F; font-weight: 600">{{m.desc}}</div>
+<div style="margin-top: auto; padding: 6px 14px; border-radius: 999px; background: {{m.tint}}; color: {{m.color}}; font-size: 15px; font-weight: 800">{{m.count}} preguntas · {{m.hint}}</div>
+</button>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{playBody}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+<section style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; font-weight: 800; font-size: 17px">
+<span style="color: {{color}}">{{modeName}}</span>
+<span>Pregunta {{qNum}} de {{qTotal}}</span>
+</div>
+<div style="height: 14px; border-radius: 999px; background: #FFFFFF; overflow: hidden">
+<div style="height: 100%; width: {{progress}}; border-radius: 999px; background: {{color}}"></div>
+</div>
+</div>
+<sc-if value="{{isFind}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<div style="padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: 16px; background: {{step1Bg}}; color: {{step1Fg}}">1 · Adivina</div>
+<div style="padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: 16px; background: {{step2Bg}}; color: {{step2Fg}}">2 · Colócalo en el cuerpo</div>
+</div>
+</sc-if>
+<sc-if value="{{isWhat}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<div style="padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: 16px; background: {{color}}; color: #FFFFFF">Repaso · ¿Para qué sirve?</div>
+</div>
+</sc-if>
+<div style="background: #FFFFFF; border-radius: 28px; padding: 24px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap">
+<div style="width: 104px; height: 104px; flex: none; border-radius: 30px; background: {{color}}; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="{{clueIcon}}" size="62" color="#FFFFFF" hint-size="62px,62px"></dc-import>
+</div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: {{color}}">{{cardLabel}}</div>
+<div style="font-size: 22px; line-height: 1.45; font-weight: 700">{{clue}}</div>
+</div>
+</div>
+<sc-if value="{{isGuess}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 28px; font-weight: 800">{{question}}</h2>
+<sc-for list="{{options}}" as="o" hint-placeholder-count="3">
+<button onClick="{{o.pick}}" disabled="{{o.disabled}}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 12px 22px; border-radius: 20px; border: 3px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 25px; font-weight: 700; text-align: left; cursor: {{o.cursor}}">
+<span style="display: flex; align-items: center; gap: 14px">
+<sc-if value="{{o.showIcon}}" hint-placeholder-val="{{ false }}"><span style="width: 48px; height: 48px; flex: none; border-radius: 14px; background: {{o.iconBg}}; display: flex; align-items: center; justify-content: center"><dc-import name="Icon" kind="{{o.icon}}" size="30" color="{{o.iconFg}}" hint-size="30px,30px"></dc-import></span></sc-if>
+<span>{{o.label}}</span>
+</span>
+<sc-if value="{{o.isWrong}}" hint-placeholder-val="{{ false }}"><dc-import name="Icon" kind="x" size="26" color="#B42318" hint-size="26px,26px"></dc-import></sc-if>
+</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{isPlace}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 22px; background: {{tint}}">
+<dc-import name="Icon" kind="target" size="40" color="{{color}}" hint-size="40px,40px"></dc-import>
+<div style="font-size: 20px; line-height: 1.4; font-weight: 700">Ahora toca el círculo del cuerpo donde va <strong style="color: {{color}}">{{target}}</strong>.</div>
+</div>
+</sc-if>
+<sc-if value="{{hasFb}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 20px; background: {{fbBg}}; color: {{fbFg}}; font-size: 19px; font-weight: 800; line-height: 1.4">
+<dc-import name="Icon" kind="{{fbIcon}}" size="30" color="{{fbFg}}" hint-size="30px,30px"></dc-import>
+<span>{{fbText}}</span>
+</div>
+</sc-if>
+<sc-if value="{{hasDoubt}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px">
+<button onClick="{{toggleDoubt}}" aria-expanded="{{doubtOpen}}" style="display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px 0 14px; border: 3px solid #B45309; border-radius: 999px; background: #FEF3C7; color: #78350F; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 22px; font-weight: 800; cursor: pointer">
+<dc-import name="Icon" kind="help" size="30" color="#B45309" hint-size="30px,30px"></dc-import>
+<span>¿Tienes dudas?</span>
+</button>
+<sc-if value="{{doubtOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: relative; width: 100%; margin-top: 8px">
+<div role="note" style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; padding: 20px 22px; border: 3px solid #B45309; border-radius: 28px; background: #FFFBEB; color: #3B2A12">
+<div style="width: 64px; height: 64px; flex: none; border-radius: 20px; background: #B45309; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="{{doubtIcon}}" size="38" color="#FFFFFF" hint-size="38px,38px"></dc-import>
+</div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'Baloo 2', system-ui, sans-serif; font-size: 24px; font-weight: 800; line-height: 1.15; color: #78350F">{{doubtTitle}}</div>
+<div style="font-size: 19px; line-height: 1.5; font-weight: 700">{{doubtText}}</div>
+<button onClick="{{closeDoubt}}" style="align-self: flex-start; margin-top: 4px; min-height: 44px; padding: 0 18px; border: none; border-radius: 999px; background: #B45309; color: #FFFFFF; font-size: 17px; font-weight: 800; cursor: pointer">¡Entendido!</button>
+</div>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 44px; top: -11px; width: 20px; height: 20px; background: #FFFBEB; border-left: 3px solid #B45309; border-top: 3px solid #B45309; transform: rotate(45deg)"></div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<button onClick="{{next}}" style="align-self: flex-start; display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 0 28px; border: none; border-radius: 999px; background: {{color}}; color: #FFFFFF; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 24px; font-weight: 800; cursor: pointer">
+<span>{{nextLabel}}</span>
+<dc-import name="Icon" kind="arrow" size="26" color="#FFFFFF" hint-size="26px,26px"></dc-import>
+</button>
+</sc-if>
+</section>
+
+<section aria-label="Cuerpo humano" style="flex: 0 1 364px; min-width: 0; background: #FFFFFF; border-radius: 28px; padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px">
+<div style="font-size: 15px; font-weight: 800; color: #43536F; padding-top: 8px">Colocadas: {{placedCount}} de {{partsTotal}}</div>
+<div style="position: relative; width: 340px; height: 572px; flex: none">
+<svg viewBox="0 0 260 560" aria-hidden="true" style="position: absolute; left: 40px; top: 0; width: 260px; height: 560px; overflow: visible">
+<ellipse cx="130" cy="52" rx="38" ry="46" fill="{{skin}}"></ellipse>
+<ellipse cx="92" cy="56" rx="6" ry="10" fill="{{skin}}"></ellipse>
+<ellipse cx="168" cy="56" rx="6" ry="10" fill="{{skin}}"></ellipse>
+<path d="M116 88 L144 88 L146 126 L114 126 Z" fill="{{skin}}"></path>
+<path d="M114 118 C96 122 74 124 66 140 C60 152 66 170 72 182 L78 250 C80 262 74 290 72 312 C90 330 110 336 130 338 C150 336 170 330 188 312 C186 290 180 262 182 250 L188 182 C194 170 200 152 194 140 C186 124 164 122 146 118 Z" fill="{{skin}}"></path>
+<path d="M54 146 L48 236 L46 318 M206 146 L212 236 L214 318" style="fill: none; stroke: {{skin}}; stroke-width: 28; stroke-linecap: round; stroke-linejoin: round"></path>
+<ellipse cx="46" cy="344" rx="14" ry="22" fill="{{skin}}"></ellipse>
+<ellipse cx="214" cy="344" rx="14" ry="22" fill="{{skin}}"></ellipse>
+<path d="M100 312 L100 418 M160 312 L160 418" style="fill: none; stroke: {{skin}}; stroke-width: 50; stroke-linecap: round"></path>
+<path d="M100 418 L100 506 M160 418 L160 506" style="fill: none; stroke: {{skin}}; stroke-width: 36; stroke-linecap: round"></path>
+<ellipse cx="98" cy="530" rx="20" ry="13" fill="{{skin}}"></ellipse>
+<ellipse cx="162" cy="530" rx="20" ry="13" fill="{{skin}}"></ellipse>
+</svg>
+<sc-if value="{{showBones}}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 260 560" aria-hidden="true" style="position: absolute; left: 40px; top: 0; width: 260px; height: 560px; overflow: visible; opacity: {{boneOpacity}}">
+<ellipse class="bn" cx="130" cy="44" rx="33" ry="37"></ellipse>
+<ellipse class="bnd" cx="117" cy="50" rx="8" ry="7"></ellipse>
+<ellipse class="bnd" cx="143" cy="50" rx="8" ry="7"></ellipse>
+<path class="bnd" d="M130 58 L125 69 L135 69 Z"></path>
+<path class="bnl" d="M117 76 L143 76 M121 72 L121 80 M126 72 L126 80 M130 72 L130 80 M134 72 L134 80 M139 72 L139 80"></path>
+<path class="bn" d="M104 64 C104 84 116 96 130 96 C144 96 156 84 156 64 L148 66 C146 79 140 85 130 85 C120 85 114 79 112 66 Z"></path>
+<rect class="bn" x="124" y="98" width="12" height="6" rx="2"></rect>
+<rect class="bn" x="124" y="106" width="12" height="6" rx="2"></rect>
+<rect class="bn" x="124" y="114" width="12" height="6" rx="2"></rect>
+<rect class="bn" x="124" y="122" width="12" height="6" rx="2"></rect>
+<path class="ro" d="M124 146 C100 140 80 150 80 166 M136 146 C160 140 180 150 180 166 M124 160 C100 154 78 164 80 182 M136 160 C160 154 182 164 180 182 M124 174 C100 168 78 178 80 196 M136 174 C160 168 182 178 180 196 M124 188 C100 182 80 194 84 210 M136 188 C160 182 180 194 176 210 M124 202 C104 198 88 208 90 222 M136 202 C156 198 172 208 170 222 M126 214 C110 212 98 220 100 232 M134 214 C150 212 162 220 160 232"></path>
+<path class="ri" d="M124 146 C100 140 80 150 80 166 M136 146 C160 140 180 150 180 166 M124 160 C100 154 78 164 80 182 M136 160 C160 154 182 164 180 182 M124 174 C100 168 78 178 80 196 M136 174 C160 168 182 178 180 196 M124 188 C100 182 80 194 84 210 M136 188 C160 182 180 194 176 210 M124 202 C104 198 88 208 90 222 M136 202 C156 198 172 208 170 222 M126 214 C110 212 98 220 100 232 M134 214 C150 212 162 220 160 232"></path>
+<path class="bn" d="M124 136 L136 136 L135 204 L130 212 L125 204 Z"></path>
+<path class="bo" d="M124 132 Q100 126 70 140 M136 132 Q160 126 190 140"></path>
+<path class="bi" d="M124 132 Q100 126 70 140 M136 132 Q160 126 190 140"></path>
+<rect class="bn" x="123" y="216" width="14" height="8" rx="2"></rect>
+<rect class="bn" x="123" y="227" width="14" height="8" rx="2"></rect>
+<rect class="bn" x="123" y="238" width="14" height="8" rx="2"></rect>
+<rect class="bn" x="123" y="249" width="14" height="8" rx="2"></rect>
+<rect class="bn" x="123" y="260" width="14" height="8" rx="2"></rect>
+<rect class="bn" x="123" y="271" width="14" height="8" rx="2"></rect>
+<rect class="bn" x="123" y="282" width="14" height="8" rx="2"></rect>
+<path class="bn" d="M130 292 C116 290 100 284 84 282 C76 300 82 322 100 330 C110 334 118 330 124 322 L136 322 C142 330 150 334 160 330 C178 322 184 300 176 282 C160 284 144 290 130 292 Z"></path>
+<ellipse class="bnd" cx="108" cy="314" rx="9" ry="7"></ellipse>
+<ellipse class="bnd" cx="152" cy="314" rx="9" ry="7"></ellipse>
+<path class="bo2" d="M56 152 L49 232 M204 152 L211 232 M98 432 L98 504 M162 432 L162 504"></path>
+<path class="bi2" d="M56 152 L49 232 M204 152 L211 232 M98 432 L98 504 M162 432 L162 504"></path>
+<path class="bo3" d="M44 244 L41 316 M54 244 L52 316 M216 244 L219 316 M206 244 L208 316 M111 434 L110 502 M149 434 L150 502"></path>
+<path class="bi3" d="M44 244 L41 316 M54 244 L52 316 M216 244 L219 316 M206 244 L208 316 M111 434 L110 502 M149 434 L150 502"></path>
+<path class="bo4" d="M39 332 L37 356 M44 333 L43 362 M49 333 L50 362 M54 332 L56 356 M57 326 L63 340 M221 332 L223 356 M216 333 L217 362 M211 333 L210 362 M206 332 L204 356 M203 326 L197 340 M91 524 L88 540 M96 525 L95 544 M101 525 L102 544 M106 524 L109 540 M169 524 L172 540 M164 525 L165 544 M159 525 L158 544 M154 524 L151 540"></path>
+<path class="bi4" d="M39 332 L37 356 M44 333 L43 362 M49 333 L50 362 M54 332 L56 356 M57 326 L63 340 M221 332 L223 356 M216 333 L217 362 M211 333 L210 362 M206 332 L204 356 M203 326 L197 340 M91 524 L88 540 M96 525 L95 544 M101 525 L102 544 M106 524 L109 540 M169 524 L172 540 M164 525 L165 544 M159 525 L158 544 M154 524 L151 540"></path>
+<path class="bo5" d="M102 318 L100 406 M158 318 L160 406"></path>
+<path class="bi5" d="M102 318 L100 406 M158 318 L160 406"></path>
+<circle class="bn" cx="58" cy="148" r="9"></circle>
+<circle class="bn" cx="202" cy="148" r="9"></circle>
+<ellipse class="bn" cx="49" cy="237" rx="9" ry="6"></ellipse>
+<ellipse class="bn" cx="211" cy="237" rx="9" ry="6"></ellipse>
+<ellipse class="bn" cx="46" cy="326" rx="10" ry="6"></ellipse>
+<ellipse class="bn" cx="214" cy="326" rx="10" ry="6"></ellipse>
+<circle class="bn" cx="106" cy="312" r="8"></circle>
+<circle class="bn" cx="154" cy="312" r="8"></circle>
+<ellipse class="bn" cx="100" cy="410" rx="12" ry="7"></ellipse>
+<ellipse class="bn" cx="160" cy="410" rx="12" ry="7"></ellipse>
+<ellipse class="bn" cx="100" cy="430" rx="12" ry="6"></ellipse>
+<ellipse class="bn" cx="160" cy="430" rx="12" ry="6"></ellipse>
+<ellipse class="bn" cx="100" cy="420" rx="8" ry="9"></ellipse>
+<ellipse class="bn" cx="160" cy="420" rx="8" ry="9"></ellipse>
+<ellipse class="bn" cx="99" cy="518" rx="11" ry="7"></ellipse>
+<ellipse class="bn" cx="161" cy="518" rx="11" ry="7"></ellipse>
+</svg>
+</sc-if>
+<sc-if value="{{isMuscles}}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 260 560" aria-hidden="true" style="position: absolute; left: 40px; top: 0; width: 260px; height: 560px; overflow: visible">
+<ellipse class="ms" cx="108" cy="76" rx="7" ry="12"></ellipse>
+<ellipse class="ms" cx="152" cy="76" rx="7" ry="12"></ellipse>
+<path class="ms2" d="M112 92 L126 130 L120 130 L108 96 Z M148 92 L134 130 L140 130 L152 96 Z"></path>
+<path class="ms2" d="M116 104 C112 118 96 126 70 134 L96 140 L124 130 Z M144 104 C148 118 164 126 190 134 L164 140 L136 130 Z"></path>
+<path class="ms" d="M127 138 L84 140 C72 152 74 174 86 184 C104 190 120 186 127 180 Z M133 138 L176 140 C188 152 186 174 174 184 C156 190 140 186 133 180 Z"></path>
+<path class="ms2" d="M86 190 C82 220 84 250 92 280 L112 290 L113 196 Z M174 190 C178 220 176 250 168 280 L148 290 L147 196 Z"></path>
+<rect class="ms" x="116" y="196" width="13" height="16" rx="4"></rect>
+<rect class="ms" x="131" y="196" width="13" height="16" rx="4"></rect>
+<rect class="ms" x="116" y="214" width="13" height="16" rx="4"></rect>
+<rect class="ms" x="131" y="214" width="13" height="16" rx="4"></rect>
+<rect class="ms" x="116" y="232" width="13" height="16" rx="4"></rect>
+<rect class="ms" x="131" y="232" width="13" height="16" rx="4"></rect>
+<rect class="ms" x="116" y="250" width="13" height="30" rx="4"></rect>
+<rect class="ms" x="131" y="250" width="13" height="30" rx="4"></rect>
+<path class="ms2" d="M76 134 C56 132 40 146 40 170 C48 172 56 168 62 160 C68 150 76 144 84 140 Z M184 134 C204 132 220 146 220 170 C212 172 204 168 198 160 C192 150 184 144 176 140 Z"></path>
+<path class="ms2" d="M39 176 C35 198 35 218 39 232 L45 232 C43 212 43 194 45 176 Z M221 176 C225 198 225 218 221 232 L215 232 C217 212 217 194 215 176 Z"></path>
+<ellipse class="ms" cx="53" cy="202" rx="10" ry="28"></ellipse>
+<ellipse class="ms" cx="207" cy="202" rx="10" ry="28"></ellipse>
+<ellipse class="ms" cx="47" cy="272" rx="11" ry="32"></ellipse>
+<ellipse class="ms" cx="213" cy="272" rx="11" ry="32"></ellipse>
+<path class="msl" d="M44 250 L46 298 M50 250 L49 298 M210 250 L211 298 M216 250 L214 298"></path>
+<path class="ms" d="M80 318 C74 350 78 392 92 410 L108 410 C122 392 124 350 118 318 Z M180 318 C186 350 182 392 168 410 L152 410 C138 392 136 350 142 318 Z"></path>
+<path class="msl" d="M99 322 L100 404 M88 330 C86 360 90 390 96 406 M110 330 C114 360 110 390 104 406 M161 322 L160 404 M172 330 C174 360 170 390 164 406 M150 330 C146 360 150 390 156 406"></path>
+<path class="ms" d="M86 428 C82 452 86 480 94 502 L99 502 L99 430 Z M174 428 C178 452 174 480 166 502 L161 502 L161 430 Z"></path>
+<path class="ms2" d="M104 426 C120 440 120 470 108 488 L102 470 L102 432 Z M156 426 C140 440 140 470 152 488 L158 470 L158 432 Z"></path>
+</svg>
+</sc-if>
+<sc-if value="{{isJoints}}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 260 560" aria-hidden="true" style="position: absolute; left: 40px; top: 0; width: 260px; height: 560px; overflow: visible">
+<circle class="jt" cx="100" cy="66" r="7"></circle>
+<circle class="jt" cx="160" cy="66" r="7"></circle>
+<circle class="jt" cx="130" cy="112" r="8"></circle>
+<circle class="jt" cx="60" cy="146" r="9"></circle>
+<circle class="jt" cx="200" cy="146" r="9"></circle>
+<circle class="jt" cx="49" cy="238" r="8"></circle>
+<circle class="jt" cx="211" cy="238" r="8"></circle>
+<circle class="jt" cx="46" cy="324" r="7"></circle>
+<circle class="jt" cx="214" cy="324" r="7"></circle>
+<circle class="jt" cx="46" cy="346" r="6"></circle>
+<circle class="jt" cx="214" cy="346" r="6"></circle>
+<circle class="jt" cx="106" cy="314" r="9"></circle>
+<circle class="jt" cx="154" cy="314" r="9"></circle>
+<circle class="jt" cx="100" cy="418" r="9"></circle>
+<circle class="jt" cx="160" cy="418" r="9"></circle>
+<circle class="jt" cx="99" cy="510" r="7"></circle>
+<circle class="jt" cx="161" cy="510" r="7"></circle>
+<circle class="jt" cx="98" cy="538" r="6"></circle>
+<circle class="jt" cx="162" cy="538" r="6"></circle>
+</svg>
+</sc-if>
+<sc-if value="{{isOrgans}}" hint-placeholder-val="{{ false }}">
+<svg viewBox="0 0 260 560" aria-hidden="true" style="position: absolute; left: 40px; top: 0; width: 260px; height: 560px; overflow: visible">
+<ellipse class="og br" cx="130" cy="40" rx="30" ry="26"></ellipse>
+<path class="brl" d="M130 15 L130 65 M110 32 C116 26 122 38 128 30 M132 30 C138 38 144 26 150 32 M108 46 C114 42 120 52 127 46 M133 46 C140 52 146 42 152 46 M114 58 C118 54 122 60 127 57 M133 57 C138 60 142 54 146 58"></path>
+<ellipse class="og kd" cx="86" cy="268" rx="8" ry="14"></ellipse>
+<ellipse class="og kd" cx="174" cy="268" rx="8" ry="14"></ellipse>
+<path class="og lu" d="M122 150 C104 140 84 150 80 190 C78 214 84 232 100 232 C114 232 122 220 122 200 Z"></path>
+<path class="og lu" d="M138 150 C156 140 176 150 180 190 C182 214 176 232 160 232 C146 232 138 220 138 200 Z"></path>
+<rect class="tr" x="125" y="92" width="10" height="58" rx="4"></rect>
+<path class="trl" d="M125 100 H135 M125 108 H135 M125 116 H135 M125 124 H135 M125 132 H135 M125 140 H135"></path>
+<path class="trb" d="M130 150 L114 164 M130 150 L146 164"></path>
+<path class="htv" d="M136 178 L134 166 M146 176 L150 164"></path>
+<path class="og ht" d="M142 180 C136 168 118 170 120 186 C122 200 136 208 146 216 C156 206 168 196 166 182 C164 168 148 168 142 180 Z"></path>
+<path class="og lv" d="M80 236 C96 224 140 226 150 236 C146 248 128 256 110 262 C96 264 82 256 80 236 Z"></path>
+<path class="og st" d="M150 228 C166 224 182 234 180 252 C178 268 160 276 144 268 C136 262 140 252 150 254 C160 256 164 244 150 240 Z"></path>
+<path class="lio" d="M100 330 L100 288 C100 280 104 276 112 276 L148 276 C156 276 160 280 160 288 L160 314 C160 322 154 324 146 322"></path>
+<path class="lii" d="M100 330 L100 288 C100 280 104 276 112 276 L148 276 C156 276 160 280 160 288 L160 314 C160 322 154 324 146 322"></path>
+<path class="sio" d="M114 290 C124 282 138 296 146 288 C154 296 140 304 128 300 C114 296 110 308 122 312 C134 316 146 306 148 316"></path>
+<path class="sii" d="M114 290 C124 282 138 296 146 288 C154 296 140 304 128 300 C114 296 110 308 122 312 C134 316 146 306 148 316"></path>
+<ellipse class="og bl" cx="130" cy="332" rx="12" ry="9"></ellipse>
+</svg>
+</sc-if>
+<sc-for list="{{spots}}" as="s" hint-placeholder-count="6">
+<button class="{{s.cls}}" onClick="{{s.tap}}" disabled="{{s.disabled}}" aria-label="{{s.aria}}" style="position: absolute; left: {{s.left}}px; top: {{s.top}}px; width: 38px; height: 38px; box-sizing: border-box; padding: 0; border-radius: 50%; border: 3px {{s.line}} {{s.border}}; background: {{s.bg}}; display: flex; align-items: center; justify-content: center; cursor: {{s.cursor}}">
+<sc-if value="{{s.placed}}" hint-placeholder-val="{{ false }}"><dc-import name="Icon" kind="check" size="20" color="#FFFFFF" hint-size="20px,20px"></dc-import></sc-if>
+<sc-if value="{{s.missed}}" hint-placeholder-val="{{ false }}"><dc-import name="Icon" kind="x" size="18" color="#B42318" hint-size="18px,18px"></dc-import></sc-if>
+</button>
+<sc-if value="{{s.placed}}" hint-placeholder-val="{{ false }}">
+<span style="position: absolute; left: {{s.tagLeft}}px; top: {{s.tagTop}}px; transform: {{s.tagTf}}; padding: 3px 9px; border-radius: 999px; background: #1B2A4A; color: #FFFFFF; font-size: 13px; font-weight: 800; white-space: nowrap; pointer-events: none">{{s.short}}</span>
+</sc-if>
+</sc-for>
+</div>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{playQuiz}}" hint-placeholder-val="{{ false }}">
+<section style="max-width: 820px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; font-weight: 800; font-size: 17px">
+<span style="color: {{color}}">{{modeName}}</span>
+<span>Pregunta {{qNum}} de {{qTotal}}</span>
+</div>
+<div style="height: 14px; border-radius: 999px; background: #FFFFFF; overflow: hidden">
+<div style="height: 100%; width: {{progress}}; border-radius: 999px; background: {{color}}"></div>
+</div>
+</div>
+<div style="background: #FFFFFF; border-radius: 28px; padding: 28px; display: flex; gap: 22px; align-items: center; flex-wrap: wrap">
+<div style="width: 120px; height: 120px; flex: none; border-radius: 34px; background: {{color}}; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="{{clueIcon}}" size="72" color="#FFFFFF" hint-size="72px,72px"></dc-import>
+</div>
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 15px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: {{color}}">{{cardLabel}}</div>
+<div style="font-family: 'Baloo 2', system-ui, sans-serif; font-size: 36px; font-weight: 800; line-height: 1.1">{{fnName}}</div>
+<div style="font-size: 20px; line-height: 1.45; font-weight: 700; color: #33425E">{{clue}}</div>
+</div>
+</div>
+<h2 style="margin: 0; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 28px; font-weight: 800">{{question}}</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<sc-for list="{{quizOptions}}" as="o" hint-placeholder-count="4">
+<button onClick="{{o.pick}}" disabled="{{o.disabled}}" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px 12px; border-radius: 24px; border: 3px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 24px; font-weight: 800; cursor: {{o.cursor}}">
+<div style="width: 72px; height: 72px; border-radius: 22px; background: {{o.iconBg}}; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="{{o.icon}}" size="44" color="{{o.iconFg}}" hint-size="44px,44px"></dc-import>
+</div>
+<span>{{o.label}}</span>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{hasFb}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 20px; background: {{fbBg}}; color: {{fbFg}}; font-size: 19px; font-weight: 800; line-height: 1.4">
+<dc-import name="Icon" kind="{{fbIcon}}" size="30" color="{{fbFg}}" hint-size="30px,30px"></dc-import>
+<span>{{fbText}}</span>
+</div>
+</sc-if>
+<sc-if value="{{hasDoubt}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px">
+<button onClick="{{toggleDoubt}}" aria-expanded="{{doubtOpen}}" style="display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 22px 0 14px; border: 3px solid #B45309; border-radius: 999px; background: #FEF3C7; color: #78350F; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 22px; font-weight: 800; cursor: pointer">
+<dc-import name="Icon" kind="help" size="30" color="#B45309" hint-size="30px,30px"></dc-import>
+<span>¿Tienes dudas?</span>
+</button>
+<sc-if value="{{doubtOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: relative; width: 100%; margin-top: 8px">
+<div role="note" style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; padding: 20px 22px; border: 3px solid #B45309; border-radius: 28px; background: #FFFBEB; color: #3B2A12">
+<div style="width: 64px; height: 64px; flex: none; border-radius: 20px; background: #B45309; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="{{doubtIcon}}" size="38" color="#FFFFFF" hint-size="38px,38px"></dc-import>
+</div>
+<div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-family: 'Baloo 2', system-ui, sans-serif; font-size: 24px; font-weight: 800; line-height: 1.15; color: #78350F">{{doubtTitle}}</div>
+<div style="font-size: 19px; line-height: 1.5; font-weight: 700">{{doubtText}}</div>
+<button onClick="{{closeDoubt}}" style="align-self: flex-start; margin-top: 4px; min-height: 44px; padding: 0 18px; border: none; border-radius: 999px; background: #B45309; color: #FFFFFF; font-size: 17px; font-weight: 800; cursor: pointer">¡Entendido!</button>
+</div>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 44px; top: -11px; width: 20px; height: 20px; background: #FFFBEB; border-left: 3px solid #B45309; border-top: 3px solid #B45309; transform: rotate(45deg)"></div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+<button onClick="{{next}}" style="align-self: flex-start; display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 0 28px; border: none; border-radius: 999px; background: {{color}}; color: #FFFFFF; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 24px; font-weight: 800; cursor: pointer">
+<span>{{nextLabel}}</span>
+<dc-import name="Icon" kind="arrow" size="26" color="#FFFFFF" hint-size="26px,26px"></dc-import>
+</button>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{isResult}}" hint-placeholder-val="{{ false }}">
+<section style="max-width: 640px; width: 100%; margin: 24px auto 0; background: #FFFFFF; border-radius: 32px; padding: 40px 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center">
+<div style="width: 120px; height: 120px; border-radius: 50%; background: #FEF3C7; display: flex; align-items: center; justify-content: center">
+<dc-import name="Icon" kind="star" size="72" color="#D97706" hint-size="72px,72px"></dc-import>
+</div>
+<h2 style="margin: 0; font-family: 'Baloo 2', system-ui, sans-serif; font-size: 42px; font-weight: 800; line-height: 1.1">¡Juego terminado!</h2>
+<div style="font-size: 22px; font-weight: 800">Has ganado {{stars}} de {{qTotal}} estrellas</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center">
+<sc-for list="{{starRow}}" as="st" hint-placeholder-count="6">
+<dc-import name="Icon" kind="star" size="40" color="{{st.color}}" hint-size="40px,40px"></dc-import>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 19px; line-height: 1.5; color: #33425E; font-weight: 600">{{resultMsg}}</p>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center">
+<button onClick="{{restart}}" style="display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 24px; border: none; border-radius: 999px; background: {{color}}; color: #FFFFFF; font-size: 19px; font-weight: 800; cursor: pointer">
+<dc-import name="Icon" kind="replay" size="24" color="#FFFFFF" hint-size="24px,24px"></dc-import>
+<span>Jugar otra vez</span>
+</button>
+<button onClick="{{goHome}}" style="display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 24px; border: 3px solid #1B2A4A; border-radius: 999px; background: #FFFFFF; color: #1B2A4A; font-size: 19px; font-weight: 800; cursor: pointer">
+<dc-import name="Icon" kind="home" size="24" color="#1B2A4A" hint-size="24px,24px"></dc-import>
+<span>Elegir otro juego</span>
+</button>
+</div>
+</section>
+</sc-if>
+
+</div>
+</div>
+</template>
+<script>
+
+var ICONS = {"heart": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z\"></path></svg>", "lungs": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 3v8\"></path><path d=\"M12 10.5 9.5 8.5\"></path><path d=\"M12 10.5l2.5-2\"></path><path d=\"M8.5 6.5C6 6.5 4 10.5 4 15.5c0 2.2 1.2 3.5 3 3.5s3-1.3 3-3.5V9\"></path><path d=\"M15.5 6.5c2.5 0 4.5 4 4.5 9 0 2.2-1.2 3.5-3 3.5s-3-1.3-3-3.5V9\"></path></svg>", "brain": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 5.5A3 3 0 0 0 6.6 6a3 3 0 0 0-2.1 4.8A3.2 3.2 0 0 0 6 16.5a3 3 0 0 0 6 2z\"></path><path d=\"M12 5.5A3 3 0 0 1 17.4 6a3 3 0 0 1 2.1 4.8 3.2 3.2 0 0 1-1.5 5.7 3 3 0 0 1-6 2z\"></path><path d=\"M12 5.5v13\"></path></svg>", "stomach": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M10 3v3c0 1.5-1 2.5-2.5 3.5C5.5 11 5 13 5 15a5 5 0 0 0 9 3c1-1.3 2.5-1.5 3.8-2.3 2-1.3 2.4-4.2.7-6-1.4-1.5-3.6-1.2-5-.2-.8.5-1.5.2-1.5-.8V3\"></path><path d=\"M16 18.5l1.5 2.5\"></path></svg>", "wind": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M3 8h10a3 3 0 1 0-3-3\"></path><path d=\"M3 12h15a3 3 0 1 1-3 3\"></path><path d=\"M3 16h7\"></path></svg>", "shield": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z\"></path><path d=\"M9 12l2 2 4-4\"></path></svg>", "bone": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><circle cx=\"5\" cy=\"9.5\" r=\"2.2\"></circle><circle cx=\"5\" cy=\"14.5\" r=\"2.2\"></circle><circle cx=\"19\" cy=\"9.5\" r=\"2.2\"></circle><circle cx=\"19\" cy=\"14.5\" r=\"2.2\"></circle><path d=\"M7 10.3h10M7 13.7h10\"></path></svg>", "dumbbell": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11\"></path></svg>", "hinge": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><circle cx=\"11\" cy=\"14\" r=\"2.8\"></circle><path d=\"M9 12 4 5\"></path><path d=\"M13.8 14H21\"></path><path d=\"M16 8.5a6.5 6.5 0 0 0-4.5-1.3\"></path></svg>", "run": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><circle cx=\"15\" cy=\"4.5\" r=\"2\"></circle><path d=\"M13 21l1-5-3-3 1-4 4 3h3\"></path><path d=\"M7.5 11l2-3h4.5\"></path><path d=\"M11 13l-2 4H5\"></path></svg>", "drop": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z\"></path><path d=\"M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5\"></path></svg>", "bulb": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M9 18h6M10 21h4\"></path><path d=\"M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"></path></svg>", "bowl": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M3 11h18a9 9 0 0 1-18 0z\"></path><path d=\"M8 7.5c0-1 1-1.5 1-2.5M12 7.5c0-1 1-1.5 1-2.5M16 7.5c0-1 1-1.5 1-2.5\"></path></svg>", "rotate": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M20 12a8 8 0 1 1-2.3-5.7\"></path><path d=\"M20 4v5h-5\"></path></svg>", "jump": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 18V4\"></path><path d=\"M6 10l6-6 6 6\"></path><path d=\"M5 21h14\"></path></svg>", "walk": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><ellipse cx=\"8\" cy=\"8\" rx=\"2.6\" ry=\"4.2\"></ellipse><ellipse cx=\"16\" cy=\"15\" rx=\"2.6\" ry=\"4.2\"></ellipse><path d=\"M6.5 14.5h3M14.5 21.5h3\"></path></svg>", "hand": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M7 12V6a1.5 1.5 0 0 1 3 0v5M10 11V4.5a1.5 1.5 0 0 1 3 0V11M13 11V5.5a1.5 1.5 0 0 1 3 0V12M16 12V8a1.5 1.5 0 0 1 3 0v6a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-3l-2.5-4.5a1.5 1.5 0 0 1 2.5-1.5L7 14\"></path></svg>", "stack": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><rect x=\"8\" y=\"2.5\" width=\"8\" height=\"3\" rx=\"1.5\"></rect><rect x=\"7\" y=\"7.5\" width=\"10\" height=\"3\" rx=\"1.5\"></rect><rect x=\"7\" y=\"12.5\" width=\"10\" height=\"3\" rx=\"1.5\"></rect><rect x=\"8\" y=\"17.5\" width=\"8\" height=\"3\" rx=\"1.5\"></rect></svg>", "battery": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><rect x=\"3\" y=\"7\" width=\"16\" height=\"10\" rx=\"2\"></rect><path d=\"M21.5 10.5v3M7 10v4M11 10v4\"></path></svg>", "coil": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M5 4h11a3 3 0 0 1 0 6H8a3 3 0 0 0 0 6h11\"></path><path d=\"M19 16v5\"></path></svg>", "target": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><circle cx=\"12\" cy=\"12\" r=\"8.5\"></circle><circle cx=\"12\" cy=\"12\" r=\"4.5\"></circle><circle cx=\"12\" cy=\"12\" r=\"1\"></circle></svg>", "home": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M3 11l9-7 9 7\"></path><path d=\"M5.5 9.5V20h13V9.5\"></path><path d=\"M10 20v-5h4v5\"></path></svg>", "star": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: currentColor; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z\"></path></svg>", "check": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M5 12.5l4.5 4.5L19 7\"></path></svg>", "x": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M6.5 6.5l11 11M17.5 6.5l-11 11\"></path></svg>", "arrow": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M5 12h14M13 6l6 6-6 6\"></path></svg>", "replay": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M4 12a8 8 0 1 0 2.3-5.7\"></path><path d=\"M4 4v5h5\"></path></svg>", "eye": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg>", "kidney": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M9.5 3.5c-3.2 0-5.5 3.3-5.5 8 0 5 2.6 9 5.6 9 2.2 0 3.2-1.5 3.2-3.2 0-1.8-1.6-2.4-1.6-4.3s1.6-2.5 1.6-4.6c0-2.9-1.2-4.9-3.3-4.9z\"></path><path d=\"M12.5 12.5H17v8\"></path></svg>", "pulse": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M2.5 12h4l2.5-6 4 12 2.5-6h6\"></path></svg>", "picture": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\" rx=\"2\"></rect><circle cx=\"9\" cy=\"9.5\" r=\"1.8\"></circle><path d=\"M21 15.5l-5-5-9 9.5\"></path></svg>", "backpack": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M6 9.5a6 6 0 0 1 12 0V19a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z\"></path><path d=\"M9.5 3.8h5\"></path><path d=\"M9 14h6v4H9z\"></path></svg>", "ball": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><circle cx=\"12\" cy=\"12\" r=\"9\"></circle><path d=\"M12 7.5l4 3-1.5 4.5h-5L8 10.5z\"></path><path d=\"M12 3v4.5M16 10.5l4.5-1.5M14.5 15l2.5 4M9.5 15 7 19M8 10.5 3.5 9\"></path></svg>", "pencil": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M4 20l1-4L16 5l3 3L8 19z\"></path><path d=\"M14 7l3 3\"></path></svg>", "chat": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M4 5h16v11H9l-5 4z\"></path><path d=\"M8 9h8M8 12.5h5\"></path></svg>", "chair": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M7 3v9h10V3\"></path><path d=\"M5 12h14\"></path><path d=\"M7 12v9M17 12v9\"></path></svg>", "balloon": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><ellipse cx=\"12\" cy=\"9\" rx=\"6\" ry=\"7\"></ellipse><path d=\"M12 16l-1.2 2h2.4z\"></path><path d=\"M12 18c0 2-2 2-2 4\"></path></svg>", "trash": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M4 7h16\"></path><path d=\"M9 7V4h6v3\"></path><path d=\"M6 7l1 14h10l1-14\"></path></svg>", "filter": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round\"><path d=\"M3 4h18l-7 8v7l-4 2v-9z\"></path></svg>", "help": "<svg viewBox=\"0 0 24 24\" style=\"width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round\"><circle cx=\"12\" cy=\"12\" r=\"9.5\"></circle><path d=\"M9.3 9.3a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.2 1-1.2 1.8v.6\"></path><path d=\"M12 17.3v.2\"></path></svg>"};
+var HOLE = /\{\{\s*([^}]+?)\s*\}\}/g;
+var WHOLE = /^\s*\{\{\s*([^}]+?)\s*\}\}\s*$/;
+function lookup(scope, path){
+  if (path === 'true') return true;
+  if (path === 'false') return false;
+  var parts = path.split('.'), v = scope;
+  for (var i = 0; i < parts.length; i++){ if (v == null) return undefined; v = v[parts[i]]; }
+  return v;
+}
+function fill(str, scope){
+  return str.replace(HOLE, function(_, p){ var v = lookup(scope, p); return v == null ? '' : String(v); });
+}
+function attrVal(str, scope){
+  var m = str.match(WHOLE);
+  return m ? lookup(scope, m[1]) : fill(str, scope);
+}
+function renderNode(node, scope, out){
+  if (node.nodeType === 3){ out.appendChild(document.createTextNode(fill(node.nodeValue, scope))); return; }
+  if (node.nodeType !== 1) return;
+  var tag = node.localName, i;
+  if (tag === 'sc-if'){
+    if (attrVal(node.getAttribute('value') || '', scope)) renderKids(node, scope, out);
+    return;
+  }
+  if (tag === 'sc-for'){
+    var list = attrVal(node.getAttribute('list') || '', scope) || [];
+    var as = node.getAttribute('as') || 'item';
+    list.forEach(function(item, idx){
+      var child = Object.create(scope); child[as] = item; child.$index = idx;
+      renderKids(node, child, out);
+    });
+    return;
+  }
+  if (tag === 'dc-import'){
+    var span = document.createElement('span');
+    var px = (Number(attrVal(node.getAttribute('size') || '96', scope)) || 96) + 'px';
+    span.setAttribute('aria-hidden', 'true');
+    span.style.cssText = 'display:inline-flex;flex:none;width:' + px + ';height:' + px + ';color:' + (attrVal(node.getAttribute('color') || '', scope) || '#1B2A4A');
+    span.innerHTML = ICONS[attrVal(node.getAttribute('kind') || '', scope)] || '';
+    out.appendChild(span);
+    return;
+  }
+  var el = document.createElementNS(node.namespaceURI, tag);
+  for (i = 0; i < node.attributes.length; i++){
+    var a = node.attributes[i], name = a.name, v = attrVal(a.value, scope);
+    if (name.indexOf('hint-') === 0) continue;
+    if (/^on[a-z]+$/i.test(name)){ if (typeof v === 'function') el.addEventListener(name.slice(2).toLowerCase(), v); continue; }
+    if (name === 'disabled'){ if (v) el.setAttribute('disabled', ''); continue; }
+    el.setAttribute(name, v == null ? '' : String(v));
+  }
+  renderKids(node, scope, el);
+  out.appendChild(el);
+}
+function renderKids(node, scope, out){
+  for (var c = node.firstChild; c; c = c.nextSibling) renderNode(c, scope, out);
+}
+var autoNext = null;
+var app = null, root = document.getElementById('app'), tplRoot = document.getElementById('tpl').content;
+function paint(){
+  var frag = document.createDocumentFragment();
+  renderKids(tplRoot, app.renderVals(), frag);
+  root.textContent = '';
+  root.appendChild(frag);
+}
+class DCLogic {
+  constructor(){ this.props = {}; this.state = {}; }
+  setState(patch){
+    if (typeof patch === 'function') patch = patch(this.state);
+    if (patch && typeof patch.stars === 'number' && patch.stars > (this.state.stars || 0) && window.LupiScore){
+      window.LupiScore.add('cuerpo', patch.stars - (this.state.stars || 0));
+    }
+    var before = this.state;
+    this.state = Object.assign({}, this.state, patch);
+    paint();
+    /* Pregunta nueva o pantalla nueva: se coloca la vista en la pregunta, no en las respuestas. */
+    if (before.screen !== this.state.screen || before.idx !== this.state.idx || before.order !== this.state.order){
+      var mark = null;
+      if (this.state.screen === 'play'){
+        var all = root.querySelectorAll('*');
+        for (var qi = 0; qi < all.length; qi++){ if (!all[qi].firstElementChild && /^Pregunta \d+ de/.test(all[qi].textContent.trim())){ mark = all[qi]; break; } }
+      }
+      window.scrollTo(0, mark ? Math.max(0, mark.getBoundingClientRect().top + window.pageYOffset - 12) : 0);
+    }
+    /* Al completar bien una pregunta, pasa sola a la siguiente tras dejar leer la explicación. */
+    clearTimeout(autoNext);
+    if (this.state.screen === 'play' && this.state.phase === 'done'){
+      var self = this;
+      autoNext = setTimeout(function(){ if (self.state.screen === 'play' && self.state.phase === 'done') self.next(); }, Math.min(8000, 2600 + 45 * Math.max(0, ((this.state.fb && this.state.fb.text) || '').length - 60)));
+    }
+  }
+  forceUpdate(){ paint(); }
+}
+var MODES = [
+  { id: 'musculos', name: 'Músculos', icon: 'dumbbell', color: '#C2410C', tint: '#FFEDD5', kind: 'body',
+    desc: 'Tiran de los huesos para que puedas moverte.',
+    items: [
+      { id: 'masetero', fn: 'Masticar la comida', name: 'Masetero', art: 'el', icon: 'bowl', x: 152, y: 78, clue: 'Está en la mejilla, cerca de la oreja. Es muy fuerte y lo usas para masticar la comida.' },
+      { id: 'trapecio', fn: 'Llevar la mochila y encoger los hombros', name: 'Trapecio', art: 'el', icon: 'backpack', x: 164, y: 124, clue: 'Va del cuello a los hombros. Te ayuda a llevar la mochila y a encoger los hombros.' },
+      { id: 'deltoides', fn: 'Levantar el brazo', name: 'Deltoides', art: 'el', icon: 'jump', x: 56, y: 150, clue: 'Cubre el hombro como una hombrera. Te ayuda a levantar el brazo para pedir turno en clase.' },
+      { id: 'pectorales', fn: 'Empujar y dar abrazos', name: 'Pectorales', art: 'los', icon: 'hand', x: 102, y: 162, clue: 'Están en el pecho. Los usas para empujar una puerta y para dar abrazos.' },
+      { id: 'biceps', fn: 'Doblar el brazo para levantar cosas', name: 'Bíceps', art: 'el', icon: 'dumbbell', x: 53, y: 204, clue: 'Está delante del brazo. Se pone duro como una bola cuando doblas el brazo para levantar algo.' },
+      { id: 'triceps', fn: 'Estirar el brazo para lanzar', name: 'Tríceps', art: 'el', icon: 'ball', x: 222, y: 204, clue: 'Está en la parte de atrás del brazo. Estira el brazo cuando lanzas una pelota.' },
+      { id: 'antebrazo', fn: 'Mover los dedos para agarrar', name: 'Músculos del antebrazo', short: 'Antebrazo', art: 'los', icon: 'pencil', x: 213, y: 270, clue: 'Están entre el codo y la muñeca. Mueven los dedos para agarrar el lápiz y escribir.' },
+      { id: 'abdominales', fn: 'Sentarte y estar recto', name: 'Abdominales', art: 'los', icon: 'shield', x: 130, y: 228, clue: 'Están en la tripa, como una tableta de chocolate. Te ayudan a sentarte, a estar recto y protegen lo que hay dentro.' },
+      { id: 'cuadriceps', fn: 'Correr y chutar la pelota', name: 'Cuádriceps', art: 'el', icon: 'run', x: 99, y: 366, clue: 'Es el músculo grande de delante del muslo. Lo usas para correr, saltar y chutar la pelota.' },
+      { id: 'gemelos', fn: 'Ponerte de puntillas', name: 'Gemelos', art: 'los', icon: 'walk', x: 150, y: 458, clue: 'Están en la pierna, debajo de la rodilla. Te ayudan a caminar y a ponerte de puntillas.' }
+    ] },
+  { id: 'huesos', name: 'Huesos', icon: 'bone', color: '#4338CA', tint: '#E0E7FF', kind: 'body',
+    desc: 'Forman el esqueleto, que sostiene y protege tu cuerpo.',
+    items: [
+      { id: 'craneo', fn: 'Proteger el cerebro', name: 'Cráneo', art: 'el', icon: 'shield', x: 130, y: 30, clue: 'Es como un casco muy duro que protege el cerebro dentro de la cabeza.' },
+      { id: 'mandibula', fn: 'Masticar y hablar', name: 'Mandíbula', art: 'la', icon: 'chat', x: 130, y: 90, clue: 'Es el único hueso de la cabeza que se mueve. Lo usas para masticar, hablar y cantar.' },
+      { id: 'clavicula', fn: 'Sujetar el hombro en su sitio', name: 'Clavícula', art: 'la', icon: 'backpack', x: 94, y: 133, clue: 'Es un hueso fino que va del cuello al hombro. Sujeta el brazo en su sitio.' },
+      { id: 'costillas', fn: 'Proteger el corazón y los pulmones', name: 'Costillas', art: 'las', icon: 'lungs', x: 166, y: 178, clue: 'Forman una jaula en el pecho que protege el corazón y los pulmones.' },
+      { id: 'columna', fn: 'Mantener la espalda derecha', name: 'Columna vertebral', short: 'Columna', art: 'la', icon: 'stack', x: 130, y: 256, clue: 'Es una fila de huesos pequeños, uno encima de otro. Te mantiene derecho y te deja agacharte.' },
+      { id: 'humero', fn: 'Sostener el brazo', name: 'Húmero', art: 'el', icon: 'dumbbell', x: 52, y: 192, clue: 'Es el hueso largo del brazo, entre el hombro y el codo. Sostiene el brazo cuando levantas cosas.' },
+      { id: 'pelvis', fn: 'Sostenerte al sentarte', name: 'Pelvis', art: 'la', icon: 'chair', x: 160, y: 300, clue: 'Es un hueso grande con forma de mariposa en la cadera. Te sostiene cuando te sientas.' },
+      { id: 'femur', fn: 'Aguantar tu peso al saltar', name: 'Fémur', art: 'el', icon: 'jump', x: 100, y: 364, clue: 'Es el hueso más largo y fuerte de todo el cuerpo. Está en el muslo y aguanta tu peso al saltar.' },
+      { id: 'rotula', fn: 'Proteger la rodilla', name: 'Rótula', art: 'la', icon: 'shield', x: 160, y: 420, clue: 'Es un hueso pequeño y redondo que tapa la rodilla, como un escudo.' },
+      { id: 'tibia', fn: 'Sostener la pierna al caminar', name: 'Tibia', art: 'la', icon: 'walk', x: 98, y: 470, clue: 'Es el hueso de delante de la pierna, debajo de la rodilla. ¡Si te das un golpe ahí, duele mucho!' }
+    ] },
+  { id: 'articulaciones', name: 'Articulaciones', icon: 'hinge', color: '#0F766E', tint: '#CCFBF1', kind: 'body',
+    desc: 'Son las bisagras que unen los huesos y dejan que el cuerpo se doble.',
+    items: [
+      { id: 'mandibula', fn: 'Abrir y cerrar la boca', name: 'Mandíbula', art: 'la', icon: 'chat', x: 160, y: 66, clue: 'Está junto a la oreja. Se abre y se cierra como una bisagra para masticar y hablar.' },
+      { id: 'cuello', fn: 'Girar la cabeza', name: 'Cuello', art: 'el', icon: 'eye', x: 130, y: 112, clue: 'Deja que la cabeza gire para mirar a un lado y a otro, y para decir sí y no.' },
+      { id: 'hombro', fn: 'Dar vueltas al brazo', name: 'Hombro', art: 'el', icon: 'rotate', x: 60, y: 146, clue: 'Deja que el brazo dé vueltas enteras, como las aspas de un molino.' },
+      { id: 'codo', fn: 'Doblar el brazo', name: 'Codo', art: 'el', icon: 'hinge', x: 211, y: 238, clue: 'Está en mitad del brazo. Se dobla para que puedas llevarte la comida a la boca.' },
+      { id: 'muneca', fn: 'Mover la mano', name: 'Muñeca', art: 'la', icon: 'hand', x: 46, y: 324, clue: 'Une la mano con el brazo. Te deja mover la mano para saludar o para dibujar.' },
+      { id: 'nudillos', fn: 'Cerrar el puño', name: 'Nudillos', art: 'los', icon: 'pencil', x: 214, y: 348, clue: 'Están en los dedos de la mano. Se doblan para cerrar el puño y agarrar el lápiz.' },
+      { id: 'cadera', fn: 'Mover la pierna al subir escaleras', name: 'Cadera', art: 'la', icon: 'chair', x: 106, y: 314, clue: 'Une las piernas con el cuerpo. La usas para sentarte y para subir escaleras.' },
+      { id: 'rodilla', fn: 'Doblar la pierna para agacharte', name: 'Rodilla', art: 'la', icon: 'jump', x: 160, y: 418, clue: 'Está en mitad de la pierna. Se dobla cuando te agachas y cuando saltas.' },
+      { id: 'tobillo', fn: 'Mover el pie al caminar', name: 'Tobillo', art: 'el', icon: 'walk', x: 99, y: 510, clue: 'Une el pie con la pierna. Te deja caminar, correr y ponerte de puntillas.' },
+      { id: 'dedospie', fn: 'Impulsarte y no perder el equilibrio', name: 'Dedos del pie', art: 'los', icon: 'run', x: 162, y: 540, clue: 'Se doblan para impulsarte al correr y te ayudan a no perder el equilibrio.' }
+    ] },
+  { id: 'organos', name: 'Órganos', icon: 'heart', color: '#BE185D', tint: '#FCE7F3', kind: 'body',
+    desc: 'Son las máquinas que trabajan dentro de tu cuerpo sin parar.',
+    items: [
+      { id: 'cerebro', fn: 'Pensar y mandar órdenes', name: 'Cerebro', art: 'el', icon: 'bulb', x: 130, y: 38, clue: 'Está dentro de la cabeza. Piensa, recuerda y manda órdenes a todo el cuerpo. ¡Es el jefe!' },
+      { id: 'traquea', fn: 'Llevar el aire al pecho', name: 'Tráquea', art: 'la', icon: 'wind', x: 130, y: 118, clue: 'Es un tubo en el cuello por donde baja el aire hasta el pecho.' },
+      { id: 'pulmones', fn: 'Respirar', name: 'Pulmones', art: 'los', icon: 'balloon', x: 98, y: 196, clue: 'Se hinchan como dos globos cada vez que coges aire.' },
+      { id: 'corazon', fn: 'Mover la sangre', name: 'Corazón', art: 'el', icon: 'pulse', x: 142, y: 192, clue: 'Late todo el día, pum-pum, para mover la sangre por todo el cuerpo.' },
+      { id: 'higado', fn: 'Limpiar la sangre y guardar energía', name: 'Hígado', art: 'el', icon: 'battery', x: 116, y: 244, clue: 'Limpia la sangre y guarda energía para cuando la necesites.' },
+      { id: 'estomago', fn: 'Hacer papilla la comida', name: 'Estómago', art: 'el', icon: 'bowl', x: 164, y: 250, clue: 'Recibe la comida que tragas y la mezcla con jugos hasta hacerla papilla.' },
+      { id: 'rinones', fn: 'Limpiar la sangre y fabricar el pipí', name: 'Riñones', art: 'los', icon: 'filter', x: 82, y: 272, clue: 'Son dos y tienen forma de judía. Limpian la sangre y fabrican el pipí.' },
+      { id: 'delgado', fn: 'Sacar lo bueno de la comida', name: 'Intestino delgado', art: 'el', icon: 'coil', x: 132, y: 292, clue: 'Es un tubo larguísimo y enrollado. Saca lo bueno de la comida para darte energía.' },
+      { id: 'grueso', fn: 'Formar la caca', name: 'Intestino grueso', art: 'el', icon: 'trash', x: 100, y: 322, clue: 'Rodea al intestino delgado. Recoge los restos de comida que no sirven y forma la caca.' },
+      { id: 'vejiga', fn: 'Guardar el pipí', name: 'Vejiga', art: 'la', icon: 'drop', x: 130, y: 334, clue: 'Es como una bolsa que guarda el pipí hasta que vas al baño.' }
+    ] },
+  { id: 'funciones', name: 'Funciones', icon: 'bulb', color: '#6D28D9', tint: '#EDE9FE', kind: 'quiz',
+    desc: '¿Qué parte del cuerpo hace cada trabajo?',
+    items: [
+      { id: 'respirar', fn: 'Coger el oxígeno del aire', icon: 'wind', answer: 'pulmones', clue: 'Cuando respiras se llenan de aire. Toman el oxígeno que necesita el cuerpo y echan fuera el aire usado.', why: 'Los pulmones forman parte del aparato respiratorio.' },
+      { id: 'sangre', fn: 'Bombear la sangre', icon: 'pulse', answer: 'corazon', clue: 'Late sin parar, pum-pum, pum-pum, y empuja la sangre para que llegue a todo el cuerpo por los vasos sanguíneos.', why: 'El corazón forma parte del aparato circulatorio.' },
+      { id: 'ordenes', fn: 'Pensar y dar órdenes al cuerpo', icon: 'bulb', answer: 'cerebro', clue: 'Recibe lo que ven los ojos y lo que oyen los oídos, piensa, recuerda y manda órdenes a todo el cuerpo a través de los nervios.', why: 'El cerebro forma parte del sistema nervioso.' },
+      { id: 'deshacer', fn: 'Deshacer la comida', icon: 'bowl', answer: 'estomago', clue: 'Recibe la comida que tragamos y la mezcla con unos jugos hasta convertirla en una papilla.', why: 'El estómago forma parte del aparato digestivo.' },
+      { id: 'nutrientes', fn: 'Pasar los nutrientes de la comida a la sangre', icon: 'coil', answer: 'intestino', clue: 'Es un tubo muy largo y enrollado. Allí lo bueno de la comida pasa a la sangre, y lo que no sirve sigue su camino hasta salir del cuerpo.', why: 'El intestino forma parte del aparato digestivo.' },
+      { id: 'sostener', fn: 'Sostener el cuerpo', icon: 'stack', answer: 'huesos', clue: 'Son duros y juntos forman el esqueleto. Sin ellos no podríamos estar de pie.', why: 'Los huesos forman parte del aparato locomotor.' },
+      { id: 'mover', fn: 'Tirar de los huesos para movernos', icon: 'run', answer: 'musculos', clue: 'Son blandos y elásticos. Se encogen y se estiran para que podamos correr, saltar o sonreír.', why: 'Los músculos forman parte del aparato locomotor y trabajan junto a los huesos.' },
+      { id: 'doblar', fn: 'Doblar brazos y piernas', icon: 'jump', answer: 'articulaciones', clue: 'Son las uniones entre dos huesos, como el codo, la rodilla o el hombro. Funcionan como las bisagras de una puerta.', why: 'Las articulaciones forman parte del aparato locomotor.' },
+      { id: 'tacto', fn: 'Sentir el tacto', icon: 'hand', answer: 'piel', clue: 'Cubre todo el cuerpo. Con ella notamos si algo está frío o caliente, si es suave o áspero, o si nos hacen cosquillas.', why: 'La piel es el órgano del sentido del tacto y además protege el cuerpo.' },
+      { id: 'ver', fn: 'Ver los colores y las formas', icon: 'picture', answer: 'ojos', clue: 'Recogen la luz. Gracias a ellos sabemos de qué color y qué forma tienen las cosas y si están cerca o lejos.', why: 'Los ojos son los órganos del sentido de la vista.' },
+      { id: 'limpiar', fn: 'Limpiar la sangre y fabricar el pis', icon: 'filter', answer: 'rinones', clue: 'Son dos y tienen forma de judía. Quitan de la sangre lo que sobra y lo convierten en orina, es decir, en pis.', why: 'Los riñones forman parte del aparato excretor. El pis se guarda en la vejiga hasta que vamos al baño.' }
+    ] }
+];
+
+var PARTS = {
+  pulmones: { name: 'Pulmones', icon: 'lungs' },
+  corazon: { name: 'Corazón', icon: 'heart' },
+  cerebro: { name: 'Cerebro', icon: 'brain' },
+  estomago: { name: 'Estómago', icon: 'stomach' },
+  huesos: { name: 'Huesos', icon: 'bone' },
+  musculos: { name: 'Músculos', icon: 'dumbbell' },
+  articulaciones: { name: 'Articulaciones', icon: 'hinge' },
+  piel: { name: 'Piel', icon: 'hand' },
+  ojos: { name: 'Ojos', icon: 'eye' },
+  rinones: { name: 'Riñones', icon: 'kidney' },
+  intestino: { name: 'Intestino', icon: 'coil' }
+};
+
+function shuffle(list) {
+  var r = list.slice();
+  for (var i = r.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = r[i]; r[i] = r[j]; r[j] = t;
+  }
+  return r;
+}
+
+function cap(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
+
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { screen: 'home', modeId: 'musculos', order: [], idx: 0, phase: 'guess', options: [], wrong: [], wrongSpots: [], placed: [], stars: 0, mistakes: 0, fb: null, doubt: null, doubtOpen: false };
+  }
+
+  getMode() {
+    var id = this.state.modeId;
+    return MODES.find(function (m) { return m.id === id; }) || MODES[0];
+  }
+
+  getStep() {
+    return this.state.order[this.state.idx] || { id: this.getMode().items[0].id, kind: 'find' };
+  }
+
+  getItem() {
+    var m = this.getMode();
+    var id = this.getStep().id;
+    return m.items.find(function (i) { return i.id === id; }) || m.items[0];
+  }
+
+  roundFor(m, order, idx) {
+    var step = order[idx];
+    var id = step.id;
+    var it = m.items.find(function (i) { return i.id === id; });
+    var opts;
+    if (m.kind === 'body' || step.kind === 'what') {
+      var n = m.kind === 'body' ? 2 : 3;
+      var others = shuffle(m.items.filter(function (i) { return i.id !== id; }).map(function (i) { return i.id; })).slice(0, n);
+      opts = shuffle([id].concat(others));
+    } else {
+      var rest = shuffle(Object.keys(PARTS).filter(function (k) { return k !== it.answer; })).slice(0, 3);
+      opts = shuffle([it.answer].concat(rest));
+    }
+    return { order: order, idx: idx, options: opts, phase: 'guess', wrong: [], wrongSpots: [], mistakes: 0, fb: null, doubt: null, doubtOpen: false };
+  }
+
+  start(modeId) {
+    var m = MODES.find(function (x) { return x.id === modeId; });
+    var ids = m.items.map(function (i) { return i.id; });
+    var order = shuffle(ids).map(function (id) { return { id: id, kind: 'find' }; })
+      .concat(shuffle(ids).map(function (id) { return { id: id, kind: 'what' }; }));
+    this.setState(Object.assign({ screen: 'play', modeId: modeId, placed: [], stars: 0 }, this.roundFor(m, order, 0)));
+  }
+
+  pick(optId) {
+    var s = this.state;
+    if (s.phase !== 'guess' || s.wrong.indexOf(optId) >= 0) return;
+    var m = this.getMode();
+    var it = this.getItem();
+    var kind = this.getStep().kind;
+    var isBody = m.kind === 'body';
+    var correct = (isBody || kind === 'what') ? it.id : it.answer;
+    var star = s.mistakes === 0 ? 1 : 0;
+    if (optId === correct) {
+      if (isBody && kind === 'find') {
+        this.setState({ phase: 'place', fb: { ok: true, text: '¡Correcto! Es ' + it.art + ' ' + it.name.toLowerCase() + '.' } });
+      } else if (isBody) {
+        this.setState({ phase: 'done', stars: s.stars + star, fb: { ok: true, text: '¡Muy bien! ' + cap(it.art) + ' ' + it.name.toLowerCase() + ' sirve para: ' + it.fn.toLowerCase() + '.' } });
+      } else {
+        this.setState({ phase: 'done', stars: s.stars + star, fb: { ok: true, text: '¡Muy bien! ' + it.why } });
+      }
+      return;
+    }
+    var doubt;
+    var q;
+    if (isBody) {
+      q = m.items.find(function (i) { return i.id === optId; });
+      doubt = kind === 'find'
+        ? { icon: q.icon, title: 'Has elegido ' + q.art + ' ' + q.name.toLowerCase(), text: q.clue + ' Sirve para: ' + q.fn.toLowerCase() + '.' }
+        : { icon: q.icon, title: 'Eso lo hace ' + q.art + ' ' + q.name.toLowerCase(), text: q.clue };
+    } else if (kind === 'find') {
+      q = m.items.find(function (i) { return i.answer === optId; });
+      doubt = { icon: PARTS[optId].icon, title: 'Has elegido: ' + PARTS[optId].name.toLowerCase(), text: q.why + ' Su trabajo es: ' + q.fn.toLowerCase() + '.' };
+    } else {
+      q = m.items.find(function (i) { return i.id === optId; });
+      doubt = { icon: PARTS[q.answer].icon, title: '«' + q.fn + '» es el trabajo de: ' + PARTS[q.answer].name.toLowerCase(), text: q.clue + ' ' + q.why };
+    }
+    this.setState({ wrong: s.wrong.concat([optId]), mistakes: s.mistakes + 1, doubt: doubt, doubtOpen: false,
+      fb: { ok: false, text: '¡Uy! Esa no es. Prueba otra vez.' } });
+  }
+
+  tapSpot(spotId) {
+    var s = this.state;
+    if (s.phase !== 'place' || s.placed.indexOf(spotId) >= 0) return;
+    var m = this.getMode();
+    var it = this.getItem();
+    if (spotId === it.id) {
+      this.setState({ placed: s.placed.concat([spotId]), phase: 'done', stars: s.stars + (s.mistakes === 0 ? 1 : 0), fb: { ok: true, text: '¡Encaja perfecto! Ahí está ' + it.art + ' ' + it.name.toLowerCase() + '.' } });
+    } else {
+      var q = m.items.find(function (i) { return i.id === spotId; });
+      this.setState({ wrongSpots: s.wrongSpots.concat([spotId]), mistakes: s.mistakes + 1, doubtOpen: false,
+        doubt: { icon: q.icon, title: 'Ese sitio es para ' + q.art + ' ' + q.name.toLowerCase(), text: q.clue },
+        fb: { ok: false, text: 'Ahí no va. ¡Busca otro círculo!' } });
+    }
+  }
+
+  next() {
+    var s = this.state;
+    var m = this.getMode();
+    if (s.idx + 1 >= s.order.length) {
+      this.setState({ screen: 'result', fb: null, doubt: null, doubtOpen: false });
+    } else {
+      this.setState(this.roundFor(m, s.order, s.idx + 1));
+    }
+  }
+
+  renderVals() {
+    var self = this;
+    var s = this.state;
+    var m = this.getMode();
+    var it = this.getItem();
+    var kind = this.getStep().kind;
+    var isWhat = kind === 'what';
+    var isBody = m.kind === 'body';
+    var total = m.items.length * 2;
+    var playing = s.screen === 'play';
+    var ok = s.fb && s.fb.ok;
+    var guess = s.phase === 'guess';
+
+    var modes = MODES.map(function (x) {
+      return { id: x.id, name: x.name, icon: x.icon, color: x.color, tint: x.tint, desc: x.desc, count: x.items.length * 2,
+        hint: x.kind === 'body' ? 'Adivina, coloca y repasa' : 'Elige y repasa',
+        start: function () { self.start(x.id); } };
+    });
+
+    var options = isBody ? s.options.map(function (id) {
+      var p = m.items.find(function (i) { return i.id === id; }) || { name: '', fn: '', icon: 'star' };
+      var w = s.wrong.indexOf(id) >= 0;
+      return { label: isWhat ? p.fn : p.name, icon: p.icon, showIcon: isWhat, isWrong: w, disabled: w,
+        bg: w ? '#FEE4E2' : '#FFFFFF', border: w ? '#B42318' : '#C9D6EA', fg: w ? '#B42318' : '#1B2A4A', cursor: w ? 'default' : 'pointer',
+        iconBg: w ? '#FFFFFF' : m.tint, iconFg: w ? '#B42318' : m.color,
+        pick: function () { self.pick(id); } };
+    }) : [];
+
+    var quizOptions = !isBody ? s.options.map(function (id) {
+      var label, icon, right;
+      if (isWhat) {
+        var q = m.items.find(function (i) { return i.id === id; });
+        label = q.fn; icon = q.icon; right = id === it.id;
+      } else {
+        label = PARTS[id].name; icon = PARTS[id].icon; right = id === it.answer;
+      }
+      right = right && s.phase === 'done';
+      var w = s.wrong.indexOf(id) >= 0;
+      var off = w || s.phase === 'done';
+      return { label: label, icon: icon, disabled: off,
+        bg: right ? '#DCFCE7' : (w ? '#FEE4E2' : '#FFFFFF'),
+        border: right ? '#15803D' : (w ? '#B42318' : '#C9D6EA'),
+        fg: right ? '#14532D' : (w ? '#B42318' : '#1B2A4A'),
+        iconBg: right ? '#15803D' : (w ? '#FFFFFF' : m.tint),
+        iconFg: right ? '#FFFFFF' : (w ? '#B42318' : m.color),
+        cursor: off ? 'default' : 'pointer',
+        pick: function () { self.pick(id); } };
+    }) : [];
+
+    var spots = isBody ? m.items.map(function (p) {
+      var placed = s.placed.indexOf(p.id) >= 0;
+      var missed = !placed && s.phase === 'place' && s.wrongSpots.indexOf(p.id) >= 0;
+      var live = !placed && !missed && s.phase === 'place';
+      var focus = isWhat && p.id === it.id;
+      var leftSide = p.x < 130;
+      return {
+        left: p.x + 40 - 19, top: p.y - 19,
+        placed: placed, missed: missed,
+        disabled: !live,
+        cls: (live || focus) ? 'spot-live' : '',
+        line: placed ? 'solid' : 'dashed',
+        border: focus ? '#1B2A4A' : (placed ? m.color : (missed ? '#B42318' : (live ? '#1B2A4A' : '#8FA3C0'))),
+        bg: placed ? m.color : (missed ? '#FEE4E2' : (live ? '#FFFFFF' : 'rgba(255,255,255,0.65)')),
+        cursor: live ? 'pointer' : 'default',
+        aria: placed ? p.name + ', colocado' : 'Sitio del cuerpo',
+        short: p.short || p.name,
+        tagLeft: leftSide ? p.x + 40 - 22 : p.x + 40 + 22,
+        tagTop: p.y - 11,
+        tagTf: leftSide ? 'translateX(-100%)' : 'none',
+        tap: function () { self.tapSpot(p.id); }
+      };
+    }) : [];
+
+    var starRow = [];
+    for (var i = 0; i < total; i++) starRow.push({ color: i < s.stars ? '#D97706' : '#DCE3EE' });
+
+    var ratio = s.stars / total;
+    var resultMsg = ratio === 1 ? '¡Perfecto! Eres un experto del cuerpo humano.'
+      : (ratio >= 0.6 ? '¡Muy bien! Casi lo tienes todo. ¿Juegas otra vez para conseguir todas las estrellas?'
+      : '¡Buen intento! Cada vez que juegas aprendes más. ¡Prueba otra vez!');
+
+    var target = isBody ? it.art + ' ' + it.name.toLowerCase() : '';
+    var cardLabel, clue, clueIcon, fnName, question;
+    if (isBody) {
+      cardLabel = isWhat ? 'Repaso · Mira el círculo que brilla' : 'Pista · ¿Para qué sirve?';
+      clue = isWhat ? '¿Para qué sirve ' + target + '?' : it.clue;
+      clueIcon = isWhat ? m.icon : it.icon;
+      question = isWhat ? 'Elige para qué sirve' : '¿Qué parte del cuerpo es?';
+      fnName = '';
+    } else {
+      cardLabel = isWhat ? 'Repaso · La parte del cuerpo' : 'La función';
+      fnName = isWhat ? PARTS[it.answer].name : it.fn;
+      clue = isWhat ? '¿Qué trabajo hace esta parte del cuerpo?' : it.clue;
+      clueIcon = isWhat ? PARTS[it.answer].icon : it.icon;
+      question = isWhat ? 'Elige su trabajo' : '¿Qué parte del cuerpo hace este trabajo?';
+    }
+
+    return {
+      modes: modes,
+      isHome: s.screen === 'home',
+      notHome: s.screen !== 'home',
+      isResult: s.screen === 'result',
+      playBody: playing && isBody,
+      playQuiz: playing && !isBody,
+      stars: s.stars,
+      color: m.color,
+      tint: m.tint,
+      skin: '#F2DCC9',
+      showBones: m.id === 'huesos' || m.id === 'articulaciones',
+      boneOpacity: m.id === 'articulaciones' ? '0.45' : '1',
+      isMuscles: m.id === 'musculos',
+      isJoints: m.id === 'articulaciones',
+      isOrgans: m.id === 'organos',
+      modeName: m.name,
+      qNum: s.idx + 1,
+      qTotal: total,
+      partsTotal: m.items.length,
+      progress: Math.round(((s.idx + (s.phase === 'done' ? 1 : 0)) / total) * 100) + '%',
+      isFind: !isWhat,
+      isWhat: isWhat,
+      step1Bg: guess ? m.color : '#FFFFFF',
+      step1Fg: guess ? '#FFFFFF' : '#43536F',
+      step2Bg: guess ? '#FFFFFF' : m.color,
+      step2Fg: guess ? '#43536F' : '#FFFFFF',
+      cardLabel: cardLabel,
+      clueIcon: clueIcon,
+      clue: clue,
+      fnName: fnName,
+      question: question,
+      target: target,
+      isGuess: guess,
+      isPlace: s.phase === 'place',
+      isDone: s.phase === 'done',
+      options: options,
+      quizOptions: quizOptions,
+      spots: spots,
+      placedCount: s.placed.length,
+      hasFb: !!s.fb,
+      fbText: s.fb ? s.fb.text : '',
+      fbBg: ok ? '#DCFCE7' : '#FEE4E2',
+      fbFg: ok ? '#14532D' : '#B42318',
+      fbIcon: ok ? 'check' : 'x',
+      hasDoubt: !!s.doubt,
+      doubtOpen: !!s.doubtOpen,
+      doubtIcon: s.doubt ? s.doubt.icon : 'help',
+      doubtTitle: s.doubt ? s.doubt.title : '',
+      doubtText: s.doubt ? s.doubt.text : '',
+      toggleDoubt: function () { self.setState({ doubtOpen: !self.state.doubtOpen }); },
+      closeDoubt: function () { self.setState({ doubtOpen: false }); },
+      nextLabel: s.idx + 1 >= s.order.length ? 'Ver resultado' : 'Siguiente',
+      next: function () { self.next(); },
+      restart: function () { self.start(m.id); },
+      goHome: function () { self.setState({ screen: 'home', fb: null, doubt: null, doubtOpen: false }); },
+      starRow: starRow,
+      resultMsg: resultMsg
+    };
+  }
+}
+
+app = new Component();
+paint();
+</script>
+</body>
+</html>
