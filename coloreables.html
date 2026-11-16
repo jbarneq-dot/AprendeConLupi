@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Coloreables</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{color-scheme:light; --ink:#2B2250; --soft:#5B5480; --bg:#FFF6E4; --card:#FFFFFF; --line:#E6DCC8; --accent:#7F5AF0; --sun:#FFC83D; --coral:#FF6B4A; --ok:#2E9B6A;
+  --display:'Baloo 2','Nunito',system-ui,sans-serif; --body:'Nunito',system-ui,sans-serif;}
+*{box-sizing:border-box}
+html{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+body{margin:0; background:var(--bg); color:var(--ink); font:700 17px/1.4 var(--body);}
+button{font:inherit; color:inherit;}
+[hidden]{display:none!important}
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 16px; background:var(--accent); color:#FFFFFF; box-shadow:0 4px 0 rgba(43,34,80,.18);}
+.top h1{flex:1 1 auto; min-width:0; margin:0; font:800 clamp(24px,6vw,34px)/1 var(--display);}
+.exit{display:inline-flex; align-items:center; gap:6px; min-height:46px; padding:0 16px; border-radius:999px; background:var(--coral); color:#FFFFFF; border:3px solid #FFFFFF; font:800 19px/1 var(--display); text-decoration:none;}
+.stars{display:inline-flex; align-items:center; gap:6px; min-height:46px; padding:0 14px; border-radius:999px; background:#FFFFFF; color:var(--ink); font:800 21px/1 var(--display);}
+.stars svg{width:24px; height:24px; fill:var(--sun); stroke:#B07A00; stroke-width:1.2;}
+.exit:focus-visible,.btn:focus-visible,.tcard:focus-visible,.dcard:focus-visible,.sw:focus-visible{outline:3px solid var(--ink); outline-offset:3px;}
+main{max-width:980px; margin:0 auto; padding:18px 16px 40px; display:flex; flex-direction:column; gap:16px;}
+h2{margin:0; font:800 clamp(22px,5vw,30px)/1.1 var(--display); text-wrap:balance;}
+.lead{margin:0; max-width:62ch;}
+.note{margin:0; color:var(--soft); font-size:15px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
+.tcard,.dcard{display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 10px; border-radius:22px; border:3px solid var(--ink); background:var(--card); cursor:pointer; text-align:center; box-shadow:0 6px 0 rgba(43,34,80,.16); min-width:0;}
+.tcard:active,.dcard:active{transform:translateY(3px); box-shadow:0 3px 0 rgba(43,34,80,.16);}
+.tcard .ic{font-size:54px; line-height:1.1;}
+.tcard b,.dcard b{font:800 20px/1.1 var(--display);}
+.tcard span,.dcard span{font-size:14px; color:var(--soft);}
+.dcard{padding:10px;}
+.dcard svg{width:100%; height:auto; border-radius:14px; border:2px solid var(--line); background:#FFFFFF;}
+.tag{display:inline-flex; align-items:center; gap:4px; padding:3px 12px; border-radius:999px; font:800 15px/1.3 var(--display); background:var(--sun); color:#3A2A00;}
+.dcard .tag{color:#3A2A00; font-size:16px;}
+.tag.mine{background:#D8F5E4; color:#0F5132;}
+.row{display:flex; flex-wrap:wrap; gap:10px; align-items:center;}
+.btn{min-height:50px; padding:8px 18px; border-radius:16px; border:3px solid var(--ink); background:#FFFFFF; font:800 18px/1.1 var(--display); cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink);}
+.btn.main{background:var(--sun);}
+.btn.go{background:var(--accent); color:#FFFFFF;}
+.btn:disabled{opacity:.5; cursor:default;}
+.f{fill:#FFFFFF; stroke:#1B1B2B; stroke-width:5; stroke-linejoin:round; stroke-linecap:round;}
+.bg{stroke:none;}
+.l{fill:none; stroke:#1B1B2B; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; pointer-events:none;}
+.k{fill:#1B1B2B; pointer-events:none;}
+.paint{display:grid; grid-template-columns:minmax(0,1fr); gap:14px; align-items:start;}
+.canvas{width:100%; max-width:min(620px,74vh); margin:0 auto; border:4px solid var(--ink); border-radius:22px; overflow:hidden; background:#FFFFFF; box-shadow:0 6px 0 rgba(43,34,80,.16);}
+.canvas svg{display:block; width:100%; height:auto; touch-action:manipulation; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+.side{display:flex; flex-direction:column; gap:12px; min-width:0;}
+.pal{display:grid; grid-template-columns:repeat(auto-fill,minmax(46px,1fr)); gap:8px; padding:12px; border-radius:20px; background:var(--card); border:3px solid var(--ink);}
+.sw{aspect-ratio:1; min-height:44px; border-radius:50%; border:3px solid var(--ink); cursor:pointer; padding:0;}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 4px #FFFFFF, 0 0 0 8px var(--accent); transform:scale(.92);}
+.msg{margin:0; min-height:1.4em; font-size:15px;}
+@media (min-width:860px){ .paint{grid-template-columns:minmax(0,1fr) 300px;} .canvas{margin:0;} }
+.dlg{position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(43,34,80,.6);}
+.dlg-box{width:100%; max-width:380px; max-height:100%; overflow:auto; padding:18px; border-radius:24px; background:#FFFFFF; border:4px solid var(--ink); display:flex; flex-direction:column; gap:12px; text-align:center;}
+.dlg-box svg{width:70%; max-width:220px; height:auto; margin:0 auto; border-radius:14px; border:2px solid var(--line);}
+.dlg-box p{margin:0;}
+.dlg-box .row{justify-content:center;}
+/* hoja A4 para el PDF */
+.sheet{display:none;}
+body.print{background:#FFFFFF;}
+body.print .top, body.print main{display:none;}
+body.print .sheet{display:block; width:186mm; margin:0 auto; text-align:center; color:#000000;}
+.sheet .sh-top{font:800 11pt/1.2 var(--body); letter-spacing:.08em; text-transform:uppercase; margin:0 0 2mm;}
+.sheet h1{font:800 30pt/1.1 var(--display); margin:0 0 5mm;}
+.sheet svg{display:block; width:180mm; height:180mm; margin:0 auto; border:1mm solid #000000; border-radius:5mm;}
+.sheet .f,.sheet .l{stroke:#000000;} .sheet .k{fill:#000000;}
+.sheet .sh-name{margin:9mm 3mm 0; text-align:left; font:700 14pt/1.2 var(--body);}
+@page{size:A4; margin:12mm;}
+@media (prefers-reduced-motion:reduce){ .tcard:active,.dcard:active{transform:none;} }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="exit" href="./" aria-label="Salir a la portada">🏠 Salir</a>
+  <h1>Coloreables</h1>
+  <span class="stars" aria-label="Tus estrellas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg><span id="cStars">0</span></span>
+</header>
+<main id="app"></main>
+<div class="dlg" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="dlg-box" id="dlgBox"></div></div>
+<div class="sheet" id="sheet"></div>
+<script>
+(function(){
+  var KEY = 'lupi-progreso-v1';
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+  function dateKey(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function load(){
+    var o;
+    try { o = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { o = {}; }
+    if (!o || typeof o !== 'object') o = {};
+    if (!o.days || typeof o.days !== 'object') o.days = {};
+    if (!o.total || typeof o.total !== 'object') o.total = {};
+    return o;
+  }
+  function add(game, n){
+    n = Number(n) || 0;
+    if (n <= 0) return;
+    var o = load();
+    var k = dateKey(new Date());
+    if (!o.days[k]) o.days[k] = {};
+    o.days[k][game] = (o.days[k][game] || 0) + n;
+    o.total[game] = (o.total[game] || 0) + n;
+    var cut = new Date(); cut.setDate(cut.getDate() - 400);
+    var cutKey = dateKey(cut);
+    Object.keys(o.days).forEach(function(d){ if (d < cutKey) delete o.days[d]; });
+    try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  /* Estrellas del mes en curso: el marcador vuelve a cero el día 1 de cada mes. */
+  function month(){
+    var o = load(), pre = dateKey(new Date()).slice(0, 7), per = {}, sum = 0;
+    Object.keys(o.days).forEach(function(d){
+      if (d.slice(0, 7) !== pre) return;
+      Object.keys(o.days[d]).forEach(function(g){ var n = Number(o.days[d][g]) || 0; per[g] = (per[g] || 0) + n; sum += n; });
+    });
+    return { key: pre, sum: sum, per: per };
+  }
+  /* ----- tiempo dedicado: segundos por día y por juego, solo mientras se juega de verdad ----- */
+  var TKEY = 'lupi-tiempo-v1';
+  function loadTime(){ var o; try { o = JSON.parse(localStorage.getItem(TKEY) || '{}'); } catch (e) { o = {}; } return (o && typeof o === 'object') ? o : {}; }
+  function addTime(game, secs){
+    var o = loadTime(), k = dateKey(new Date());
+    if (!o[k] || typeof o[k] !== 'object') o[k] = {};
+    o[k][game] = (Number(o[k][game]) || 0) + secs;
+    var cut = new Date(); cut.setDate(cut.getDate() - 400); var ck = dateKey(cut);
+    Object.keys(o).forEach(function(d){ if (d < ck) delete o[d]; });
+    try { localStorage.setItem(TKEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function timeOf(key){ var r = loadTime()[key] || {}, per = {}, sum = 0; Object.keys(r).forEach(function(g){ var n = Number(r[g]) || 0; per[g] = n; sum += n; }); return { sum: sum, per: per }; }
+  function fmtTime(s){ var m = Math.floor((Number(s) || 0) / 60); if (m < 60) return m + ' min'; return Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) + ' min' : ''); }
+  /* cuenta de 5 en 5 segundos si la página está a la vista y ha habido actividad en los últimos 3 minutos */
+  function startTimer(game, isActive){
+    var last = Date.now(), STEP = 5000, IDLE = 180000;
+    ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'].forEach(function(ev){ window.addEventListener(ev, function(){ last = Date.now(); }, { passive: true, capture: true }); });
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) last = Date.now(); });
+    setInterval(function(){
+      if (document.hidden || Date.now() - last > IDLE) return;
+      if (isActive && !isActive()) return;
+      addTime(game, STEP / 1000);
+    }, STEP);
+  }
+  window.LupiScore = { add: add, load: load, dateKey: dateKey, month: month, timeOf: timeOf, fmtTime: fmtTime, startTimer: startTimer };
+})();
+</script>
+<script>
+(function(){
+  'use strict';
+  /* ================= Dibujos para colorear =================
+     Lienzo 400 × 400. Cada pieza con class="f" se puede pintar por separado.
+     class="l" = línea de detalle (no se pinta) · class="k" = detalle negro (no se pinta). */
+  function A(o){ var s = ''; for (var k in o) s += ' ' + k + '="' + o[k] + '"'; return s; }
+  function C(cx, cy, r){ return '<circle class="f" cx="' + cx + '" cy="' + cy + '" r="' + r + '"/>'; }
+  function E(cx, cy, rx, ry, rot){ return '<ellipse class="f" cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '"' + (rot ? ' transform="rotate(' + rot + ' ' + cx + ' ' + cy + ')"' : '') + '/>'; }
+  function P(d){ return '<path class="f" d="' + d + '"/>'; }
+  function R(x, y, w, h, r){ return '<rect class="f" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (r || 0) + '"/>'; }
+  function L(d){ return '<path class="l" d="' + d + '"/>'; }
+  function K(cx, cy, r){ return '<circle class="k" cx="' + cx + '" cy="' + cy + '" r="' + r + '"/>'; }
+  function BG(){ return '<rect class="f bg" x="0" y="0" width="400" height="400"/>'; }
+  function G(t, inner){ return '<g transform="' + t + '">' + inner + '</g>'; }
+  function mirror(inner){ return G('translate(400 0) scale(-1 1)', inner); }
+  function cloud(x, y, s){ return '<path class="f" transform="translate(' + x + ' ' + y + ') scale(' + (s || 1) + ')" d="M20 50 Q0 50 2 34 Q4 20 20 22 Q24 4 44 6 Q60 6 66 20 Q84 14 92 28 Q100 46 82 50 Z"/>'; }
+  function star(cx, cy, r){
+    var p = '', i, a, rr;
+    for (i = 0; i < 10; i++){ a = -Math.PI / 2 + i * Math.PI / 5; rr = i % 2 ? r * .45 : r; p += (i ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(1) + ' ' + (cy + rr * Math.sin(a)).toFixed(1) + ' '; }
+    return P(p + 'Z');
+  }
+  function sun(cx, cy, r){
+    var s = '', i, a, a1, a2;
+    for (i = 0; i < 8; i++){
+      a = i * Math.PI / 4; a1 = a - .2; a2 = a + .2;
+      s += P('M' + (cx + (r + 6) * Math.cos(a1)).toFixed(1) + ' ' + (cy + (r + 6) * Math.sin(a1)).toFixed(1) + ' L' + (cx + (r + 26) * Math.cos(a)).toFixed(1) + ' ' + (cy + (r + 26) * Math.sin(a)).toFixed(1) + ' L' + (cx + (r + 6) * Math.cos(a2)).toFixed(1) + ' ' + (cy + (r + 6) * Math.sin(a2)).toFixed(1) + ' Z');
+    }
+    return s + C(cx, cy, r);
+  }
+  function flower(cx, cy, r, stemTo){
+    var s = stemTo ? L('M' + cx + ' ' + cy + ' V' + stemTo) : '', i, a;
+    for (i = 0; i < 5; i++){ a = -Math.PI / 2 + i * 2 * Math.PI / 5; s += C((cx + r * Math.cos(a)).toFixed(1), (cy + r * Math.sin(a)).toFixed(1), (r * .62).toFixed(1)); }
+    return s + C(cx, cy, (r * .55).toFixed(1));
+  }
+  function ground(y, d){ return P('M0 ' + y + ' Q100 ' + (y - (d || 14)) + ' 200 ' + (y - 4) + ' T400 ' + (y - 8) + ' V400 H0 Z'); }
+  function birds(x, y){ return L('M' + x + ' ' + y + ' q10 -12 20 0 q10 -12 20 0 M' + (x + 50) + ' ' + (y + 24) + ' q8 -10 16 0 q8 -10 16 0'); }
+  function eye(cx, cy, r){ return C(cx, cy, r) + K(cx, cy + 1, (r * .5).toFixed(1)); }
+
+  var COL_THEMES = [
+    { id: 'animales', name: 'Animales', icon: '🐾', color: '#FFB86B' },
+    { id: 'bichitos', name: 'Bichitos del jardín', icon: '🐞', color: '#A5E08A' },
+    { id: 'mar', name: 'El mar', icon: '🌊', color: '#7FC4FF' },
+    { id: 'espacio', name: 'El espacio', icon: '🚀', color: '#B9A4FF' },
+    { id: 'naturaleza', name: 'Naturaleza', icon: '🌳', color: '#8FDDB0' },
+    { id: 'vehiculos', name: 'Vehículos', icon: '🚗', color: '#FF9FB5' }
+  ];
+  var COL_DESIGNS = [
+    /* ---------------- Animales ---------------- */
+    { id: 'gato', t: 'animales', name: 'El gato', draw: function(){
+      return BG() + sun(336, 62, 24) + cloud(30, 40, 1) + ground(338) +
+        C(326, 342, 24) + L('M308 338 Q326 322 344 338 M310 350 Q326 336 342 350') +
+        P('M262 310 Q340 306 330 232 Q326 204 304 210 Q288 220 300 244 Q312 280 258 284 Z') +
+        E(200, 286, 72, 78) + E(200, 300, 40, 52) +
+        E(164, 356, 26, 14) + E(236, 356, 26, 14) +
+        P('M130 124 L136 50 L198 96 Z') + P('M270 124 L264 50 L202 96 Z') +
+        P('M146 106 L150 76 L176 96 Z') + P('M254 106 L250 76 L224 96 Z') +
+        E(200, 152, 86, 72) +
+        P('M186 84 L200 108 L214 84 Z') +
+        E(166, 146, 15, 19) + K(166, 149, 8) + E(234, 146, 15, 19) + K(234, 149, 8) +
+        P('M189 170 L211 170 L200 183 Z') +
+        L('M200 183 Q200 198 184 197 M200 183 Q200 198 216 197') +
+        L('M150 172 L106 162 M150 182 L106 190 M250 172 L294 162 M250 182 L294 190');
+    } },
+    { id: 'perro', t: 'animales', name: 'El perro', draw: function(){
+      return BG() + sun(60, 62, 24) + cloud(280, 44, 1) + ground(340) +
+        P('M300 332 a11 11 0 1 1 12 -12 h44 a11 11 0 1 1 12 12 a11 11 0 1 1 -12 12 h-44 a11 11 0 1 1 -12 -12 Z') +
+        P('M262 304 Q332 286 324 232 Q308 246 298 264 Q286 282 258 284 Z') +
+        P('M136 364 Q126 252 200 242 Q274 252 264 364 Z') +
+        E(200, 306, 34, 46) +
+        E(168, 360, 26, 14) + E(232, 360, 26, 14) +
+        P('M150 228 Q200 256 250 228 L253 246 Q200 274 147 246 Z') + C(200, 268, 11) +
+        E(200, 160, 82, 74) +
+        P('M128 116 Q88 124 92 192 Q98 226 124 216 Q144 200 140 148 Z') +
+        P('M272 116 Q312 124 308 192 Q302 226 276 216 Q256 200 260 148 Z') +
+        E(234, 146, 26, 28) +
+        E(200, 192, 44, 32) +
+        E(200, 176, 15, 11) +
+        K(168, 148, 8) + K(234, 148, 8) +
+        L('M200 187 V200 M200 200 Q188 213 174 204 M200 200 Q212 213 226 204') +
+        P('M190 208 H210 V218 Q200 232 190 218 Z');
+    } },
+    { id: 'conejo', t: 'animales', name: 'El conejo', draw: function(){
+      return BG() + cloud(20, 30, .9) + cloud(290, 60, .9) + ground(350) +
+        flower(52, 318, 13, 352) + flower(96, 330, 10, 352) +
+        P('M322 300 H352 L337 374 Z') + L('M330 318 H344 M333 338 H341') +
+        P('M337 300 Q318 270 328 258 Q340 274 337 300 Z') + P('M337 300 Q356 272 348 258 Q334 274 337 300 Z') +
+        E(170, 92, 23, 72, -8) + E(230, 92, 23, 72, 8) + E(170, 98, 10, 50, -8) + E(230, 98, 10, 50, 8) +
+        E(200, 304, 74, 70) + E(200, 316, 42, 46) +
+        E(158, 366, 32, 15) + E(242, 366, 32, 15) +
+        E(138, 292, 16, 30, 20) + E(262, 292, 16, 30, -20) +
+        E(200, 192, 76, 64) +
+        C(156, 208, 12) + C(244, 208, 12) +
+        K(174, 182, 8) + K(226, 182, 8) +
+        P('M191 198 H209 L200 209 Z') +
+        L('M200 209 V216 M200 216 Q190 227 180 218 M200 216 Q210 227 220 218') +
+        P('M193 219 H207 V232 H193 Z') + L('M200 219 V232') +
+        L('M150 196 L112 188 M150 204 L114 210 M250 196 L288 188 M250 204 L286 210');
+    } },
+    { id: 'tortuga', t: 'animales', name: 'La tortuga', draw: function(){
+      return BG() + sun(62, 64, 24) + cloud(270, 40, 1.1) + ground(336) +
+        flower(346, 300, 12, 332) + flower(40, 310, 10, 334) +
+        P('M128 296 h38 v52 q0 14 -19 14 q-19 0 -19 -14 Z') + P('M236 296 h38 v52 q0 14 -19 14 q-19 0 -19 -14 Z') +
+        P('M94 290 L58 306 L98 314 Z') +
+        P('M272 264 Q292 236 304 252 L304 296 Q286 300 270 292 Z') +
+        E(322, 236, 42, 35) +
+        P('M88 300 Q98 166 200 162 Q302 166 302 300 Z') +
+        P('M172 196 H228 L250 240 L228 284 H172 L150 240 Z') +
+        P('M106 288 L120 228 L152 208 L138 242 L158 288 Z') + P('M294 288 L280 228 L248 208 L262 242 L242 288 Z') +
+        P('M158 190 Q200 170 242 190 L228 196 H172 Z') +
+        P('M78 296 H312 Q318 322 300 324 H90 Q72 322 78 296 Z') +
+        K(334, 228, 6) + L('M322 250 Q336 258 348 246') + C(308, 246, 7);
+    } },
+    /* ---------------- Bichitos ---------------- */
+    { id: 'mariposa', t: 'bichitos', name: 'La mariposa', draw: function(){
+      var w = P('M196 192 Q150 76 78 94 Q26 112 58 182 Q80 222 196 216 Z') + P('M196 218 Q98 222 94 282 Q98 334 150 320 Q190 302 198 232 Z') +
+        C(108, 152, 24) + C(152, 122, 12) + E(160, 184, 15, 10) + C(140, 274, 20) + C(172, 244, 9);
+      return BG() + cloud(20, 20, .9) + cloud(300, 14, .8) + ground(372, 10) +
+        flower(52, 350, 14, 380) + flower(350, 352, 14, 380) + flower(110, 366, 9) + flower(292, 366, 9) +
+        w + mirror(w) +
+        E(200, 226, 13, 64) + L('M189 206 H211 M188 230 H212 M189 254 H211') +
+        C(200, 150, 18) +
+        L('M193 136 Q178 98 158 94 M207 136 Q222 98 242 94') + K(158, 94, 5) + K(242, 94, 5) +
+        K(194, 148, 2.6) + K(206, 148, 2.6) + L('M193 156 Q200 162 207 156');
+    } },
+    { id: 'mariquita', t: 'bichitos', name: 'La mariquita', draw: function(){
+      return BG() + sun(60, 60, 22) + cloud(280, 30, 1) +
+        P('M0 300 Q200 250 400 300 V400 H0 Z') +
+        P('M26 400 Q20 330 50 290 Q62 340 54 400 Z') + P('M346 400 Q352 330 376 296 Q384 344 376 400 Z') + P('M60 400 Q70 350 96 330 Q98 366 90 400 Z') +
+        L('M118 204 L74 182 M110 244 L62 244 M118 284 L76 308 M282 204 L326 182 M290 244 L338 244 M282 284 L324 308') +
+        L('M184 96 Q170 62 150 58 M216 96 Q230 62 250 58') + K(150, 58, 5) + K(250, 58, 5) +
+        C(200, 132, 46) + eye(182, 114, 10) + eye(218, 114, 10) + L('M188 136 Q200 146 212 136') +
+        P('M200 142 A100 100 0 0 0 200 342 Z') + P('M200 142 A100 100 0 0 1 200 342 Z') +
+        P('M150 156 Q200 128 250 156 Q200 172 150 156 Z') +
+        C(150, 208, 17) + C(158, 282, 17) + C(124, 246, 12) + C(250, 208, 17) + C(242, 282, 17) + C(276, 246, 12);
+    } },
+    { id: 'abeja', t: 'bichitos', name: 'La abeja', draw: function(){
+      return BG() + cloud(250, 24, 1.1) + sun(52, 56, 20) + ground(366, 10) +
+        flower(70, 336, 16, 372) + flower(336, 340, 14, 372) +
+        L('M340 236 Q372 256 352 284 Q334 308 366 330') +
+        E(182, 128, 34, 58, -25) + E(246, 122, 34, 58, 20) +
+        L('M182 296 v24 M222 300 v24 M258 292 v24') +
+        P('M304 218 L338 232 L304 246 Z') +
+        E(210, 230, 100, 70) +
+        P('M186 163 Q203 160 220 161 L220 299 Q203 300 186 297 Z') + P('M250 166 L280 180 V280 L250 294 Z') +
+        C(112, 212, 52) +
+        L('M98 164 Q86 130 66 128 M126 164 Q134 130 154 126') + K(66, 128, 5) + K(154, 126, 5) +
+        K(94, 204, 6) + K(128, 204, 6) + L('M96 228 Q111 242 126 228') + C(80, 222, 8) + C(142, 222, 8);
+    } },
+    { id: 'caracol', t: 'bichitos', name: 'El caracol', draw: function(){
+      return BG() + sun(340, 60, 22) + cloud(150, 24, 1) + ground(334) +
+        flower(372, 286, 12, 328) + flower(30, 300, 10, 330) +
+        L('M110 166 L98 122 M134 164 L146 122') +
+        P('M58 332 Q54 304 96 302 Q98 250 100 212 Q84 172 120 160 Q160 160 150 206 Q146 252 162 302 H332 Q362 306 358 332 Z') +
+        C(244, 232, 86) + C(252, 240, 60) + C(258, 246, 36) + C(262, 250, 15) +
+        eye(98, 112, 12) + eye(146, 112, 12) +
+        L('M108 198 Q120 208 132 198');
+    } },
+    /* ---------------- El mar ---------------- */
+    { id: 'pez', t: 'mar', name: 'El pez', draw: function(){
+      return BG() + ground(362, 12) + star(76, 372, 16) +
+        P('M330 372 Q308 332 330 300 Q350 270 334 238 Q362 270 352 306 Q340 338 358 372 Z') + P('M30 372 Q16 340 30 316 Q44 296 34 272 Q56 298 48 324 Q40 346 52 372 Z') +
+        C(60, 132, 11) + C(42, 100, 8) + C(70, 82, 5) + C(336, 150, 9) + C(352, 120, 6) +
+        P('M300 200 L372 138 Q356 200 372 262 Z') +
+        P('M168 132 Q210 66 252 130 Z') + P('M188 268 Q212 312 242 266 Z') +
+        E(200, 200, 112, 72) +
+        P('M88 200 A112 72 0 0 1 150 136 Q128 200 150 264 A112 72 0 0 1 88 200 Z') +
+        P('M270 146 L290 159 V241 L270 254 Z') +
+        P('M206 198 Q250 176 258 214 Q236 230 206 198 Z') +
+        L('M176 160 q14 14 0 28 M196 168 q14 14 0 28 M176 216 q14 14 0 28 M228 160 q12 12 0 24') +
+        C(122, 184, 16) + K(120, 186, 7) + L('M94 216 Q106 224 116 214');
+    } },
+    { id: 'pulpo', t: 'mar', name: 'El pulpo', draw: function(){
+      var t = P('M122 250 Q58 258 48 312 Q44 344 70 344 Q90 340 82 318 Q86 290 142 282 Z') +
+        P('M140 268 Q108 310 118 352 Q128 376 150 364 Q158 350 146 336 Q144 310 172 290 Z') +
+        P('M168 284 Q158 330 172 366 Q184 382 196 368 Q198 354 190 346 Q184 320 194 290 Z');
+      return BG() + ground(372, 10) + C(50, 90, 10) + C(70, 60, 6) + C(344, 110, 9) + C(330, 76, 5) + star(340, 376, 15) +
+        t + mirror(t) +
+        P('M108 220 Q98 88 200 82 Q302 88 292 220 Q292 292 200 298 Q108 292 108 220 Z') +
+        C(160, 122, 9) + C(238, 116, 7) + C(200, 106, 6) +
+        E(166, 196, 19, 23) + K(168, 200, 10) + E(234, 196, 19, 23) + K(232, 200, 10) +
+        L('M180 242 Q200 260 220 242') + C(138, 234, 10) + C(262, 234, 10);
+    } },
+    { id: 'ballena', t: 'mar', name: 'La ballena', draw: function(){
+      return BG() + sun(340, 56, 20) + cloud(20, 30, .9) +
+        P('M172 118 Q150 72 118 82 Q140 90 152 118 Z') + P('M188 118 Q212 62 246 78 Q222 86 206 118 Z') + C(180, 62, 6) + C(140, 56, 5) + C(226, 50, 5) +
+        P('M316 232 Q344 214 350 172 L326 140 Q352 140 362 160 Q376 136 398 144 Q390 174 366 182 Q360 228 334 252 Z') +
+        P('M40 232 Q40 130 170 124 Q282 124 330 222 Q340 252 318 264 Q250 320 150 318 Q50 312 40 232 Z') +
+        P('M46 258 Q150 300 302 270 Q250 320 150 318 Q70 314 46 258 Z') +
+        L('M110 290 Q124 300 128 314 M160 296 Q172 306 174 318 M214 294 Q224 304 224 314') +
+        P('M190 268 Q208 322 250 318 Q242 290 228 266 Z') +
+        C(98, 214, 11) + K(98, 215, 5) + L('M54 246 Q92 264 126 244') + C(128, 230, 8) +
+        P('M0 346 Q25 326 50 346 T100 346 T150 346 T200 346 T250 346 T300 346 T350 346 T400 346 V400 H0 Z');
+    } },
+    { id: 'cangrejo', t: 'mar', name: 'El cangrejo', draw: function(){
+      var h = L('M120 252 L70 264 L56 302 M124 272 L80 294 L74 332 M136 290 L104 318 L106 352') +
+        P('M104 148 L128 198 L148 188 L120 138 Z') +
+        P('M94 152 Q60 152 56 116 Q60 84 92 78 L84 106 L110 94 Q124 122 104 148 Z');
+      return BG() + sun(200, 56, 22) + cloud(14, 20, .9) + cloud(296, 26, .9) +
+        P('M0 334 Q200 312 400 334 V400 H0 Z') + star(60, 368, 16) + P('M318 372 Q340 326 362 372 Z') + L('M340 372 V340 M330 372 L336 348 M350 372 L344 348') +
+        h + mirror(h) +
+        L('M176 178 V142 M224 178 V142') +
+        E(200, 238, 98, 64) +
+        eye(176, 130, 14) + eye(224, 130, 14) +
+        L('M170 252 Q200 278 230 252') + C(146, 228, 9) + C(254, 228, 9) + C(200, 206, 6) + C(174, 198, 5) + C(226, 198, 5);
+    } },
+    /* ---------------- El espacio ---------------- */
+    { id: 'cohete', t: 'espacio', name: 'El cohete', draw: function(){
+      return BG() + star(64, 84, 17) + star(334, 66, 15) + star(346, 226, 12) + star(56, 246, 13) + star(318, 346, 11) +
+        C(118, 160, 5) + C(290, 140, 4) + C(84, 190, 4) +
+        C(76, 336, 28) + C(66, 328, 7) + C(86, 346, 5) +
+        P('M330 110 A30 30 0 1 0 366 150 A24 24 0 1 1 330 110 Z') +
+        P('M174 316 Q200 396 226 316 Z') + P('M187 316 Q200 362 213 316 Z') +
+        P('M150 250 L102 320 L156 304 Z') + P('M250 250 L298 320 L244 304 Z') +
+        P('M200 38 Q272 110 258 250 L244 318 H156 L142 250 Q128 110 200 38 Z') +
+        P('M200 38 Q238 76 249 122 H151 Q162 76 200 38 Z') +
+        C(200, 178, 33) + C(200, 178, 21) +
+        P('M143 250 H257 L252 276 H148 Z') +
+        L('M200 284 V312');
+    } },
+    { id: 'planeta', t: 'espacio', name: 'El planeta', draw: function(){
+      var ring = '<path class="f" fill-rule="evenodd" d="M24 210 A176 44 0 1 0 376 210 A176 44 0 1 0 24 210 Z M56 210 A144 26 0 1 1 344 210 A144 26 0 1 1 56 210 Z"/>';
+      return BG() + star(60, 70, 16) + star(350, 300, 14) + star(60, 330, 12) + star(250, 46, 10) + C(130, 60, 4) + C(300, 360, 4) + C(30, 200, 4) +
+        C(336, 86, 28) + C(326, 78, 7) + C(346, 96, 5) + C(330, 100, 3.5) +
+        G('rotate(-14 200 210)', ring + C(200, 200, 100) +
+          P('M108 160 Q200 180 292 160 L298 182 Q200 202 102 182 Z') +
+          C(168, 130, 12) + C(232, 124, 8) + C(250, 268, 9) + C(160, 276, 6) +
+          P('M24 210 A176 44 0 0 0 376 210 L344 210 A144 26 0 0 1 56 210 Z'));
+    } },
+    { id: 'astronauta', t: 'espacio', name: 'La astronauta', draw: function(){
+      return BG() + star(60, 70, 16) + star(340, 60, 14) + star(346, 210, 11) + star(50, 220, 11) + C(110, 130, 4) + C(300, 130, 4) +
+        P('M0 350 Q200 312 400 350 V400 H0 Z') + E(70, 372, 22, 8) + E(330, 376, 26, 8) + E(200, 386, 18, 6) +
+        R(136, 184, 128, 110, 18) +
+        P('M158 290 h36 v54 h-36 Z') + P('M206 290 h36 v54 h-36 Z') + R(150, 340, 48, 22, 9) + R(202, 340, 48, 22, 9) +
+        P('M150 204 Q108 212 98 252 Q96 272 113 273 Q128 270 128 254 Q134 234 158 228 Z') +
+        P('M250 204 Q298 184 306 142 Q306 122 290 122 Q276 124 276 142 Q270 172 244 182 Z') +
+        P('M150 190 H250 Q264 190 264 204 V290 Q264 302 250 302 H150 Q136 302 136 290 V204 Q136 190 150 190 Z') +
+        R(170, 226, 60, 38, 7) + C(186, 245, 7) + C(206, 245, 7) + L('M218 238 H224 M218 250 H224') +
+        L('M200 62 V40') + C(200, 33, 7) +
+        C(200, 132, 72) +
+        P('M150 132 Q150 86 200 84 Q250 86 250 132 Q250 170 200 172 Q150 170 150 132 Z') +
+        C(200, 134, 34) + K(188, 130, 5) + K(212, 130, 5) + L('M188 146 Q200 156 212 146') +
+        P('M168 116 Q200 88 232 116 Q200 104 168 116 Z');
+    } },
+    { id: 'platillo', t: 'espacio', name: 'El platillo volante', draw: function(){
+      return BG() + star(56, 70, 15) + star(120, 40, 10) + star(350, 180, 12) + star(40, 190, 11) + C(250, 40, 4) + C(300, 250, 4) + C(84, 280, 4) +
+        P('M322 52 A38 38 0 1 0 368 106 A30 30 0 1 1 322 52 Z') +
+        P('M150 236 L84 384 H316 L250 236 Z') +
+        P('M0 384 Q100 356 200 376 T400 372 V400 H0 Z') +
+        P('M128 176 Q128 90 200 88 Q272 90 272 176 Z') +
+        L('M190 112 L180 94 M210 112 L220 94') + C(180, 90, 5) + C(220, 90, 5) +
+        E(200, 142, 36, 32) + K(187, 140, 7) + K(213, 140, 7) + L('M190 158 Q200 166 210 158') +
+        E(200, 204, 152, 44) +
+        P('M116 236 Q200 266 284 236 Q272 268 200 272 Q128 268 116 236 Z') +
+        C(84, 204, 10) + C(136, 220, 10) + C(200, 226, 10) + C(264, 220, 10) + C(316, 204, 10);
+    } },
+    /* ---------------- Naturaleza ---------------- */
+    { id: 'flor', t: 'naturaleza', name: 'La flor', draw: function(){
+      var pet = '', i, a;
+      for (i = 0; i < 8; i++){ a = i * 45; pet += E((200 + 64 * Math.cos(a * Math.PI / 180)).toFixed(1), (150 + 64 * Math.sin(a * Math.PI / 180)).toFixed(1), 36, 24, a); }
+      return BG() + sun(340, 60, 22) + cloud(16, 26, 1) + ground(366, 12) +
+        flower(60, 336, 13, 372) + flower(344, 340, 13, 372) +
+        P('M192 226 h16 v146 h-16 Z') +
+        P('M196 326 Q138 304 118 250 Q180 258 198 312 Z') + L('M186 308 Q150 286 130 260') +
+        P('M206 304 Q264 286 288 234 Q226 240 206 292 Z') + L('M216 290 Q250 270 276 244') +
+        pet + C(200, 150, 42) +
+        K(186, 144, 6) + K(214, 144, 6) + L('M182 160 Q200 176 218 160') + C(172, 158, 6) + C(228, 158, 6);
+    } },
+    { id: 'arbol', t: 'naturaleza', name: 'El manzano', draw: function(){
+      return BG() + sun(52, 56, 20) + cloud(290, 20, 1) + ground(372, 10) +
+        flower(60, 356, 11, 384) + flower(374, 358, 10, 384) +
+        P('M310 384 h18 v-22 h-18 Z') + P('M296 364 Q319 326 342 364 Z') + C(310, 354, 4) + C(326, 350, 4) +
+        P('M174 384 Q186 300 178 236 H222 Q214 300 226 384 Z') + E(200, 312, 12, 17) +
+        L('M178 262 Q150 250 140 226 M222 262 Q250 250 260 226') +
+        C(126, 190, 62) + C(274, 190, 62) + C(160, 110, 58) + C(244, 108, 56) + C(200, 164, 84) +
+        C(150, 176, 15) + L('M150 161 v-9') + C(244, 132, 15) + L('M244 117 v-9') + C(212, 206, 15) + L('M212 191 v-9') + C(276, 204, 13) + L('M276 191 v-8') + C(176, 110, 13) + L('M176 97 v-8') + C(112, 208, 13) + L('M112 195 v-8');
+    } },
+    { id: 'seta', t: 'naturaleza', name: 'La casita seta', draw: function(){
+      return BG() + sun(54, 56, 20) + cloud(280, 14, .9) + ground(364, 10) +
+        flower(50, 340, 12, 372) + flower(92, 352, 9, 376) + flower(350, 344, 12, 372) +
+        E(200, 388, 34, 8) + E(238, 396, 20, 5) +
+        P('M246 104 v-44 h28 v60 Z') + cloud(236, 2, .55) +
+        P('M138 372 Q128 262 148 228 H252 Q272 262 262 372 Z') +
+        P('M178 372 V312 Q178 286 200 286 Q222 286 222 312 V372 Z') + K(214, 332, 3.5) + L('M200 286 V372') +
+        C(242, 266, 15) + L('M242 251 V281 M227 266 H257') + C(158, 266, 15) + L('M158 251 V281 M143 266 H173') +
+        P('M58 236 Q58 88 200 82 Q342 88 342 236 Q200 264 58 236 Z') +
+        C(128, 172, 25) + C(200, 128, 21) + C(274, 172, 27) + C(232, 216, 14) + C(162, 222, 12) + C(96, 222, 10) + C(308, 224, 9);
+    } },
+    { id: 'arcoiris', t: 'naturaleza', name: 'El arcoíris', draw: function(){
+      var b = '', r = [182, 156, 130, 104, 78, 52], i;
+      for (i = 0; i < 5; i++) b += P('M' + (200 - r[i]) + ' 300 A' + r[i] + ' ' + r[i] + ' 0 0 1 ' + (200 + r[i]) + ' 300 L' + (200 + r[i + 1]) + ' 300 A' + r[i + 1] + ' ' + r[i + 1] + ' 0 0 0 ' + (200 - r[i + 1]) + ' 300 Z');
+      return BG() + sun(62, 62, 22) + birds(290, 50) + ground(366, 10) +
+        flower(130, 352, 11, 378) + flower(200, 346, 12, 378) + flower(270, 352, 11, 378) +
+        b + cloud(2, 262, 1.25) + cloud(274, 262, 1.25);
+    } },
+    /* ---------------- Vehículos ---------------- */
+    { id: 'coche', t: 'vehiculos', name: 'El coche', draw: function(){
+      return BG() + sun(340, 60, 22) + cloud(30, 30, 1.1) +
+        P('M0 250 Q60 200 130 240 Q200 190 280 236 Q340 204 400 240 V340 H0 Z') +
+        P('M0 322 H400 V400 H0 Z') + R(20, 364, 56, 9, 3) + R(124, 364, 56, 9, 3) + R(228, 364, 56, 9, 3) + R(332, 364, 56, 9, 3) +
+        P('M38 262 Q38 222 80 214 L120 150 Q130 130 160 130 H250 Q278 132 292 156 L320 214 Q362 220 364 264 V290 Q364 302 350 302 H52 Q38 302 38 290 Z') +
+        P('M132 162 Q138 146 154 146 H194 V212 H102 Z') + P('M208 146 H246 Q262 148 270 164 L294 212 H208 Z') +
+        L('M201 216 V298') + R(214, 230, 26, 9, 4) +
+        E(352, 240, 9, 14) + R(38, 236, 12, 24, 4) +
+        C(120, 302, 40) + C(120, 302, 20) + C(290, 302, 40) + C(290, 302, 20);
+    } },
+    { id: 'tren', t: 'vehiculos', name: 'El tren', draw: function(){
+      return BG() + cloud(96, 66, .8) + cloud(160, 16, 1.05) + sun(346, 56, 20) +
+        P('M0 300 Q110 240 220 290 Q310 250 400 290 V360 H0 Z') +
+        P('M0 362 H400 V400 H0 Z') + R(0, 352, 400, 11, 0) + R(30, 366, 18, 34, 0) + R(110, 366, 18, 34, 0) + R(190, 366, 18, 34, 0) + R(270, 366, 18, 34, 0) + R(350, 366, 18, 34, 0) +
+        P('M220 132 H350 V114 Q350 104 340 104 H230 Q220 104 220 114 Z') +
+        R(230, 132, 110, 150, 6) + R(250, 152, 70, 58, 6) +
+        P('M96 190 V152 H84 V132 H140 V152 H128 V190 Z') +
+        P('M160 190 Q160 160 182 160 Q204 160 204 190 Z') +
+        P('M70 190 H230 V282 H70 Q52 282 52 264 V208 Q52 190 70 190 Z') + C(76, 226, 11) +
+        L('M110 196 V276 M170 196 V276') +
+        P('M52 264 L18 304 H74 V282 Z') +
+        R(60, 282, 290, 24, 6) +
+        C(112, 320, 33) + C(112, 320, 13) + C(200, 320, 33) + C(200, 320, 13) + C(300, 316, 38) + C(300, 316, 15) +
+        R(104, 314, 204, 12, 6);
+    } },
+    { id: 'velero', t: 'vehiculos', name: 'El velero', draw: function(){
+      return BG() + sun(60, 60, 22) + cloud(280, 30, 1) + birds(120, 110) +
+        R(196, 32, 8, 236, 0) + P('M204 62 L242 47 L204 34 Z') +
+        P('M210 72 L332 252 H210 Z') + P('M210 152 H264 L291 192 H210 Z') +
+        P('M190 92 L88 252 H190 Z') +
+        P('M68 264 H332 Q324 322 282 328 H118 Q78 322 68 264 Z') + P('M71 278 H329 L323 294 H77 Z') +
+        C(140, 311, 8) + C(200, 311, 8) + C(260, 311, 8) +
+        P('M0 338 Q25 318 50 338 T100 338 T150 338 T200 338 T250 338 T300 338 T350 338 T400 338 V400 H0 Z') +
+        E(318, 374, 17, 9) + P('M334 374 L350 363 V385 Z') + K(310, 372, 2.5);
+    } },
+    { id: 'globo', t: 'vehiculos', name: 'El globo', draw: function(){
+      return BG() + cloud(6, 96, .9) + cloud(300, 214, .9) + sun(350, 56, 18) + birds(40, 220) +
+        P('M0 392 Q100 360 200 384 T400 376 V400 H0 Z') +
+        L('M166 304 L181 340 M234 304 L219 340') +
+        P('M200 36 Q322 40 322 158 Q320 230 244 288 H156 Q80 230 78 158 Q78 40 200 36 Z') +
+        P('M200 36 Q118 58 114 162 Q116 236 156 288 H178 Q162 230 162 162 Q162 98 200 36 Z') +
+        P('M200 36 Q282 58 286 162 Q284 236 244 288 H222 Q238 230 238 162 Q238 98 200 36 Z') +
+        P('M200 36 Q238 98 238 162 Q238 230 222 288 H178 Q162 230 162 162 Q162 98 200 36 Z') +
+        P('M156 288 H244 L236 306 H164 Z') +
+        P('M176 340 H224 L217 380 H183 Z') + L('M178 353 H222 M180 366 H220 M192 340 V380 M208 340 V380');
+    } }
+  ];
+  var PRICE = 10;
+  var BY = {}; COL_DESIGNS.forEach(function(d){ BY[d.id] = d; });
+  var TBY = {}; COL_THEMES.forEach(function(t){ TBY[t.id] = t; });
+  var PALETTE = [['Rojo', '#E5484D'], ['Naranja', '#F5893D'], ['Amarillo', '#FFD23F'], ['Verde claro', '#9BDB5A'], ['Verde', '#2E9E5B'], ['Turquesa', '#33B8C4'],
+    ['Azul claro', '#8CCBFF'], ['Azul', '#3E7BD6'], ['Morado', '#8A5CF6'], ['Lila', '#D4B8FF'], ['Rosa', '#FF9FCB'], ['Fucsia', '#E0457B'],
+    ['Marrón', '#8A5A3C'], ['Color piel', '#F6C9A0'], ['Crema', '#FFF1C2'], ['Gris', '#A7B0C0'], ['Negro', '#2B2250'], ['Goma de borrar (blanco)', '#FFFFFF']];
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, text){ var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+  function button(text, cls, fn){ var b = el('button', cls, text); b.type = 'button'; b.addEventListener('click', fn); return b; }
+
+  /* ---------- guardado: dibujos comprados y colores puestos (solo en este dispositivo) ---------- */
+  var KEY = 'lupi-coloreables-v1';
+  function loadS(){
+    var o; try { o = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { o = {}; }
+    if (!o || typeof o !== 'object') o = {};
+    if (!o.own || typeof o.own !== 'object') o.own = {};
+    if (!o.fills || typeof o.fills !== 'object') o.fills = {};
+    return o;
+  }
+  var S = loadS();
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  /* ---------- estrellas compartidas con Aprende con Lupi (igual que la tienda y la Batalla) ---------- */
+  var AKEY = 'lupi-avatar-v1';
+  function avatar(){
+    var o; try { o = JSON.parse(localStorage.getItem(AKEY) || '{}'); } catch (e) { o = {}; }
+    if (!o || typeof o !== 'object') o = {};
+    o.spent = Number(o.spent) || 0;
+    var mk = window.LupiScore.dateKey(new Date()).slice(0, 7);
+    if (!o.sm || o.sm.m !== mk) o.sm = { m: mk, n: o.sm ? 0 : o.spent };
+    return o;
+  }
+  function stars(){ return Math.max(0, window.LupiScore.month().sum - avatar().sm.n); }
+  function spend(n){
+    var a = avatar(); if (window.LupiScore.month().sum - a.sm.n < n) return false;
+    a.spent += n; a.sm.n += n;
+    try { localStorage.setItem(AKEY, JSON.stringify(a)); } catch (e) { return false; }
+    return true;
+  }
+  function paintStars(){ $('cStars').textContent = stars(); }
+
+  /* ---------- dibujo: cada pieza lleva su número para guardar su color ---------- */
+  function svgOf(d, fills, label){
+    var i = 0, m = d.draw().replace(/class="f( bg)?"/g, function(all, bg){
+      var c = fills && fills[i], s = 'class="f' + (bg || '') + '" data-i="' + i + '"' + (c ? ' style="fill:' + c + '"' : ''); i++; return s; });
+    return '<svg viewBox="0 0 400 400" role="img" aria-label="' + (label || d.name) + '">' + m + '</svg>';
+  }
+  function owned(d){ return !!S.own[d.id]; }
+  function ofTheme(t){ return COL_DESIGNS.filter(function(d){ return d.t === t.id; }); }
+
+  var app = $('app'), view = '';
+  function clear(){ app.textContent = ''; window.scrollTo(0, 0); }
+  function go(h){ if (location.hash === h) route(); else location.hash = h; }
+
+  function dCard(d){
+    var c = el('button', 'dcard'); c.type = 'button';
+    var pic = el('span'); pic.style.width = '100%'; pic.innerHTML = svgOf(d, S.fills[d.id]); c.appendChild(pic);
+    c.appendChild(el('b', '', d.name));
+    if (owned(d)) c.appendChild(el('span', 'tag mine', '✓ Es tuyo'));
+    else c.appendChild(el('span', 'tag', '🔒 ' + PRICE + ' ⭐'));
+    c.setAttribute('aria-label', d.name + (owned(d) ? ': es tuyo, abrir' : ': cuesta ' + PRICE + ' estrellas'));
+    c.addEventListener('click', function(){ if (owned(d)) go('#dibujo-' + d.id); else buy(d); });
+    return c;
+  }
+  function home(){
+    view = 'home'; clear();
+    app.appendChild(el('h2', '', '¿Qué te apetece colorear?'));
+    app.appendChild(el('p', 'lead', 'Elige un tema y después un dibujo. Cada dibujo cuesta ' + PRICE + ' estrellas y es tuyo para siempre: puedes colorearlo aquí o descargarlo en PDF para imprimirlo.'));
+    var g = el('div', 'grid');
+    COL_THEMES.forEach(function(t){
+      var list = ofTheme(t), mine = list.filter(owned).length;
+      var c = el('button', 'tcard'); c.type = 'button'; c.style.background = t.color;
+      var ic = el('span', 'ic', t.icon); ic.setAttribute('aria-hidden', 'true'); c.appendChild(ic);
+      c.appendChild(el('b', '', t.name));
+      var s = el('span', '', list.length + ' dibujos' + (mine ? ' · ' + mine + (mine === 1 ? ' tuyo' : ' tuyos') : '')); s.style.color = '#2B2250'; c.appendChild(s);
+      c.addEventListener('click', function(){ go('#tema-' + t.id); });
+      g.appendChild(c);
+    });
+    app.appendChild(g);
+    var mineAll = COL_DESIGNS.filter(owned);
+    if (mineAll.length){
+      app.appendChild(el('h2', '', 'Mis dibujos'));
+      var g2 = el('div', 'grid'); mineAll.forEach(function(d){ g2.appendChild(dCard(d)); }); app.appendChild(g2);
+    }
+  }
+  function theme(t){
+    view = 'tema'; clear();
+    var r = el('div', 'row'); r.appendChild(button('← Temas', 'btn', function(){ go('#'); })); app.appendChild(r);
+    app.appendChild(el('h2', '', t.icon + ' ' + t.name));
+    app.appendChild(el('p', 'note', 'Toca un dibujo para verlo. Los que ya son tuyos se abren para colorear.'));
+    var g = el('div', 'grid'); ofTheme(t).forEach(function(d){ g.appendChild(dCard(d)); }); app.appendChild(g);
+  }
+
+  /* ---------- comprar un dibujo ---------- */
+  var dlg = $('dlg'), box = $('dlgBox'), dlgBack = null;
+  function closeDlg(){ dlg.hidden = true; box.textContent = ''; if (dlgBack && dlgBack.focus) dlgBack.focus(); dlgBack = null; }
+  dlg.addEventListener('click', function(e){ if (e.target === dlg) closeDlg(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !dlg.hidden) closeDlg(); });
+  function buy(d){
+    dlgBack = document.activeElement; box.textContent = '';
+    var h = el('h2', '', d.name); h.id = 'dlgT'; box.appendChild(h);
+    var pic = el('div'); pic.innerHTML = svgOf(d); box.appendChild(pic);
+    var have = stars(), r = el('div', 'row'), first;
+    if (have >= PRICE){
+      box.appendChild(el('p', '', 'Este dibujo cuesta ' + PRICE + ' estrellas. Tienes ' + have + '.'));
+      box.appendChild(el('p', 'note', 'Será tuyo para siempre: para colorear aquí y para imprimir.'));
+      first = button('Lo quiero · ' + PRICE + ' ⭐', 'btn main', function(){
+        if (!spend(PRICE)){ closeDlg(); buy(d); return; }
+        S.own[d.id] = 1; save(); paintStars(); dlgBack = null; closeDlg(); go('#dibujo-' + d.id);
+      });
+      r.appendChild(first); r.appendChild(button('Ahora no', 'btn', closeDlg));
+    } else {
+      box.appendChild(el('p', '', 'Este dibujo cuesta ' + PRICE + ' estrellas y tienes ' + have + '. Te faltan ' + (PRICE - have) + '.'));
+      box.appendChild(el('p', 'note', 'Juega, lee cuentos o estudia en Aprende con Lupi para ganar más estrellas.'));
+      first = button('Vale', 'btn main', closeDlg); r.appendChild(first);
+    }
+    box.appendChild(r); dlg.hidden = false; first.focus();
+  }
+
+  /* ---------- colorear ---------- */
+  var IN_CLAUDE = !!window.claude || /(^|\.)claudeusercontent\.com$|(^|\.)claude\.ai$/.test(location.hostname);
+  function pdfPath(d){ return 'imprimir/colorear-' + d.id + '.pdf'; }
+  function pdfGet(d, msg, btn){
+    var name = 'Colorear - ' + d.name + '.pdf';
+    if (!IN_CLAUDE){
+      var a = document.createElement('a'); a.href = pdfPath(d); a.download = name; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+      msg.textContent = '✓ Descarga iniciada. Imprímelo en tamaño A4. Si no lo ves, toca «Abrir el PDF».'; return;
+    }
+    var NO = 'Aquí no se puede descargar. Abre esta página desde la app de Claude con tu cuenta, o hazlo desde un ordenador.';
+    btn.disabled = true; msg.textContent = 'Preparando el PDF…';
+    var use = window.claude && typeof window.claude.use === 'function' ? Promise.resolve(window.claude.use('downloads')).catch(function(){ return null; }) : Promise.resolve(null);
+    use.then(function(dl){
+      if (!dl){ msg.textContent = NO; return; }
+      return fetch(pdfPath(d), { cache: 'no-cache' }).then(function(r){ if (!r.ok) throw new Error('error ' + r.status); return r.arrayBuffer(); }).then(function(buf){
+        return dl.save({ filename: name, data: buf }).then(function(){ msg.textContent = '✓ Listo. Imprímelo en tamaño A4.'; },
+          function(e){ var c = e && e.code; msg.textContent = c === 'declined' ? 'Descarga cancelada.' : c === 'rate_limited' ? 'Espera un momento y vuelve a intentarlo.' : NO; });
+      }, function(){ msg.textContent = 'No se ha podido cargar el PDF. Comprueba la conexión y vuelve a intentarlo.'; });
+    }).then(function(){ btn.disabled = false; });
+  }
+  function paint(d){
+    view = 'dibujo'; clear();
+    var fills = S.fills[d.id] || (S.fills[d.id] = {}), undo = [], color = PALETTE[0][1];
+    var r = el('div', 'row'); r.appendChild(button('← Más dibujos', 'btn', function(){ go('#tema-' + d.t); })); app.appendChild(r);
+    app.appendChild(el('h2', '', d.name));
+    var wrap = el('div', 'paint'), cv = el('div', 'canvas'), side = el('div', 'side');
+    cv.innerHTML = svgOf(d, fills, d.name + ', dibujo para colorear');
+    var svg = cv.firstChild;
+    var msg = el('p', 'msg'); msg.setAttribute('aria-live', 'polite');
+    svg.addEventListener('click', function(e){
+      var t = e.target; if (!t || !t.getAttribute || t.getAttribute('data-i') == null) return;
+      var i = t.getAttribute('data-i'), prev = fills[i] || '';
+      var next = color === '#FFFFFF' ? '' : color; if (prev === next) return;
+      undo.push([i, prev]); if (undo.length > 200) undo.shift();
+      if (next) fills[i] = next; else delete fills[i];
+      t.style.fill = next || ''; save(); un.disabled = false; msg.textContent = '';
+    });
+    var pal = el('div', 'pal'); pal.setAttribute('role', 'group'); pal.setAttribute('aria-label', 'Colores');
+    PALETTE.forEach(function(c, k){
+      var b = el('button', 'sw'); b.type = 'button'; b.style.background = c[1]; b.setAttribute('aria-label', c[0]); b.title = c[0]; b.setAttribute('aria-pressed', k === 0 ? 'true' : 'false');
+      if (c[1] === '#FFFFFF') b.textContent = '🧽';
+      b.addEventListener('click', function(){ color = c[1]; Array.prototype.forEach.call(pal.children, function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); });
+      pal.appendChild(b);
+    });
+    var tools = el('div', 'row'), sure = false;
+    var un = button('↩️ Deshacer', 'btn', function(){
+      var u = undo.pop(); if (!u) return;
+      if (u[1]) fills[u[0]] = u[1]; else delete fills[u[0]];
+      var n = svg.querySelector('[data-i="' + u[0] + '"]'); if (n) n.style.fill = u[1] || '';
+      save(); un.disabled = !undo.length;
+    }); un.disabled = true;
+    var wipe = button('🗑️ Borrar todo', 'btn', function(){
+      if (!sure){ sure = true; wipe.textContent = '¿Seguro? Toca otra vez'; setTimeout(function(){ sure = false; wipe.textContent = '🗑️ Borrar todo'; }, 4000); return; }
+      sure = false; wipe.textContent = '🗑️ Borrar todo';
+      Object.keys(fills).forEach(function(i){ delete fills[i]; }); undo = []; un.disabled = true;
+      Array.prototype.forEach.call(svg.querySelectorAll('[data-i]'), function(n){ n.style.fill = ''; }); save();
+    });
+    tools.appendChild(un); tools.appendChild(wipe);
+    var pr = el('div', 'row');
+    var pdf = button('🖨️ PDF para imprimir', 'btn main', function(){ pdfGet(d, msg, pdf); }); pr.appendChild(pdf);
+    if (!IN_CLAUDE){ var open = el('a', 'btn', 'Abrir el PDF'); open.href = pdfPath(d); open.target = '_blank'; open.rel = 'noopener'; pr.appendChild(open); }
+    side.appendChild(el('p', 'note', 'Elige un color y toca la parte del dibujo que quieras pintar. Se guarda solo.'));
+    side.appendChild(pal); side.appendChild(tools); side.appendChild(pr);
+    side.appendChild(el('p', 'note', 'El PDF sale sin colorear, para pintarlo en papel.')); side.appendChild(msg);
+    wrap.appendChild(cv); wrap.appendChild(side); app.appendChild(wrap);
+  }
+
+  /* ---------- hoja para el PDF: coloreables.html#imprimir-gato ---------- */
+  function sheet(d){
+    view = 'print'; document.body.classList.add('print');
+    $('sheet').innerHTML = '<p class="sh-top">Aprende con Lupi · Coloreables · ' + TBY[d.t].name + '</p><h1>' + d.name + '</h1>' + svgOf(d) + '<p class="sh-name">Nombre: ______________________________ &nbsp; Fecha: ______________</p>';
+  }
+  function route(){
+    var h = location.hash.replace(/^#/, ''), m;
+    document.body.classList.remove('print'); if (!dlg.hidden) closeDlg();
+    if ((m = /^imprimir-([a-z]+)$/.exec(h)) && BY[m[1]]) return sheet(BY[m[1]]);
+    paintStars();
+    if ((m = /^dibujo-([a-z]+)$/.exec(h)) && BY[m[1]]){
+      if (owned(BY[m[1]])) return paint(BY[m[1]]);
+      theme(TBY[BY[m[1]].t]); return buy(BY[m[1]]);
+    }
+    if ((m = /^tema-([a-z]+)$/.exec(h)) && TBY[m[1]]) return theme(TBY[m[1]]);
+    home();
+  }
+  window.addEventListener('hashchange', route);
+  window.addEventListener('pageshow', paintStars);
+  route();
+  if (window.LupiScore) window.LupiScore.startTimer('coloreables', function(){ return view === 'dibujo'; });
+})();
+</script>
+</body>
+</html>
