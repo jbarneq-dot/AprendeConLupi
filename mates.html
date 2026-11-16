@@ -1340,7 +1340,7 @@
     return s + '</svg>';
   }
   /* para el apartado de estudio: ['fig', 'huesos'] dibuja el cuerpo con los nombres */
-  function cfigStudy(key){ return key === 'emociones' ? cfigFaces() : cfigLabeled(key); }
+  function cfigStudy(key){ return key === 'emociones' ? cfigFaces() : key.indexOf('ani-') === 0 ? aFigLabeled(key.slice(4)) : cfigLabeled(key); }
   /* ================= Ciencias · Tema 1: Las personas ================= */
   function cWr(right, pool, n){ return shuffle(pool.filter(function(x){ return x !== right; })).slice(0, n || 3); }
   function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -1571,6 +1571,398 @@
       choice('¿Cada cuánto conviene ducharse?', 'Todos los días', ['Una vez al mes', 'Solo en verano', 'Nunca'], 'La higiene incluye la ducha diaria.')
     ]); }
   ];
+  /* ================= Ciencias · Tema 2: Los animales =================
+     Sin DOM. Cada entrada del banco es un concepto del tema (k) con la explicación de la profe (p).
+     Sirven a la vez para practicar cada parte y para el MODO EXAMEN. Dibujos propios en SVG (texto). */
+  var A_INK = '#23304A';
+  /* insecto visto desde arriba: lienzo 300 × 320 */
+  function aInsectBase(){
+    var leg = 'stroke="#3B3B4F" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+    var L = 'M128 112 L94 94 L72 70 M126 126 L88 128 L62 140 M128 140 L96 166 L80 198';
+    var R = 'M172 112 L206 94 L228 70 M174 126 L212 128 L238 140 M172 140 L204 166 L220 198';
+    var wing = 'fill="#CFE8FF" fill-opacity=".8" stroke="#7FA7D6" stroke-width="2"';
+    return '<ellipse ' + wing + ' cx="98" cy="112" rx="54" ry="19" transform="rotate(-22 98 112)"/><ellipse ' + wing + ' cx="202" cy="112" rx="54" ry="19" transform="rotate(22 202 112)"/>' +
+      '<ellipse ' + wing + ' cx="104" cy="146" rx="42" ry="14" transform="rotate(14 104 146)"/><ellipse ' + wing + ' cx="196" cy="146" rx="42" ry="14" transform="rotate(-14 196 146)"/>' +
+      '<path ' + leg + ' d="' + L + '"/><path ' + leg + ' d="' + R + '"/>' +
+      '<path d="M142 64 C134 44 122 30 108 22 M158 64 C166 44 178 30 192 22" stroke="#3B3B4F" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="150" cy="214" rx="32" ry="54" fill="#F2C14E" stroke="#3B3B4F" stroke-width="3"/>' +
+      '<path d="M121 192 Q150 202 179 192 M119 216 Q150 227 181 216 M124 240 Q150 250 176 240" stroke="#3B3B4F" stroke-width="7" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="150" cy="126" rx="24" ry="28" fill="#8A6A3A" stroke="#3B3B4F" stroke-width="3"/>' +
+      '<circle cx="150" cy="80" r="20" fill="#4A4A60" stroke="#3B3B4F" stroke-width="3"/>' +
+      '<circle cx="141" cy="74" r="5" fill="#FFFFFF"/><circle cx="159" cy="74" r="5" fill="#FFFFFF"/><circle cx="142" cy="75" r="2.4" fill="' + A_INK + '"/><circle cx="160" cy="75" r="2.4" fill="' + A_INK + '"/>';
+  }
+  var A_INS_PT = { cabeza: [150, 80, 22], 'tórax': [150, 126, 30], abdomen: [150, 214, 40], antenas: [112, 26, 16], patas: [64, 140, 16], alas: [78, 104, 22] };
+  /* lagartija de lado (vertebrado): lienzo 430 × 205 */
+  function aVertBase(){
+    var b = 'fill="#7DBB6A" stroke="#3E7A33" stroke-width="3"', leg = 'stroke="#3E7A33" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+    return '<path ' + leg + ' d="M172 126 L156 152 L144 166 M188 130 L198 156 L212 168 M250 130 L238 156 L226 168 M266 126 L280 152 L296 164"/>' +
+      '<path ' + b + ' d="M288 98 C338 98 382 120 414 152 C376 134 334 124 288 126 Z"/>' +
+      '<ellipse ' + b + ' cx="215" cy="112" rx="84" ry="26"/>' +
+      '<ellipse ' + b + ' cx="104" cy="100" rx="40" ry="22"/>' +
+      '<circle cx="90" cy="92" r="5" fill="' + A_INK + '"/><path d="M66 104 Q80 110 96 108" stroke="#3E7A33" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M136 98 C180 94 250 94 296 106 C340 116 372 130 398 144" stroke="#F7F0D8" stroke-width="5" stroke-dasharray="7 6" fill="none" stroke-linecap="round"/>';
+  }
+  var A_VT_PT = { cabeza: [104, 100, 30], tronco: [222, 112, 34], cola: [360, 128, 26], extremidades: [150, 160, 18] };
+  function aMark(p){ return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2] + '" fill="none" stroke="#FFFFFF" stroke-width="9"/><circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + p[2] + '" fill="none" stroke="#E5484D" stroke-width="5"/>'; }
+  function aText(x, y, t, anchor){ return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" font-family="Nunito, system-ui, sans-serif" font-weight="800" font-size="21" fill="' + A_INK + '">' + t + '</text>'; }
+  function aLine(x1, y1, x2, y2){ return '<path d="M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2 + '" stroke="#5A6475" stroke-width="1.8" fill="none"/><circle cx="' + x1 + '" cy="' + y1 + '" r="4" fill="#E5484D" stroke="#FFFFFF" stroke-width="1.5"/>'; }
+  /* dibujo para una pregunta, con un círculo rojo en la parte que hay que reconocer */
+  function aFigQ(kind, part){
+    if (kind === 'insecto') return '<svg viewBox="0 0 300 300" role="img" aria-label="Dibujo de un insecto con un círculo rojo" class="cfig" style="max-height:300px">' + aInsectBase() + aMark(A_INS_PT[part]) + '</svg>';
+    return '<svg viewBox="0 30 430 160" role="img" aria-label="Dibujo de una lagartija con un círculo rojo" class="cfig" style="max-height:220px">' + aVertBase() + aMark(A_VT_PT[part]) + '</svg>';
+  }
+  /* dibujos con nombres para el apartado de estudio */
+  function aFigLabeled(kind){
+    var s;
+    if (kind === 'insecto'){
+      s = '<svg viewBox="-130 0 560 300" role="img" aria-label="Las partes de un insecto" class="cfig cfig-lab">' + aInsectBase();
+      s += aLine(112, 28, -10, 28) + aText(-16, 35, 'antenas', 'end');
+      s += aLine(70, 100, -10, 108) + aText(-16, 115, 'alas', 'end');
+      s += aLine(62, 140, -10, 188) + aText(-16, 195, 'patas (6)', 'end');
+      s += aLine(162, 74, 310, 60) + aText(316, 67, 'cabeza', 'start');
+      s += aLine(170, 126, 310, 126) + aText(316, 133, 'tórax', 'start');
+      s += aLine(180, 220, 310, 220) + aText(316, 227, 'abdomen', 'start');
+      return s + '</svg>';
+    }
+    if (kind === 'vertebrado'){
+      s = '<svg viewBox="0 0 430 215" role="img" aria-label="Las partes del cuerpo de un vertebrado" class="cfig cfig-lab">' + aVertBase();
+      s += aLine(96, 82, 70, 34) + aText(70, 26, 'cabeza');
+      s += aLine(230, 97, 230, 34) + aText(236, 26, 'columna vertebral');
+      s += aLine(372, 134, 386, 92) + aText(388, 84, 'cola');
+      s += aLine(250, 120, 320, 190) + aText(340, 206, 'tronco');
+      s += aLine(146, 164, 110, 190) + aText(88, 206, 'extremidades');
+      return s + '</svg>';
+    }
+    /* metamorfosis: huevo → larva (oruga) → cambios → adulto */
+    var arrow = function(x){ return '<path d="M' + x + ' 64 L' + (x + 16) + ' 64 M' + (x + 9) + ' 57 L' + (x + 16) + ' 64 L' + (x + 9) + ' 71" stroke="#8E8AA8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'; };
+    s = '<svg viewBox="0 0 540 140" role="img" aria-label="La metamorfosis de una mariposa" class="cfig cfig-faces">';
+    s += '<ellipse cx="62" cy="76" rx="52" ry="22" fill="#9FD38A" stroke="#4E8C3C" stroke-width="2.5"/><ellipse cx="62" cy="62" rx="11" ry="14" fill="#FFF6DA" stroke="#C9B27A" stroke-width="2"/>' + aText(62, 128, 'huevo');
+    s += arrow(118);
+    for (var i = 0; i < 6; i++) s += '<circle cx="' + (160 + i * 15) + '" cy="' + (66 + (i % 2 ? -4 : 2)) + '" r="10" fill="' + (i === 0 ? '#3B3B4F' : (i % 2 ? '#F2C14E' : '#F7F0D8')) + '" stroke="#3B3B4F" stroke-width="2.5"/>';
+    s += aText(198, 128, 'larva (oruga)');
+    s += arrow(254);
+    s += '<path d="M330 30 L330 40" stroke="#6B5A3A" stroke-width="3"/><path d="M330 40 C346 48 348 86 330 104 C312 86 314 48 330 40 Z" fill="#A8C77A" stroke="#5F7D3A" stroke-width="2.5"/>' + aText(330, 128, 'cambios');
+    s += arrow(380);
+    s += '<ellipse cx="440" cy="52" rx="26" ry="20" fill="#F4A340" stroke="#3B3B4F" stroke-width="2.5" transform="rotate(-25 440 52)"/><ellipse cx="496" cy="52" rx="26" ry="20" fill="#F4A340" stroke="#3B3B4F" stroke-width="2.5" transform="rotate(25 496 52)"/>';
+    s += '<ellipse cx="446" cy="86" rx="18" ry="14" fill="#F4A340" stroke="#3B3B4F" stroke-width="2.5"/><ellipse cx="490" cy="86" rx="18" ry="14" fill="#F4A340" stroke="#3B3B4F" stroke-width="2.5"/>';
+    s += '<ellipse cx="468" cy="70" rx="6" ry="30" fill="#3B3B4F"/><path d="M466 42 C460 30 454 26 448 24 M470 42 C476 30 482 26 488 24" stroke="#3B3B4F" stroke-width="2.5" fill="none" stroke-linecap="round"/>' + aText(468, 128, 'adulto');
+    return s + '</svg>';
+  }
+
+  /* datos del tema */
+  var A_ALIM = { 'Herbívoro': ['el conejo', 'la vaca', 'el caballo', 'la oveja', 'el ciervo', 'la oruga', 'la jirafa', 'la cabra'],
+    'Carnívoro': ['el tiburón', 'el lobo', 'el león', 'el lince', 'el águila', 'la araña', 'el búho', 'el tigre'],
+    'Omnívoro': ['el zorro', 'el oso', 'el cerdo', 'el jabalí', 'la gallina', 'el ratón'] };
+  var A_ALIM_DEF = { 'Herbívoro': 'se alimentan de plantas', 'Carnívoro': 'se alimentan de otros animales', 'Omnívoro': 'comen tanto alimentos de origen vegetal como animal' };
+  var A_RESP = { pulmones: ['el perro', 'la gallina', 'la lagartija', 'el caballo', 'la paloma', 'el ratón', 'el delfín', 'la ballena'], branquias: ['la sardina', 'el tiburón', 'la merluza', 'la trucha', 'el atún'] };
+  var A_REPRO = { 'Ovíparo': ['el avestruz', 'la merluza', 'la mariquita', 'la paloma', 'el buitre', 'la gallina', 'el cocodrilo', 'la tortuga', 'la rana', 'la abeja'],
+    'Vivíparo': ['el tigre', 'el caballo', 'el ciervo', 'el perro', 'la vaca', 'el delfín', 'el oso', 'el lince'] };
+  var A_VG = { 'Peces': ['la sardina', 'la merluza', 'el tiburón', 'la trucha', 'el fartet'], 'Anfibios': ['la rana', 'el sapo', 'la salamandra'],
+    'Reptiles': ['la lagartija', 'el cocodrilo', 'la tortuga', 'la serpiente', 'el camaleón'], 'Aves': ['la paloma', 'la gallina', 'el águila', 'el buitre', 'el avestruz', 'la golondrina'],
+    'Mamíferos': ['el perro', 'el gato', 'el delfín', 'el lince', 'el conejo', 'el ratón'] };
+  var A_PIEL = { 'Peces': 'Escamas', 'Anfibios': 'Piel desnuda', 'Reptiles': 'Escamas', 'Aves': 'Plumas', 'Mamíferos': 'Pelos' };
+  var A_IG = { 'Esponjas': { d: 'Tienen un cuerpo irregular, no se mueven y están fijas sobre el fondo del mar.', a: ['la esponja de mar'] },
+    'Medusas': { d: 'Tienen forma de paraguas y sus tentáculos pueden causar picaduras.', a: ['la medusa'] },
+    'Gusanos': { d: 'Son alargados y no tienen patas.', a: ['la lombriz de tierra'] },
+    'Moluscos': { d: 'Tienen el cuerpo blando, en la mayoría protegido por una concha.', a: ['el caracol', 'el pulpo', 'el calamar', 'la almeja', 'el mejillón'] },
+    'Artrópodos': { d: 'Tienen un caparazón duro y patas con articulaciones. Son muy diversos.', a: ['la mariquita', 'la araña', 'el cangrejo', 'la hormiga', 'la mariposa', 'el ciempiés'] },
+    'Equinodermos': { d: 'Tienen un esqueleto de placas duras bajo la piel y suelen tener espinas.', a: ['la estrella de mar', 'el erizo de mar'] } };
+  var A_IGN = Object.keys(A_IG);
+  var A_INSG = { 'Mariposas': 'Tienen cuatro alas iguales que les sirven para volar.', 'Moscas y mosquitos': 'Tienen cuatro alas: dos para volar y las otras dos para darles equilibrio.', 'Escarabajos': 'Tienen dos alas duras que protegen a otras dos finas con las que vuelan.' };
+  var A_AND = [
+    ['Lince ibérico', 'Parecido a un gato, pero de mayor tamaño. Estuvo a punto de desaparecer de nuestro territorio.', 'v', 'el'],
+    ['Tortuga mora', 'Tortuga terrestre que puede vivir muchos años si tiene vegetación para alimentarse y un poco de agua.', 'v', 'la'],
+    ['Águila imperial', 'Ave de gran tamaño. A partir de los 5 años se ven en sus alas los bordes blancos que la caracterizan.', 'v', 'el'],
+    ['Delfín mular', 'Excelente nadador. Puede resistir bajo el agua sin respirar unos 20 minutos.', 'v', 'el'],
+    ['Mariposa isabelina', 'Mariposa nocturna difícil de ver porque vive oculta en las copas de los pinos.', 'i', 'la'],
+    ['Araña negra de los alcornocales', 'Solo se puede encontrar en el sur de España. Es un animal protegido.', 'i', 'la'],
+    ['Coral anaranjado', 'Animal marino al que le afectan la contaminación del mar y los cambios de temperatura del agua.', 'i', 'el'],
+    ['Mantis de Sierra Nevada', 'Insecto con espinas en las patas delanteras para atrapar a sus presas. Solo está activo en primavera y verano.', 'i', 'la']
+  ];
+  function aOf(map, item){ var k; for (k in map) if (map[k].indexOf(item) !== -1) return k; return ''; }
+  function aPick(map){ var k = pick(Object.keys(map)); return [k, pick(map[k])]; }
+
+  var A_BANK = [
+    /* ---- 1. Funciones vitales y nutrición ---- */
+    { k: 'fv-tres', s: 's1', q: '¿Cuáles son las tres funciones vitales de los animales?', a: 'Nutrición, relación y reproducción', w: ['Comer, dormir y correr', 'Ver, oír y oler', 'Nadar, volar y andar'], long: true,
+      why: 'Los animales, como todos los seres vivos, realizan tres funciones vitales: nutrición, relación y reproducción.',
+      p: ['Las funciones vitales son como las tres tareas del trabajo de estar vivo. Las hacen todos los animales: el gato, la hormiga y el delfín.',
+        'Una tarea es alimentarse, otra es enterarse de lo que pasa y responder, y otra es tener crías.',
+        'Un gorrión que come semillas, oye un ruido y vuela, y pone huevos en su nido hace las tres.'] },
+    { k: 'nu-def', s: 's1', q: '¿Qué consiguen los animales con la función de nutrición?', a: 'La energía y las sustancias que necesitan para vivir', w: ['Tener crías', 'Enterarse de lo que pasa alrededor', 'Cambiar de color'], long: true,
+      why: 'Mediante la nutrición, los animales obtienen la energía y las sustancias que necesitan para vivir. El primer paso es tomar alimentos.',
+      p: ['La comida es como la gasolina de un coche: sin ella no se mueve.',
+        'Piensa para qué come un animal: para tener fuerza y para crecer. El primer paso es tomar alimentos.',
+        'Una ardilla come nueces para tener energía y poder saltar de rama en rama.'] },
+    { k: 'al-def', s: 's1', t: function(){
+      var k = pick(Object.keys(A_ALIM_DEF));
+      return { q: '¿Cómo se llaman los animales que ' + A_ALIM_DEF[k] + '?', a: k + 's', w: ['Herbívoros', 'Carnívoros', 'Omnívoros'], why: 'Los ' + k.toLowerCase() + 's ' + A_ALIM_DEF[k] + '.' }; },
+      p: ['Las palabras esconden su significado: «herbi» viene de hierba, «carni» de carne y «omni» de todo.',
+        'Piensa qué come el animal: solo plantas, solo otros animales o de todo.',
+        'La vaca come hierba: herbívora. El zorro come fruta y conejos: omnívoro.'] },
+    { k: 'al-animal', s: 's1', t: function(){
+      var x = aPick(A_ALIM);
+      return { q: 'Según su alimentación, ¿qué tipo de animal es ' + x[1] + '?', a: x[0], w: ['Herbívoro', 'Carnívoro', 'Omnívoro'], why: cap(x[1]) + ' es ' + x[0].toLowerCase() + ': los ' + x[0].toLowerCase() + 's ' + A_ALIM_DEF[x[0]] + '.' }; },
+      p: ['Es como mirar el plato de cada animal: ¿tiene solo verdura, solo carne o de todo?',
+        'Imagina qué come ese animal en la naturaleza y busca la palabra que lo dice.',
+        'El conejo come hierba y zanahorias: herbívoro. El tiburón come peces: carnívoro.'] },
+    { k: 'al-personas', s: 's1', q: '¿Cómo somos las personas según nuestra alimentación?', a: 'Omnívoras', w: ['Herbívoras', 'Carnívoras', 'No comemos'],
+      why: 'Las personas comemos tanto alimentos de origen vegetal (fruta, verdura, pan) como de origen animal (carne, pescado, huevos): somos omnívoras.',
+      p: ['Piensa en tu comida de la semana: ¿solo comes verdura o solo carne?',
+        'Si en tu plato hay cosas de plantas y cosas de animales, comes de todo.',
+        'Una tortilla de patatas lleva huevo (de animal) y patata (de planta).'] },
+    /* ---- 2. La respiración ---- */
+    { k: 'rs-oxigeno', s: 's2', q: '¿Qué gas necesitan los animales para respirar?', a: 'El oxígeno, que está en el aire y en el agua', w: ['El humo, que está en el aire', 'La sal, que está en el mar', 'El agua de lluvia'], long: true,
+      why: 'Los animales necesitan oxígeno, un gas que se encuentra en el aire y también en el agua.',
+      p: ['El oxígeno es como el aire de un globo: no se ve, pero está ahí.',
+        'Es un gas que necesitamos todos para vivir. Unos lo toman del aire y otros del agua.',
+        'Cuando respiras hondo, tomas oxígeno del aire. Un pez lo toma del agua.'] },
+    { k: 'rs-organo', s: 's2', t: function(){
+      var lung = Math.random() < .5;
+      return { q: lung ? '¿Con qué órgano respiran los animales que toman el oxígeno del aire?' : '¿Con qué órgano respiran los animales que toman el oxígeno del agua?', a: lung ? 'Con los pulmones' : 'Con las branquias', w: ['Con los pulmones', 'Con las branquias', 'Con el estómago', 'Con las aletas'],
+        why: lung ? 'Los que toman el oxígeno del aire respiran con los pulmones, que están dentro del cuerpo.' : 'Los que toman el oxígeno del agua respiran con las branquias, unas láminas que están en contacto con el agua.' }; },
+      p: ['Hay dos «máquinas» para respirar: una para el aire y otra para el agua.',
+        'Los pulmones están dentro del cuerpo y toman el aire. Las branquias son láminas que tocan el agua.',
+        'Tú respiras con pulmones. Un pez, con branquias.'] },
+    { k: 'rs-animal', s: 's2', t: function(){
+      var x = aPick(A_RESP), lung = x[0] === 'pulmones';
+      return { q: '¿Cómo respira ' + x[1] + '?', a: lung ? 'Con pulmones' : 'Con branquias', w: ['Con pulmones', 'Con branquias'], why: cap(x[1]) + (lung ? ' toma el oxígeno del aire con sus pulmones.' : ' toma el oxígeno del agua con sus branquias.') + (x[1] === 'el delfín' || x[1] === 'la ballena' ? ' Aunque vive en el mar, sube a la superficie a respirar.' : '') }; },
+      p: ['Pregúntate de dónde saca el oxígeno: del aire o del agua.',
+        'Los peces respiran en el agua con branquias. Los demás vertebrados respiran aire con pulmones, ¡también los que nadan!',
+        'El delfín vive en el mar, pero sube a respirar: tiene pulmones.'] },
+    { k: 'rs-delfin', s: 's2', q: 'El delfín mular vive en el mar. ¿Con qué respira?', a: 'Con pulmones: por eso sale a respirar', w: ['Con branquias, como los peces', 'No necesita respirar', 'Con las aletas'], long: true,
+      why: 'El delfín es un mamífero: respira con pulmones. Puede aguantar bajo el agua unos 20 minutos sin respirar, pero luego tiene que salir a tomar aire.',
+      p: ['El delfín es como un buceador: puede estar mucho rato bajo el agua, pero necesita salir a por aire.',
+        'Que viva en el agua no quiere decir que tenga branquias. Fíjate en que aguanta «sin respirar».',
+        'Si aguanta 20 minutos sin respirar, es que luego respira… aire.'] },
+    /* ---- 3. La función de relación ---- */
+    { k: 'rl-def', s: 's3', q: '¿Cómo funciona la relación en los animales?', a: 'Los sentidos reciben información, el cerebro la interpreta y da una respuesta', w: ['El estómago recibe la comida y la digiere', 'Los pulmones toman el oxígeno del aire', 'La madre pone huevos y nacen las crías'], long: true,
+      why: 'Los animales reciben información de lo que pasa a su alrededor por los órganos de los sentidos. El cerebro recibe esa información, la interpreta y da una respuesta adecuada.',
+      p: ['Es como un portero de fútbol: ve el balón (sentidos), su cabeza decide (cerebro) y salta a pararlo (respuesta).',
+        'Primero se nota algo con los ojos, oídos, nariz… Luego el cerebro piensa qué hacer. Y al final el animal responde.',
+        'Un gato oye un ladrido, su cerebro entiende que hay peligro y sale corriendo.'] },
+    { k: 'rl-cerebro', s: 's3', q: '¿Qué órgano recibe la información de los sentidos, la interpreta y da una respuesta?', a: 'El cerebro', w: ['El corazón', 'El estómago', 'Los pulmones'],
+      why: 'El cerebro recibe la información de los sentidos, la interpreta y da una respuesta adecuada.',
+      p: ['El cerebro es como el jefe de una oficina: le llegan los mensajes y decide qué hacer.',
+        'Está dentro de la cabeza, protegido por el cráneo.',
+        'Ves una pelota que viene hacia ti y la paras: ¡tu cerebro dio la orden!'] },
+    { k: 'rl-linea', s: 's3', q: '¿Para qué sirve la línea lateral de los peces?', a: 'Para notar el movimiento en el agua y saber si se acerca un peligro', w: ['Para respirar debajo del agua', 'Para poner huevos', 'Para comer algas'], long: true,
+      why: 'La línea lateral es un órgano de los peces que detecta el movimiento en el agua. Así saben cuándo se acerca un peligro y pueden huir gracias a sus aletas.',
+      p: ['La línea lateral es como una alarma que tienen los peces en los costados.',
+        'Está en los lados del cuerpo y nota cuando el agua se mueve. Es un órgano de la función de relación.',
+        'Si un pez grande se acerca, el agua se mueve, el pez lo nota y se escapa nadando.'] },
+    { k: 'rl-sit', s: 's3', t: function(){
+      var L = { 'Nutrición': ['Una vaca come hierba en el prado.', 'Un pájaro bebe agua de un charco.', 'Una araña se come una mosca.'],
+        'Relación': ['Un gato oye un ruido y se esconde.', 'Un pez nota que el agua se mueve y huye.', 'Un perro huele la comida y mueve la cola.'],
+        'Reproducción': ['Una gallina pone huevos.', 'Una vaca tiene un ternero.', 'De los huevos de una tortuga nacen tortuguitas.'] };
+      var k = pick(Object.keys(L));
+      return { q: '¿Qué función vital está realizando este animal?', say: pick(L[k]), a: k, w: Object.keys(L), why: k === 'Nutrición' ? 'Tomar alimentos o agua es la nutrición.' : k === 'Relación' ? 'Nota algo con los sentidos y responde: es la relación.' : 'Tener crías es la reproducción.' }; },
+      p: ['Cada función vital es como una tarea distinta: comer, avisar y responder, o tener crías.',
+        'Pregúntate: ¿está comiendo o bebiendo?, ¿está notando algo y reaccionando?, ¿está teniendo crías?',
+        'Un conejo ve un zorro y corre a su madriguera: lo ha visto y ha respondido.'] },
+    /* ---- 4. La reproducción ---- */
+    { k: 'rp-def', s: 's4', q: '¿Qué consiguen los animales con la reproducción?', a: 'Tener crías semejantes a ellos', w: ['Conseguir energía', 'Enterarse de lo que pasa', 'Respirar oxígeno'],
+      why: 'Mediante la reproducción, los animales tienen crías semejantes a ellos.',
+      p: ['Es como una fotocopiadora de la naturaleza: los gatos tienen gatitos, no pollitos.',
+        'La reproducción sirve para que nazcan animales nuevos de la misma clase.',
+        'Una perra tiene cachorros que se parecen a ella.'] },
+    { k: 'rp-tipos', s: 's4', t: function(){
+      var sex = Math.random() < .5;
+      return { q: sex ? '¿Cómo es la reproducción sexual?' : '¿Cómo es la reproducción asexual?', a: sex ? 'Intervienen una hembra y un macho, y las crías se parecen a los dos' : 'Interviene un solo progenitor y se da en muy pocos casos', w: sex ? ['Interviene un solo progenitor', 'Las crías no se parecen a nadie', 'Solo la tienen las plantas'] : ['Intervienen una hembra y un macho', 'Es la más frecuente', 'Las crías se parecen a los dos padres'], long: true,
+        why: sex ? 'En la reproducción sexual, la más frecuente, intervienen una hembra y un macho, y las crías se parecen a los dos.' : 'La reproducción asexual se da en muy pocos casos e interviene un solo progenitor. Por ejemplo, a partir del brazo de una estrella de mar se puede formar una estrella completa.' }; },
+      p: ['«A» delante de una palabra significa «sin»: asexual es sin pareja.',
+        'En la sexual hay una mamá y un papá. En la asexual, un solo animal hace la cría él solo.',
+        'Del brazo de una estrella de mar puede salir una estrella nueva: ¡sin pareja!'] },
+    { k: 'rp-estrella', s: 's4', q: 'A partir del brazo de una estrella de mar se puede formar una estrella completa. ¿Qué tipo de reproducción es?', a: 'Asexual', w: ['Sexual', 'Vivípara', 'No es reproducción'], long: true,
+      why: 'Interviene un solo progenitor: es reproducción asexual, que se da en muy pocos casos.',
+      p: ['Es como si de un trocito de tu muñeco saliera otro muñeco entero.',
+        'Fíjate en cuántos animales intervienen: si es solo uno, es asexual.',
+        'No hace falta un macho y una hembra: con un brazo basta.'] },
+    { k: 'rp-ovivi', s: 's4', t: function(){
+      var D = { 'Ovíparos': 'ponen huevos, de los que nacen sus crías', 'Vivíparos': 'sus crías crecen en el vientre de la madre y nacen de ella', 'Ovovivíparos': 'sus crías nacen de huevos que se desarrollan en el vientre de la madre' };
+      var k = pick(Object.keys(D));
+      return { q: '¿Cómo se llaman los animales que ' + D[k] + '?', a: k, w: Object.keys(D), why: 'Los ' + k.toLowerCase() + ' ' + D[k] + '.' }; },
+      p: ['Las palabras dan pistas: «ovi» significa huevo y «vivi», que nacen vivos de la madre.',
+        'Ovíparo: huevo fuera. Vivíparo: la cría crece dentro de la madre. Ovovivíparo: huevo, pero dentro de la madre.',
+        'La gallina pone huevos: ovípara. La vaca tiene terneros: vivípara. Algunas rayas: ovovivíparas.'] },
+    { k: 'rp-clasif', s: 's4', t: function(){
+      var x = aPick(A_REPRO);
+      return { q: 'Según su forma de reproducirse, ¿qué tipo de animal es ' + x[1] + '?', a: x[0], w: ['Ovíparo', 'Vivíparo'], why: cap(x[1]) + (x[0] === 'Ovíparo' ? ' pone huevos: es ovíparo.' : ' tiene crías que crecen en el vientre de la madre: es vivíparo.') }; },
+      p: ['Pregúntate: ¿sus crías salen de un huevo o nacen de la madre?',
+        'Las aves, casi todos los peces, los reptiles y los insectos ponen huevos. Los mamíferos tienen las crías dentro.',
+        'La mariquita pone huevos: ovípara. El ciervo tiene cervatillos: vivíparo.'] },
+    /* ---- 5. Los vertebrados ---- */
+    { k: 'vt-def', s: 's5', q: '¿Qué tienen en común todos los animales vertebrados?', a: 'Un esqueleto interno de huesos con columna vertebral', w: ['Un caparazón duro por fuera', 'Seis patas y dos antenas', 'El cuerpo blando con concha'], long: true,
+      why: 'Los vertebrados parecen muy diferentes, pero todos tienen un esqueleto interno formado por huesos con una columna vertebral.',
+      p: ['La columna vertebral es como el palo central de una tienda de campaña: sujeta todo el cuerpo.',
+        'La palabra lo dice: los verte-brados tienen vértebras, los huesos de la columna.',
+        'El gato, la paloma y la sardina tienen huesos y columna vertebral: son vertebrados.'] },
+    { k: 'vt-partes', s: 's5', t: function(){
+      var p = pick(['cabeza', 'tronco', 'cola', 'extremidades']);
+      return { q: '¿Qué parte del cuerpo de este vertebrado está dentro del círculo rojo?', svg: aFigQ('vertebrado', p), a: cap(p), w: ['Cabeza', 'Tronco', 'Cola', 'Extremidades'], why: 'En el cuerpo de los vertebrados se distinguen cabeza, tronco y cola. Del tronco salen las extremidades. Es ' + (p === 'extremidades' ? 'una extremidad (una pata).' : (p === 'cabeza' || p === 'cola' ? 'la ' : 'el ') + p + '.') }; },
+      p: ['El cuerpo de un vertebrado es como un tren: delante la cabeza, en medio el tronco y detrás la cola.',
+        'Del tronco salen las extremidades: patas, aletas o alas.',
+        'En una lagartija: la cabeza con los ojos, el tronco con las patas y la cola larga.'] },
+    { k: 'vt-zona', s: 's5', t: function(){
+      var L = [['¿En qué parte del cuerpo de un vertebrado está el cráneo?', 'En la cabeza', 'En la cabeza están la boca, muchos órganos de los sentidos y, dentro, el cráneo.'],
+        ['¿De qué parte del cuerpo salen las extremidades?', 'Del tronco', 'Del tronco salen las extremidades, que pueden ser patas, aletas o alas.'],
+        ['¿Por dónde pasa la columna vertebral?', 'Por el tronco y la cola', 'La columna vertebral recorre el tronco y también la cola.']];
+      var x = pick(L);
+      return { q: x[0], a: x[1], w: ['En la cabeza', 'Del tronco', 'Por el tronco y la cola', 'De la cola'], why: x[2] }; },
+      p: ['Piensa en tu propio cuerpo, que también es de vertebrado.',
+        'La cabeza guarda el cráneo. El tronco lleva las extremidades. La columna vertebral es una varilla flexible que recorre el tronco y la cola.',
+        'Toca tu espalda: notarás los huesitos de tu columna vertebral.'] },
+    { k: 'vt-extrem', s: 's5', q: 'Las extremidades de los vertebrados pueden ser…', a: 'Patas, aletas o alas', w: ['Antenas y tentáculos', 'Conchas y espinas', 'Branquias y pulmones'],
+      why: 'Del tronco salen las extremidades, que pueden ser patas, aletas o alas.',
+      p: ['Las extremidades son como las «herramientas» para moverse: unas para andar, otras para nadar y otras para volar.',
+        'Piensa cómo se mueve un perro, un pez y un pájaro.',
+        'El perro tiene patas, la sardina aletas y la paloma alas.'] },
+    { k: 'vt-grupo', s: 's5', t: function(){
+      var x = aPick(A_VG);
+      return { q: '¿A qué grupo de vertebrados pertenece ' + x[1] + '?', a: x[0], w: Object.keys(A_VG), why: cap(x[1]) + ' es ' + ({ 'Peces': 'un pez', 'Anfibios': 'un anfibio', 'Reptiles': 'un reptil', 'Aves': 'un ave', 'Mamíferos': 'un mamífero' })[x[0]] + '.' }; },
+      p: ['Los vertebrados se ordenan en cinco «familias» grandes: peces, anfibios, reptiles, aves y mamíferos.',
+        'Mira su piel: escamas y aletas (pez), piel desnuda (anfibio), escamas y patas (reptil), plumas (ave) o pelo (mamífero).',
+        'La rana tiene la piel desnuda: anfibio. El delfín tiene crías y pulmones: mamífero.'] },
+    { k: 'vt-piel', s: 's5', t: function(){
+      var g = pick(Object.keys(A_PIEL));
+      var art = g === 'Aves' ? 'las ' : 'los ';
+      return { q: '¿Cómo tienen la piel ' + art + g.toLowerCase() + '?', a: A_PIEL[g], w: ['Pelos', 'Plumas', 'Escamas', 'Piel desnuda'], why: 'Algunos vertebrados tienen la piel desnuda y otros la tienen cubierta por pelos, plumas o escamas. ' + cap(art) + g.toLowerCase() + ': ' + A_PIEL[g].toLowerCase() + '.' }; },
+      p: ['La piel de cada grupo es como su «abrigo»: unos llevan plumas, otros pelo y otros escamas.',
+        'Aves → plumas. Mamíferos → pelos. Peces y reptiles → escamas. Anfibios → piel desnuda.',
+        'Acaricia a un perro: pelo. Mira una paloma: plumas. Una rana: piel desnuda y húmeda.'] },
+    { k: 'vt-cinco', s: 's5', q: '¿Cuáles son los cinco grupos de animales vertebrados?', a: 'Peces, anfibios, reptiles, aves y mamíferos', w: ['Insectos, arañas, peces, aves y gusanos', 'Moluscos, medusas, aves, peces y reptiles', 'Herbívoros, carnívoros, omnívoros, ovíparos y vivíparos'], long: true,
+      why: 'Los vertebrados son peces, anfibios, reptiles, aves y mamíferos.',
+      p: ['Son como los cinco dedos de una mano: cinco grupos.',
+        'Uno vive en el agua, otro entre el agua y la tierra, otro se arrastra, otro vuela y otro da de mamar.',
+        'Sardina, rana, lagartija, paloma y perro: uno de cada grupo.'] },
+    /* ---- 6. Los invertebrados ---- */
+    { k: 'iv-def', s: 's6', q: '¿Qué es lo único que tienen en común los invertebrados?', a: 'No tienen esqueleto de huesos y son ovíparos', w: ['Todos tienen seis patas', 'Todos viven en el mar', 'Todos tienen concha'], long: true,
+      why: 'Los invertebrados son muy distintos unos de otros. Lo único que comparten es que no tienen un esqueleto formado por huesos y que son ovíparos.',
+      p: ['«In» delante de una palabra significa «sin»: in-vertebrados son los que no tienen vértebras.',
+        'Son muy distintos (una medusa, un caracol, una hormiga…), pero ninguno tiene huesos y todos ponen huevos.',
+        'Una lombriz y una estrella de mar no se parecen nada, pero las dos son invertebrados.'] },
+    { k: 'iv-desc', s: 's6', t: function(){
+      var g = pick(A_IGN);
+      return { q: '¿Qué grupo de invertebrados es este?', say: A_IG[g].d, a: g, w: cWr(g, A_IGN, 3), why: (g === 'Esponjas' || g === 'Medusas' ? 'Las ' : 'Los ') + g.toLowerCase() + ': ' + A_IG[g].d.charAt(0).toLowerCase() + A_IG[g].d.slice(1) }; },
+      p: ['Cada grupo tiene una «seña» que lo delata, como un carné.',
+        'Esponjas: fijas en el fondo del mar. Medusas: paraguas con tentáculos. Gusanos: alargados sin patas. Moluscos: blandos con concha. Artrópodos: caparazón duro. Equinodermos: placas y espinas.',
+        'Si tiene forma de paraguas y pica, es una medusa.'] },
+    { k: 'iv-animal', s: 's6', t: function(){
+      var g = pick(A_IGN), an = pick(A_IG[g].a);
+      return { q: '¿A qué grupo de invertebrados pertenece ' + an + '?', a: g, w: cWr(g, A_IGN, 3), why: cap(an) + ' es ' + ({ 'Esponjas': 'una esponja', 'Medusas': 'una medusa', 'Gusanos': 'un gusano', 'Moluscos': 'un molusco', 'Artrópodos': 'un artrópodo', 'Equinodermos': 'un equinodermo' })[g] + ': ' + A_IG[g].d.charAt(0).toLowerCase() + A_IG[g].d.slice(1) }; },
+      p: ['Imagina cómo es el animal por fuera: ¿blando?, ¿con caparazón?, ¿con espinas?',
+        'Caracol, pulpo y calamar son moluscos. Mariquita, araña y cangrejo son artrópodos. La estrella de mar es un equinodermo.',
+        'El caracol tiene el cuerpo blando protegido por una concha: molusco.'] },
+    { k: 'iv-vi', s: 's6', t: function(){
+      var inv = Math.random() < .5, an = inv ? pick(['la medusa', 'el caracol', 'la lombriz', 'la estrella de mar', 'la mariquita', 'el pulpo', 'la araña', 'la esponja de mar']) : pick(['la sardina', 'la rana', 'la lagartija', 'la paloma', 'el conejo', 'el delfín', 'el lince']);
+      return { q: '¿' + cap(an) + ' es un animal vertebrado o invertebrado?', a: inv ? 'Invertebrado' : 'Vertebrado', w: ['Vertebrado', 'Invertebrado'], why: inv ? cap(an) + ' no tiene un esqueleto de huesos: es invertebrado.' : cap(an) + ' tiene un esqueleto de huesos con columna vertebral: es vertebrado.' }; },
+      p: ['Pregúntate si el animal tiene huesos por dentro, como tú.',
+        'Si tiene esqueleto de huesos y columna vertebral, es vertebrado. Si no, invertebrado.',
+        'El pulpo es blandito y no tiene huesos: invertebrado.'] },
+    /* ---- 7. Los insectos ---- */
+    { k: 'in-partes', s: 's7', t: function(){
+      var p = pick(Object.keys(A_INS_PT));
+      return { q: '¿Qué parte del insecto está dentro del círculo rojo?', svg: aFigQ('insecto', p), a: cap(p), w: cWr(cap(p), ['Cabeza', 'Tórax', 'Abdomen', 'Antenas', 'Patas', 'Alas'], 3), why: 'El cuerpo de los insectos tiene cabeza, tórax y abdomen. En la cabeza están las antenas, y del tórax salen las patas y las alas. ' + (p === 'cabeza' ? 'Es la cabeza.' : p === 'tórax' || p === 'abdomen' ? 'Es el ' + p + '.' : 'Son las ' + p + '.') }; },
+      p: ['El cuerpo de un insecto es como un muñeco de tres bolas: la cabeza, la del medio (tórax) y la de atrás (abdomen).',
+        'En la cabeza van las dos antenas. Del tórax salen las seis patas y las alas. El abdomen es la parte de atrás.',
+        'En una avispa, las rayas amarillas están en el abdomen.'] },
+    { k: 'in-tres', s: 's7', q: '¿En qué tres partes está dividido el cuerpo de los insectos?', a: 'Cabeza, tórax y abdomen', w: ['Cabeza, tronco y cola', 'Cabeza, alas y patas', 'Concha, pie y antenas'],
+      why: 'El cuerpo de los insectos está dividido en tres partes: cabeza, tórax y abdomen.',
+      p: ['Es como una hormiga hecha con tres bolitas de plastilina unidas.',
+        'Cuidado: «cabeza, tronco y cola» es el cuerpo de los vertebrados. En los insectos, la del medio es el tórax.',
+        'Hormiga: cabecita, tórax en medio y abdomen gordito detrás.'] },
+    { k: 'in-patas', s: 's7', q: '¿Cuántas patas tienen los insectos?', n: 6, max: 1,
+      why: 'Los insectos presentan seis patas. Además, tienen dos antenas y muchos tienen dos o cuatro alas.',
+      p: ['Piensa en tres parejas de zapatos.',
+        'Las patas de los insectos van de dos en dos y salen del tórax. Las arañas tienen 8, así que no son insectos.',
+        'Una hormiga: dos patas delante, dos en medio y dos detrás.'] },
+    { k: 'in-antenas', s: 's7', q: '¿Cuántas antenas tienen los insectos?', n: 2, max: 1,
+      why: 'Los insectos tienen dos antenas, que están en la cabeza.',
+      p: ['Las antenas son como los dos cuernitos de un caracol, pero finos y largos.',
+        'Están en la cabeza y van en pareja.',
+        'Mira una mariposa: tiene dos antenas largas delante de los ojos.'] },
+    { k: 'in-donde', s: 's7', t: function(){
+      var L = [['las antenas', 'En la cabeza'], ['las patas', 'En el tórax'], ['las alas, en los que las tienen', 'En el tórax']], x = pick(L);
+      return { q: '¿En qué parte del cuerpo de los insectos están ' + x[0] + '?', a: x[1], w: ['En la cabeza', 'En el tórax', 'En el abdomen'], why: 'Las antenas están en la cabeza. Las patas y las alas salen del tórax.' }; },
+      p: ['El tórax es como el «motor» del insecto: de ahí salen todas las piezas para moverse.',
+        'En la cabeza solo van las antenas (y los ojos y la boca). Patas y alas salen del tórax, la parte del medio.',
+        'Una mosca mueve las alas desde el medio de su cuerpo, no desde la cola.'] },
+    { k: 'in-metam', s: 's7', t: function(){
+      if (Math.random() < .5) return { q: '¿Cómo se llama la transformación de una oruga en adulto?', a: 'Metamorfosis', w: ['Reproducción', 'Respiración', 'Digestión'], why: 'Del huevo sale una larva llamada oruga. Tras varios cambios se transforma en adulto. Esa transformación es la metamorfosis.' };
+      return { q: 'Cuando sale del huevo, ¿cómo se llama la larva de una mariposa?', a: 'Oruga', w: ['Pollito', 'Renacuajo', 'Cachorro'], why: 'Los insectos son ovíparos. Del huevo sale una larva que recibe el nombre de oruga.' }; },
+      p: ['La metamorfosis es como un disfraz que cambia del todo: de gusanito a mariposa.',
+        'Primero un huevo, luego una larva (oruga), después varios cambios y por fin el adulto.',
+        'La oruga come y crece, se queda quieta un tiempo y sale una mariposa.'] },
+    { k: 'in-orden', s: 's7', q: '¿Cuál es el orden correcto en la vida de una mariposa?', a: 'Huevo → oruga → cambios → adulto', w: ['Oruga → huevo → adulto', 'Adulto → oruga → huevo', 'Huevo → adulto → oruga'], long: true,
+      why: 'Del huevo sale una larva (oruga). Tras varios cambios, la oruga se transforma en adulto: es la metamorfosis.',
+      p: ['Es como una historia con principio, nudo y final.',
+        'Todo empieza con un huevo. La oruga nace del huevo, no al revés.',
+        'Huevo pequeñito → oruga que come hojas → se queda quieta y cambia → mariposa.'] },
+    { k: 'in-grupos', s: 's7', t: function(){
+      var g = pick(Object.keys(A_INSG));
+      return { q: '¿Qué grupo de insectos es este?', say: A_INSG[g], a: g, w: Object.keys(A_INSG), why: 'Las mariposas tienen cuatro alas iguales para volar. Las moscas y los mosquitos, dos para volar y dos para el equilibrio. Los escarabajos, dos alas duras que protegen a dos finas.' }; },
+      p: ['Las alas son como el «carné» de cada grupo de insectos.',
+        'Cuatro alas iguales: mariposas. Dos para volar y dos para el equilibrio: moscas y mosquitos. Dos duras encima de dos finas: escarabajos.',
+        'La mariquita levanta sus alas rojas y duras y vuela con las finas de debajo: es un escarabajo.'] },
+    { k: 'in-artro', s: 's7', q: '¿Cómo son los artrópodos, el grupo al que pertenecen los insectos?', a: 'Tienen piezas unidas por articulaciones, como una armadura, y patas articuladas', w: ['Tienen el cuerpo blando y sin patas', 'Tienen huesos y columna vertebral', 'Están fijos en el fondo del mar'], long: true,
+      why: 'Los artrópodos están revestidos por varias piezas unidas por articulaciones, como una armadura, y tienen patas con articulaciones.',
+      p: ['Un artrópodo va vestido como un caballero medieval: con armadura.',
+        'Su cuerpo está cubierto de piezas duras que se doblan por las articulaciones, igual que sus patas.',
+        'Escarabajos, arañas, ciempiés y cangrejos son artrópodos.'] },
+    { k: 'in-cual', s: 's7', t: function(){
+      var ins = pick(['la hormiga', 'la mariquita', 'la mosca', 'la abeja', 'la mariposa', 'el saltamontes']), oth = shuffle(['la araña', 'el cangrejo', 'el ciempiés', 'la lombriz', 'el caracol']).slice(0, 3);
+      return { q: '¿Cuál de estos animales es un insecto?', a: cap(ins), w: oth.map(cap), why: cap(ins) + ' tiene seis patas, dos antenas y el cuerpo en cabeza, tórax y abdomen. La araña (8 patas), el cangrejo y el ciempiés son artrópodos, pero no insectos.' }; },
+      p: ['Para saber si es un insecto, cuenta sus patas como si fueran zapatos: tiene que tener seis.',
+        'Insecto = 6 patas, 2 antenas y cuerpo en tres partes. La araña tiene 8 patas: no es insecto.',
+        'La hormiga tiene 6 patas: insecto. El ciempiés tiene muchísimas: no.'] },
+    { k: 'in-numeroso', s: 's7', q: '¿Cuál es el grupo de artrópodos más abundante?', a: 'Los insectos', w: ['Las arañas', 'Los cangrejos', 'Los ciempiés'],
+      why: 'Los artrópodos son muy diversos y el grupo más abundante es el de los insectos. ¡Son los animales más numerosos!',
+      p: ['Si los animales hicieran una carrera de «quién es más», ganarían los insectos.',
+        'Hay tantos que es imposible conocerlos todos.',
+        'En un jardín puedes encontrar hormigas, moscas, mariquitas, mariposas… ¡muchísimos!'] },
+    /* ---- 8. Animales de Andalucía ---- */
+    { k: 'an-fauna', s: 's8', q: '¿Qué es la fauna?', a: 'El conjunto de los animales que habitan un país, una región o una zona', w: ['El conjunto de las plantas de una zona', 'Un animal que vive solo', 'La comida de los animales'], long: true,
+      why: 'Llamamos fauna al conjunto de los animales que habitan un país, una región o una zona.',
+      p: ['La fauna es como la lista de clase, pero de los animales de un lugar.',
+        'Se refiere solo a animales y siempre de un sitio concreto.',
+        'La fauna de Andalucía incluye el lince ibérico, el águila imperial y muchos más.'] },
+    { k: 'an-pista', s: 's8', t: function(){
+      var x = pick(A_AND), o = cWr(x[0], A_AND.map(function(z){ return z[0]; }), 3);
+      return { q: '¿De qué animal de Andalucía se habla?', say: x[1], a: x[0], w: o, why: x[0] + ': ' + x[1].charAt(0).toLowerCase() + x[1].slice(1) }; },
+      p: ['Es como un juego de adivinanzas: cada animal tiene su pista.',
+        'Busca la palabra clave: gato grande (lince), pinos (mariposa isabelina), 20 minutos bajo el agua (delfín mular), patas con espinas (mantis)…',
+        '«Bordes blancos en las alas» es la pista del águila imperial.'] },
+    { k: 'an-tipo', s: 's8', t: function(){
+      var x = pick(A_AND);
+      var nm = x[3] + ' ' + x[0].charAt(0).toLowerCase() + x[0].slice(1);
+      return { q: '¿' + cap(nm) + ' es un animal vertebrado o invertebrado?', a: x[2] === 'v' ? 'Vertebrado' : 'Invertebrado', w: ['Vertebrado', 'Invertebrado'], why: cap(nm) + (x[2] === 'v' ? ' tiene esqueleto de huesos: es un vertebrado.' : ' no tiene esqueleto de huesos: es un invertebrado.') }; },
+      p: ['Piensa si el animal tiene huesos por dentro.',
+        'Lince, tortuga mora, águila imperial y delfín mular son vertebrados. Mariposa isabelina, araña negra, coral anaranjado y mantis son invertebrados.',
+        'La mantis es un insecto: invertebrado.'] },
+    { k: 'an-peligro', s: 's8', q: '¿Qué animales viven en Andalucía, pero en otras partes de España han desaparecido o son difíciles de encontrar?', a: 'El lince ibérico, el águila imperial ibérica y el fartet', w: ['El perro, el gato y la gallina', 'La vaca, la oveja y el caballo', 'El león, la jirafa y la cebra'], long: true,
+      why: 'La fauna de Andalucía es rica y variada. Aquí viven animales que en otras partes de España han desaparecido o son difíciles de encontrar, como el lince ibérico, el águila imperial ibérica o el fartet.',
+      p: ['Andalucía es como un refugio para algunos animales que casi no quedan en otros sitios.',
+        'Son animales salvajes y escasos, no animales de granja ni de otros continentes.',
+        'El fartet es un pez pequeñito; el lince, un felino; el águila imperial, un ave.'] },
+    { k: 'an-cientif', s: 's8', t: function(){
+      var ent = Math.random() < .5;
+      return { q: ent ? '¿Cómo se llama la persona que estudia los insectos?' : '¿Cómo se llaman las personas que se dedican a estudiar los animales?', a: ent ? 'Entomólogo o entomóloga' : 'Zoólogos y zoólogas', w: ent ? ['Panadero o panadera', 'Veterinario o veterinaria', 'Botánico o botánica'] : ['Botánicos', 'Astronautas', 'Cocineros'], why: ent ? 'El entomólogo o la entomóloga estudia los insectos.' : 'Los zoólogos y zoólogas estudian los animales. Usan un cuaderno de campo para anotar lo que observan en la naturaleza.' }; },
+      p: ['Cada científico tiene su especialidad, como cada jugador su posición.',
+        '«Zoo» tiene que ver con animales. «Entomo» tiene que ver con insectos.',
+        'Quien observa mariquitas y hormigas con una lupa para estudiarlas es entomóloga.'] }
+  ];
+  function aBuild(e){
+    for (var g = 0; g < 8; g++){
+      var o; try { o = e.t ? e.t() : e; } catch (x) { o = null; }
+      if (!o) continue;
+      var ex = {}; ['big', 'say', 'long', 'svg', 'max'].forEach(function(k){ if (o[k] != null) ex[k] = o[k]; });
+      var q = o.n != null ? num(o.q, o.n, o.why, ex) : choice(o.q, o.a, o.w, o.why, ex);
+      if (q.type === 'choice' && (q.ans < 0 || q.opts.length < 2)) continue;
+      return q;
+    }
+    return choice('¿Cuántas patas tienen los insectos?', '6', ['4', '8'], 'Los insectos tienen seis patas.');
+  }
+  function aGens(s){ return A_BANK.filter(function(e){ return e.s === s; }).map(function(e){ return function(){ return aBuild(e); }; }); }
   var CIENCIAS = [
     { id: 'c1', name: 'Tema 1', title: 'Las personas: el cuerpo, la salud y las etapas de la vida', secs: [
       { id: 's1', name: 'Somos seres vivos', desc: 'Nutrición, relación y reproducción', gens: GC1 },
@@ -1583,6 +1975,16 @@
       { id: 's8', name: 'La respiración', desc: 'Nariz, tráquea y pulmones', gens: GC8 },
       { id: 's9', name: 'Crecemos y cambiamos', desc: 'Las etapas de la vida', gens: GC9 },
       { id: 's10', name: 'Hábitos saludables', desc: 'Higiene, ejercicio, descanso, alimentación y postura', gens: GC10 }
+    ] },
+    { id: 'c2', name: 'Tema 2', title: 'El mundo de los animales: funciones vitales, vertebrados, invertebrados, insectos y animales de Andalucía', secs: [
+      { id: 's1', name: 'Funciones vitales y alimentación', desc: 'Herbívoros, carnívoros y omnívoros', gens: aGens('s1') },
+      { id: 's2', name: 'La respiración', desc: 'Pulmones y branquias', gens: aGens('s2') },
+      { id: 's3', name: 'La relación', desc: 'Sentidos, cerebro y respuesta', gens: aGens('s3') },
+      { id: 's4', name: 'La reproducción', desc: 'Ovíparos, vivíparos y ovovivíparos', gens: aGens('s4') },
+      { id: 's5', name: 'Los vertebrados', desc: 'Cabeza, tronco y cola · los cinco grupos', gens: aGens('s5') },
+      { id: 's6', name: 'Los invertebrados', desc: 'Esponjas, medusas, gusanos, moluscos, artrópodos y equinodermos', gens: aGens('s6') },
+      { id: 's7', name: 'Los insectos', desc: 'Cabeza, tórax y abdomen · la metamorfosis', gens: aGens('s7') },
+      { id: 's8', name: 'Animales de Andalucía', desc: 'La fauna andaluza', gens: aGens('s8') }
     ] }
   ];
   /* ================= Inglés · Tema 1: A busy day =================
@@ -2669,6 +3071,95 @@
       ] }
     ] },
 
+    'ciencias-c2': { plan: true, intro: '¡Hola! Este es tu plan para preparar el examen de Ciencias del tema 2: el mundo de los animales. Aprenderás sus funciones vitales, los vertebrados y los invertebrados, los insectos y los animales de Andalucía. Son 7 sesiones cortitas: haz una cada día y en orden. Mira bien los dibujos, contesta las preguntas de «¡Ahora tú!» y luego practica. En la barra de palabras clave puedes buscar qué significa cada palabra.', parts: [
+      { sec: 'p1', secs: ['s1', 's2'], title: 'Sesión 1 · Funciones vitales: alimentación y respiración', time: '20 min', goal: 'Saber las tres funciones vitales, cómo son los animales según lo que comen y cómo respiran.',
+        words: [['funciones vitales', 'nutrición, relación y reproducción'], ['nutrición', 'conseguir la energía y las sustancias para vivir tomando alimentos'], ['herbívoro', 'se alimenta de plantas'], ['carnívoro', 'se alimenta de otros animales'], ['omnívoro', 'come alimentos de origen vegetal y animal'], ['oxígeno', 'gas que hay en el aire y en el agua y que necesitan los animales'], ['pulmones', 'órganos para tomar el oxígeno del aire'], ['branquias', 'láminas para tomar el oxígeno del agua']],
+        b: [
+        ['p', 'Los animales son **seres vivos** y, como tú, realizan tres **funciones vitales**: **nutrición**, **relación** y **reproducción**.'],
+        ['p', 'Con la **nutrición** consiguen la **energía** y las **sustancias** que necesitan para vivir. El primer paso es **tomar alimentos**. Según lo que comen, los animales son:'],
+        ['list', ['**Herbívoros**: se alimentan de **plantas**. Ejemplo: el conejo o la oruga.', '**Carnívoros**: se alimentan de **otros animales**. Ejemplo: el tiburón o el lobo.', '**Omnívoros**: comen alimentos de origen **vegetal y animal**. Ejemplo: el zorro o el oso.']],
+        ['trick', '«**Herbi**» viene de hierba, «**carni**» de carne y «**omni**» significa todo.'],
+        ['ex', 'Las **personas** comemos fruta y verdura y también carne, pescado y huevos: somos **omnívoras**.'],
+        ['p', 'Para vivir, los animales necesitan **oxígeno**, un gas que está en el **aire** y también en el **agua**. Respiran con dos órganos diferentes:'],
+        ['list', ['**Pulmones**: los usan los animales que toman el oxígeno del **aire**. Están dentro del cuerpo. Ejemplo: el ratón.', '**Branquias**: las usan los animales que toman el oxígeno del **agua**. Son unas láminas en contacto con el agua. Ejemplo: los peces.']],
+        ['oops', '¡No todos los que viven en el agua tienen branquias! El **delfín** respira con **pulmones**: aguanta unos 20 minutos bajo el agua sin respirar y luego sale a tomar aire.'],
+        ['try', ['¿Qué tipo de animal es la vaca según su alimentación?', 'Herbívora: se alimenta de plantas.']],
+        ['try', ['¿Con qué respira una sardina?', 'Con branquias: toma el oxígeno del agua.']]
+      ] },
+      { sec: 'p2', secs: ['s3', 's4'], title: 'Sesión 2 · La relación y la reproducción', time: '20 min', goal: 'Entender cómo notan los animales lo que pasa y cómo tienen crías: ovíparos, vivíparos y ovovivíparos.',
+        words: [['relación', 'recibir información con los sentidos y dar una respuesta'], ['cerebro', 'recibe la información, la interpreta y da la respuesta'], ['línea lateral', 'órgano de los peces que nota el movimiento del agua'], ['reproducción', 'tener crías semejantes a ellos'], ['reproducción asexual', 'interviene un solo progenitor; se da en muy pocos casos'], ['reproducción sexual', 'intervienen una hembra y un macho'], ['ovíparo', 'pone huevos de los que nacen las crías'], ['vivíparo', 'las crías crecen en el vientre de la madre y nacen de ella'], ['ovovivíparo', 'las crías nacen de huevos que se desarrollan dentro de la madre']],
+        b: [
+        ['p', 'Con la **relación**, los animales reciben información de lo que pasa a su alrededor a través de los **órganos de los sentidos**. El **cerebro** recibe esa información, la **interpreta** y da una **respuesta** adecuada.'],
+        ['ex', 'Los peces tienen la **línea lateral**, un órgano que detecta el movimiento en el agua. Así saben cuándo se acerca un peligro y pueden **huir** gracias a sus aletas.'],
+        ['trick', 'La relación es como un portero de fútbol: **ve** el balón (sentidos), **piensa** (cerebro) y **salta** (respuesta).'],
+        ['p', 'Con la **reproducción**, los animales tienen **crías semejantes** a ellos. Hay dos tipos:'],
+        ['list', ['**Asexual**: se da en **muy pocos casos** e interviene **un solo progenitor**. Por ejemplo, a partir del **brazo de una estrella de mar** se puede formar una estrella completa.', '**Sexual**: es la **más frecuente**. Intervienen una **hembra** y un **macho**, y las crías se parecen a los dos.']],
+        ['p', 'En la reproducción sexual, según cómo nacen las crías, los animales son:'],
+        ['list', ['**Ovíparos**: ponen **huevos**, de los que nacen sus crías. Ejemplo: la gallina, el avestruz o la mariquita.', '**Vivíparos**: las crías **crecen en el vientre de su madre** y nacen de ella. Ejemplo: el tigre, el caballo o el ciervo.', '**Ovovivíparos**: las crías nacen de **huevos que se desarrollan en el vientre de la madre**. Ejemplo: algunas rayas.']],
+        ['trick', '«**Ovi**» significa huevo. Ovíparo: huevo **fuera**. Ovovivíparo: huevo **dentro** de la madre.'],
+        ['try', ['Clasifica: merluza, tigre, paloma y ciervo.', 'Ovíparos: merluza y paloma. Vivíparos: tigre y ciervo.']],
+        ['try', ['Un gato oye un ruido y se esconde. ¿Qué función vital es?', 'La relación: lo nota con un sentido y responde.']]
+      ] },
+      { sec: 'p3', secs: ['s5'], title: 'Sesión 3 · Los animales vertebrados', time: '20 min', goal: 'Saber qué tienen en común los vertebrados, las partes de su cuerpo y sus cinco grupos.',
+        words: [['vertebrado', 'animal con esqueleto interno de huesos y columna vertebral'], ['columna vertebral', 'varilla flexible formada por muchos huesos'], ['cráneo', 'hueso que está dentro de la cabeza'], ['extremidades', 'salen del tronco: patas, aletas o alas'], ['escamas', 'piel de peces y reptiles']],
+        b: [
+        ['p', 'Gatos, conejos, delfines, palomas, lagartijas, ranas, sardinas… Parecen muy diferentes, pero todos tienen algo en común: un **esqueleto interno formado por huesos** con una **columna vertebral**. Son los **vertebrados**.'],
+        ['p', 'En su cuerpo se distinguen tres partes:'],
+        ['list', ['**Cabeza**: tiene la boca y muchos órganos de los sentidos. Dentro está el **cráneo**.', '**Tronco**: lo recorre la **columna vertebral**, una varilla flexible de muchos huesos. De él salen las **extremidades**, que pueden ser **patas, aletas o alas**.', '**Cola**: también la recorre la columna vertebral.']],
+        ['fig', 'ani-vertebrado'],
+        ['p', 'Algunos tienen la **piel desnuda** y otros la tienen cubierta por **pelos, plumas o escamas**. Hay cinco grupos:'],
+        ['list', ['**Peces**: escamas y aletas. Ejemplo: la sardina.', '**Anfibios**: piel desnuda. Ejemplo: la rana.', '**Reptiles**: escamas. Ejemplo: la lagartija.', '**Aves**: plumas. Ejemplo: la golondrina.', '**Mamíferos**: pelos. Ejemplo: el perro o la marmota.']],
+        ['trick', 'Los cinco grupos en orden: «**P**or **A**quí **R**eptan **A**lgunos **M**onstruos» → **P**eces, **A**nfibios, **R**eptiles, **A**ves y **M**amíferos.'],
+        ['oops', 'Las **aves** son las únicas con **plumas**. El murciélago vuela, pero tiene pelo: es un mamífero.'],
+        ['try', ['¿De qué parte del cuerpo salen las extremidades?', 'Del tronco.']],
+        ['try', ['¿A qué grupo pertenece el cocodrilo?', 'A los reptiles: tiene escamas.']]
+      ] },
+      { sec: 'p4', secs: ['s6'], title: 'Sesión 4 · Los animales invertebrados', time: '20 min', goal: 'Conocer los seis grupos de invertebrados y reconocer a qué grupo pertenece cada animal.',
+        words: [['invertebrado', 'animal sin esqueleto de huesos'], ['esponjas', 'cuerpo irregular, fijas en el fondo del mar'], ['medusas', 'forma de paraguas y tentáculos que pican'], ['gusanos', 'alargados y sin patas'], ['moluscos', 'cuerpo blando, casi siempre con concha'], ['artrópodos', 'caparazón duro y patas articuladas'], ['equinodermos', 'placas duras bajo la piel y espinas']],
+        b: [
+        ['p', 'Los **invertebrados** son muchos grupos de animales muy distintos entre sí. Lo único que comparten es que **no tienen un esqueleto de huesos** y que son **ovíparos**.'],
+        ['list', ['**Esponjas**: cuerpo irregular. No se mueven: están **fijas** en el fondo del mar.', '**Medusas**: forma de **paraguas**. Sus tentáculos pueden causar **picaduras**.', '**Gusanos**: **alargados** y **sin patas**. Hay varios tipos, como la lombriz de tierra.', '**Moluscos**: cuerpo **blando**, en la mayoría protegido por una **concha**. Ejemplo: el caracol, el pulpo o el calamar.', '**Artrópodos**: tienen un **caparazón duro**. Son muy diversos: insectos, arañas, ciempiés, cangrejos… El grupo más abundante es el de los **insectos**.', '**Equinodermos**: esqueleto de **placas duras bajo la piel** y suelen tener **espinas**. Ejemplo: la estrella de mar.']],
+        ['trick', '«**In**» significa «sin»: los **in**vertebrados no tienen vértebras.'],
+        ['oops', 'El **pulpo** y el **calamar** no tienen concha, pero son **moluscos**: tienen el cuerpo blando. La **araña** es un artrópodo, pero **no** es un insecto.'],
+        ['try', ['¿A qué grupo pertenece el caracol?', 'A los moluscos: cuerpo blando protegido por una concha.']],
+        ['try', ['¿Qué invertebrados están fijos en el fondo del mar?', 'Las esponjas.']]
+      ] },
+      { sec: 'p5', secs: ['s7'], title: 'Sesión 5 · Los insectos', time: '20 min', goal: 'Saber cómo es el cuerpo de un insecto, cómo se reproduce y sus grupos.',
+        words: [['insecto', 'artrópodo de 6 patas, 2 antenas y cuerpo en tres partes'], ['tórax', 'parte del medio, de la que salen las patas y las alas'], ['abdomen', 'parte de atrás del cuerpo'], ['larva', 'lo que sale del huevo; en la mariposa se llama oruga'], ['metamorfosis', 'transformación de la larva en adulto'], ['artrópodos', 'animales con piezas unidas por articulaciones, como una armadura']],
+        b: [
+        ['p', 'Los **insectos** son los animales **más numerosos**. Su cuerpo está dividido en **tres partes**: **cabeza**, **tórax** y **abdomen**.'],
+        ['list', ['Tienen **dos antenas**, en la cabeza.', 'Tienen **seis patas**, que salen del tórax.', 'Muchos tienen, además, **dos o cuatro alas**, también en el tórax.']],
+        ['fig', 'ani-insecto'],
+        ['oops', 'Cuerpo de vertebrado: cabeza, **tronco** y **cola**. Cuerpo de insecto: cabeza, **tórax** y **abdomen**. ¡No los mezcles!'],
+        ['p', 'Los insectos son **ovíparos**. Del huevo sale una **larva** que se llama **oruga**. Tras varios cambios, la oruga se transforma en **adulto**. Esa transformación se llama **metamorfosis**.'],
+        ['fig', 'ani-metamorfosis'],
+        ['p', 'Algunos grupos de insectos:'],
+        ['list', ['**Mariposas**: cuatro alas iguales que les sirven para volar.', '**Moscas y mosquitos**: cuatro alas, dos para volar y las otras dos para darles equilibrio.', '**Escarabajos**: dos alas duras que protegen a otras dos finas con las que vuelan. ¡La mariquita es un escarabajo!']],
+        ['p', 'Los insectos son un grupo de **artrópodos**. Los artrópodos están revestidos por varias piezas unidas por **articulaciones**, como una **armadura**, y tienen **patas con articulaciones**. Por ejemplo: el escarabajo, la araña, el ciempiés y el cangrejo.'],
+        ['trick', 'Para saber si es un insecto, cuenta las patas: **6**. La araña tiene **8**: es artrópodo, pero no insecto.'],
+        ['try', ['¿En qué parte del cuerpo de un insecto están las antenas?', 'En la cabeza.']],
+        ['try', ['Ordena: adulto, huevo, oruga.', 'Huevo → oruga → adulto.']]
+      ] },
+      { sec: 'p6', secs: ['s8'], title: 'Sesión 6 · Animales de Andalucía', time: '15 min', goal: 'Saber qué es la fauna y reconocer animales vertebrados e invertebrados de Andalucía.',
+        words: [['fauna', 'conjunto de los animales de un país, una región o una zona'], ['protegido', 'animal que no se puede cazar ni molestar'], ['zoólogo', 'persona que estudia los animales'], ['entomólogo', 'persona que estudia los insectos'], ['cuaderno de campo', 'cuaderno para anotar y dibujar lo que se observa en la naturaleza']],
+        b: [
+        ['p', 'Llamamos **fauna** al conjunto de los animales que habitan un país, una región o una zona. La fauna de **Andalucía** es rica y variada: aquí viven animales que en otras partes de España han desaparecido o son difíciles de encontrar, como el **lince ibérico**, el **águila imperial ibérica** o el **fartet** (un pez pequeño).'],
+        ['p', '**Vertebrados** de Andalucía:'],
+        ['list', ['**Lince ibérico**: parecido a un gato, pero más grande. Estuvo a punto de desaparecer.', '**Tortuga mora**: tortuga terrestre que puede vivir muchos años si tiene vegetación y un poco de agua.', '**Águila imperial**: ave de gran tamaño. A partir de los 5 años tiene bordes blancos en las alas.', '**Delfín mular**: excelente nadador. Aguanta bajo el agua unos 20 minutos sin respirar.']],
+        ['p', '**Invertebrados** de Andalucía:'],
+        ['list', ['**Mariposa isabelina**: mariposa nocturna, difícil de ver porque vive en las copas de los pinos.', '**Araña negra de los alcornocales**: solo vive en el sur de España. Es un animal **protegido**.', '**Coral anaranjado**: animal marino al que le afectan la contaminación del mar y los cambios de temperatura del agua.', '**Mantis de Sierra Nevada**: insecto con espinas en las patas delanteras para atrapar a sus presas. Solo está activo en primavera y verano.']],
+        ['tip', 'Los **zoólogos** y **zoólogas** estudian los animales, y los **entomólogos** y **entomólogas**, los insectos. Usan un **cuaderno de campo** para anotar la fecha, el lugar, el tiempo, el paisaje, las plantas y los animales que ven, con dibujos. ¡Tú también puedes hacer el tuyo en tus excursiones!'],
+        ['try', ['¿Qué es la fauna?', 'El conjunto de los animales que habitan un país, una región o una zona.']],
+        ['try', ['¿La mantis de Sierra Nevada es vertebrado o invertebrado?', 'Invertebrado: es un insecto.']]
+      ] },
+      { sec: 'p7', secs: [], modo: true, title: 'Sesión 7 · Repaso final', time: '20 min', goal: 'Comprobar que lo sabes todo y hacer el MODO EXAMEN.',
+        b: [
+        ['p', 'Antes del MODO EXAMEN, repasa esta lista. Si dudas en algo, vuelve a esa sesión:'],
+        ['list', ['¿Sé las tres funciones vitales, qué es ser herbívoro, carnívoro u omnívoro y cómo respiran los animales? → Sesión 1', '¿Sé cómo funciona la relación y qué son los ovíparos, vivíparos y ovovivíparos? → Sesión 2', '¿Sé las partes del cuerpo de un vertebrado y sus cinco grupos? → Sesión 3', '¿Sé los seis grupos de invertebrados? → Sesión 4', '¿Sé las partes de un insecto, la metamorfosis y los grupos de insectos? → Sesión 5', '¿Sé qué es la fauna y algunos animales de Andalucía? → Sesión 6']],
+        ['trick', 'Haz un mapa en tu cuaderno: **Tipos de animales** → según su **alimentación** (herbívoros, carnívoros, omnívoros), según su **reproducción** (ovíparos, vivíparos) y según su **esqueleto** (vertebrados, invertebrados).'],
+        ['p', 'Cuando lo tengas todo, haz el **MODO EXAMEN**: 20 preguntas del tema, con la profe para ayudarte si te atascas. Haz varios: cada vez salen preguntas distintas, hasta que hayan salido todos los conceptos.']
+      ] }
+    ] },
     'ingles-i1': { plan: true, intro: '¡Hola! Este es tu plan para preparar el examen de inglés con todo lo que hay en tus apuntes. Son 8 sesiones cortitas, de unos 15 minutos. Haz una cada día y en orden (si el examen es muy pronto, puedes hacer dos). Al acabar cada sesión, practica y márcala como hecha. En la barra de vocabulario puedes buscar cualquier palabra de esta página y oír cómo se dice.', parts: [
       { sec: 'p1', secs: ['s9', 's10'], title: 'Sesión 1 · ¡Hola! Me presento y cuento hasta 20', time: '15 min', goal: 'Decir cómo te llamas, cuántos años tienes y contar del 1 al 20.',
         words: [['Hello!', '¡Hola!'], ['name', 'nombre'], ['old', 'de edad (también «viejo»)'], ['years', 'años'], ['one', 'uno'], ['two', 'dos'], ['three', 'tres'], ['four', 'cuatro'], ['five', 'cinco'], ['six', 'seis'], ['seven', 'siete'], ['eight', 'ocho'], ['nine', 'nueve'], ['ten', 'diez'], ['eleven', 'once'], ['twelve', 'doce']],
@@ -5930,6 +6421,7 @@
         'Además de estudiar y dormir, el cuerpo y la cabeza necesitan ratos para divertirse.',
         'Leer un cómic, jugar a un juego de mesa o pintar un dibujo el domingo por la tarde.'] }
   ];
+  MODO['ciencias-c2'] = A_BANK;
   /* el MODO EXAMEN de Inglés sale de los apuntes de clase */
   MODO['ingles-i1'] = I_BANK.filter(function(e){ return !e.book; });
   /* ================= MODO EXAMEN con la profe =================
