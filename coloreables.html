@@ -982,7 +982,7 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
       else if (r[hit[1]].indexOf(hit[2]) < 0) r[hit[1]].push(hit[2]);
     });
     var found = !!(r.ch || r.bg || r.sky.length || r.gnd.length), ch = r.ch || base.ch;
-    var bg = r.bg || (r.ch ? HOME[(CHARS[ch].c || [])[0]] || base.bg : base.bg);
+    var bg = r.bg || (r.ch ? CHARS[ch].h || HOME[(CHARS[ch].c || [])[0]] || base.bg : base.bg);
     var out = { ch: ch, bg: bg, sky: fill(r.sky.slice(0, 2), SCENE[bg].sky), gnd: fill(r.gnd.slice(0, 2), SCENE[bg].gnd) };
     return { r: out, found: found, unknown: unknown, extra: r.sky.length > 2 || r.gnd.length > 2 };
   }
@@ -999,6 +999,336 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
     ['superheroe', 'heroe', 'ciudad', 'fugaz,avion', 'nada,nada', 'aventuras', 'El superhéroe'], ['hada', 'hada', 'bosque', 'luna,mariposa', 'seta,flor', 'aventuras', 'El hada del bosque'],
     ['pulpomar', 'pulpo', 'mar', 'nada,nada', 'concha,cofre', 'aventuras', 'El pulpo'], ['explorador', 'nino', 'desierto', 'sol,nada', 'cactus,cofre', 'aventuras', 'El explorador'],
     ['perrito', 'perrito', 'prado', 'sol,mariposa', 'hueso,pelota', 'animales', 'El perrito'], ['conejito', 'conejito', 'prado', 'nube,mariposa', 'zanahoria,flor', 'animales', 'El conejito']
+  ].forEach(function(x){
+    var r = { ch: x[1], bg: x[2], sky: x[3].split(','), gnd: x[4].split(',') };
+    COL_DESIGNS.push({ id: x[0], t: x[5], name: x[6], draw: function(){ return compose(r); } });
+  });
+  /* ================= Aún más: animales, fútbol, deportes, Navidad, Halloween y fiestas ================= */
+  /* números de camiseta hechos con trazos (cada cifra en una caja de 12 × 22) */
+  var DIG = { 0: [[0, 0, 12, 0, 12, 22, 0, 22, 0, 0]], 1: [[3, 4, 7, 0, 7, 22]], 2: [[0, 0, 12, 0, 12, 11, 0, 11, 0, 22, 12, 22]], 3: [[0, 0, 12, 0, 12, 22, 0, 22], [0, 11, 12, 11]],
+    4: [[0, 0, 0, 11, 12, 11], [12, 0, 12, 22]], 5: [[12, 0, 0, 0, 0, 11, 12, 11, 12, 22, 0, 22]], 6: [[12, 0, 0, 0, 0, 22, 12, 22, 12, 11, 0, 11]], 7: [[0, 0, 12, 0, 12, 22]],
+    8: [[0, 0, 12, 0, 12, 22, 0, 22, 0, 0], [0, 11, 12, 11]], 9: [[12, 11, 0, 11, 0, 0, 12, 0, 12, 22, 0, 22]] };
+  function num(n, cx, cy){
+    var s = String(n), w = s.length * 14 - 4, d = '', i, j, k, x0;
+    for (i = 0; i < s.length; i++){ x0 = cx - w / 2 + i * 14; DIG[s[i]].forEach(function(p){ for (k = 0; k < p.length; k += 2) d += (k ? ' L' : ' M') + (x0 + p[k] * .85).toFixed(1) + ' ' + (cy - 10 + p[k + 1] * .9).toFixed(1); }); }
+    return L(d);
+  }
+  var HAIR = {
+    boy: P('M150 124 Q146 74 200 72 Q254 74 250 124 Q240 100 214 98 Q206 110 190 100 Q164 100 150 124 Z'),
+    girl: P('M150 128 Q146 74 200 72 Q254 74 250 128 Q236 96 200 102 Q166 96 150 128 Z'),
+    long: P('M150 128 Q146 74 200 72 Q254 74 250 128 Q236 96 200 102 Q166 96 150 128 Z'),
+    none: ''
+  };
+  var LONG_BACK = P('M154 110 Q130 160 140 214 Q170 222 176 190 L224 190 Q230 222 260 214 Q270 160 246 110 Z');
+  /* niño o niña con postura, ropa y peinado a elegir */
+  function kid(o){
+    o = o || {};
+    var armD = P('M166 194 Q132 226 134 262 Q138 274 150 270 Q152 240 174 216 Z'), armU = P('M170 196 Q140 166 140 124 Q146 112 158 116 Q160 160 184 186 Z');
+    var hr = o.glove ? 16 : 11, handD = C(142, 270, hr), handU = C(148, 112, hr);
+    var left = o.arms === 'up' ? armU : armD, right = (o.arms === 'up' || o.arms === 'right') ? armU : armD;
+    var hands = (o.arms === 'up' ? handU : handD) + ((o.arms === 'up' || o.arms === 'right') ? C(252, 112, hr) : C(258, 270, hr));
+    var feet = o.feet === 'skates' ? R(162, 336, 34, 22, 6) + R(204, 336, 34, 22, 6) + L('M156 366 H202 M198 366 H244') :
+      o.feet === 'big' ? E(166, 354, 34, 13) + E(234, 354, 34, 13) : E(180, 352, 23, 11) + E(220, 352, 23, 11);
+    var legs = o.legs === 'pants' ? P('M166 268 H234 L232 346 H206 L200 290 L194 346 H168 Z') :
+      o.legs === 'kick' ? R(172, 292, 22, 54, 6) + P('M206 290 H228 L268 316 L258 332 Z') : (o.legs === 'none' ? '' : R(172, 292, 22, 54, 6) + R(206, 292, 22, 54, 6));
+    if (o.legs === 'kick') feet = E(180, 352, 23, 11) + E(270, 330, 22, 11, 32);
+    if (o.legs === 'none') feet = '';
+    var LOWS = { dress: P('M164 250 H236 L264 316 Q200 330 136 316 Z'), gown: P('M166 236 L118 352 Q200 362 282 352 L234 236 Z'),
+      tutu: P('M156 250 H244 L276 290 L256 286 L250 300 L232 290 L220 304 L206 292 L194 304 L180 292 L168 300 L150 286 L124 290 Z'),
+      none: '' };
+    var low = o.low in LOWS ? LOWS[o.low] : (o.legs === 'pants' ? '' : P('M164 262 H236 L240 304 H206 L200 286 L194 304 H160 Z'));
+    var shirt = P('M166 186 Q200 176 234 186 L242 268 H158 Z') + L('M188 184 Q200 198 212 184');
+    if (o.shirt === 'stripes') shirt += L('M180 184 V268 M220 184 V268');
+    if (o.shirt === 'rows') shirt += L('M162 214 H238 M161 240 H239');
+    if (o.num != null) shirt += num(o.num, 200, 226);
+    var hair = HAIR[o.hair || 'boy'];
+    return (o.back || '') + (o.hair === 'long' ? LONG_BACK : '') + legs + feet + left + mirror(right) + low + shirt + (o.body || '') + hands +
+      C(150, 134, 10) + C(250, 134, 10) + (o.ears || '') + C(200, 130, 50) + eyes(128, 18, 5.5) + smile(150, 13) + hair + (o.top || '');
+  }
+  var CAP = P('M150 112 Q150 70 200 70 Q250 70 250 112 Z') + P('M240 104 Q276 104 284 116 L246 116 Z');
+  var WHISTLE = L('M184 186 Q200 214 214 204') + R(206, 198, 18, 10, 4);
+  var N4 = {
+    /* ---- animales ---- */
+    panda: { n: 'El panda', c: ['animales'], d: function(){
+      return C(150, 128, 18) + C(250, 128, 18) + E(150, 282, 18, 34, 20) + E(250, 282, 18, 34, -20) + E(200, 296, 62, 64) + E(200, 310, 34, 38) + E(168, 354, 26, 14) + E(232, 354, 26, 14) +
+        C(200, 178, 58) + E(178, 174, 14, 19, 20) + E(222, 174, 14, 19, -20) + K(180, 176, 5) + K(220, 176, 5) + E(200, 198, 9, 6) + smile(208, 10);
+    } },
+    tigre: { n: 'El tigre', c: ['animales'], d: function(){
+      return P('M250 330 Q324 330 316 262 Q312 240 298 248 Q302 302 250 304 Z') + E(200, 296, 58, 62) + E(200, 312, 30, 38) + E(172, 356, 24, 12) + E(228, 356, 24, 12) +
+        C(152, 132, 16) + C(248, 132, 16) + C(200, 178, 58) + E(200, 202, 28, 19) + P('M192 192 H208 L200 200 Z') + eyes(170, 22, 6) +
+        L('M200 122 V140 M184 126 L188 142 M216 126 L212 142 M150 282 Q164 286 168 298 M250 282 Q236 286 232 298 M146 314 Q160 316 166 326 M254 314 Q240 316 234 326 M148 196 L176 200 M252 196 L224 200 M200 200 V208 M188 212 Q200 220 212 212');
+    } },
+    koala: { n: 'El koala', c: ['animales'], d: function(){
+      return C(140, 150, 30) + C(260, 150, 30) + C(140, 150, 15) + C(260, 150, 15) + E(200, 300, 56, 60) + E(200, 314, 30, 36) + E(172, 356, 24, 12) + E(228, 356, 24, 12) +
+        C(200, 180, 52) + E(200, 194, 14, 20) + eyes(172, 26, 5) + L('M190 220 Q200 228 210 220');
+    } },
+    caballo: { n: 'El caballo', c: ['animales'], d: function(){
+      return P('M126 236 Q92 250 96 310 Q108 300 112 284 Q118 300 126 306 Q122 270 134 252 Z') + R(140, 266, 16, 78, 4) + R(166, 270, 16, 74, 4) + R(222, 270, 16, 74, 4) + R(248, 266, 16, 78, 4) +
+        R(138, 340, 20, 14, 3) + R(164, 340, 20, 14, 3) + R(220, 340, 20, 14, 3) + R(246, 340, 20, 14, 3) + E(200, 250, 80, 40) +
+        P('M244 236 L276 146 L302 160 L290 252 Z') + P('M282 144 Q262 190 246 232 L238 226 Q254 186 272 140 Z') + P('M282 140 Q300 124 316 136 L346 186 Q350 202 334 204 Q320 206 310 194 L280 160 Z') +
+        P('M288 138 L284 114 L302 132 Z') + K(302, 152, 4.5) + K(336, 194, 3);
+    } },
+    tiburon: { n: 'El tiburón', c: ['animales', 'agua'], h: 'mar', d: function(){
+      return P('M196 196 L214 140 L240 198 Z') + P('M84 250 Q150 186 260 206 L322 160 L310 244 L326 320 L262 284 Q150 306 84 250 Z') + P('M150 270 L132 318 L182 280 Z') +
+        P('M96 252 Q150 292 250 276 Q170 300 96 252 Z') + C(122, 236, 9) + K(124, 236, 4) + L('M178 236 Q174 248 178 258 M190 234 Q186 248 190 260 M202 234 Q198 248 202 260') + P('M100 258 L106 266 L112 260 L118 268 L124 262 L130 268 L136 262 Q118 266 100 258 Z');
+    } },
+    delfin: { n: 'El delfín', c: ['animales', 'agua'], h: 'mar', d: function(){
+      return P('M186 182 L210 140 L224 190 Z') + P('M84 236 L112 226 Q170 166 268 196 L314 166 L304 214 L332 248 L284 234 Q190 296 112 252 L84 246 Z') + P('M178 262 L160 300 L208 270 Z') +
+        C(132, 222, 6) + K(133, 222, 3) + L('M88 242 Q100 248 116 244');
+    } },
+    rana: { n: 'La rana', c: ['animales'], d: function(){
+      return E(134, 330, 32, 22) + E(266, 330, 32, 22) + E(200, 300, 70, 56) + E(176, 354, 22, 9) + E(224, 354, 22, 9) + E(200, 312, 40, 34) +
+        E(200, 222, 72, 48) + C(158, 180, 25) + C(242, 180, 25) + K(160, 182, 9) + K(240, 182, 9) + L('M146 234 Q200 272 254 234') + K(190, 214, 2.5) + K(210, 214, 2.5);
+    } },
+    cocodrilo: { n: 'El cocodrilo', c: ['animales'], d: function(){
+      return P('M120 280 Q80 300 70 330 Q100 320 130 310 Z') + E(150, 330, 18, 14) + E(232, 330, 18, 14) + E(190, 292, 82, 38) + P('M248 262 L328 266 Q340 280 328 290 L250 296 Z') + P('M250 296 L328 292 Q338 306 324 316 L246 320 Z') +
+        P('M262 292 L268 284 L274 292 L280 284 L286 292 L292 284 L298 292 L304 284 L310 292 Z') + C(258, 252, 16) + K(262, 250, 6) +
+        L('M132 270 L144 258 L156 270 L168 258 L180 270 L192 258 L204 270 L216 258 L228 270');
+    } },
+    loro: { n: 'El loro', c: ['animales'], d: function(){
+      return P('M184 308 L170 372 H230 L216 308 Z') + L('M180 372 V350 M220 372 V350') + E(200, 250, 46, 72) + E(176, 256, 26, 56, 10) + E(204, 276, 26, 36) +
+        P('M196 122 Q190 92 210 82 Q206 100 214 112 Z') + C(200, 160, 42) + P('M226 152 Q266 146 258 186 Q248 172 230 174 Z') + C(214, 152, 11) + K(216, 152, 5);
+    } },
+    flamenco: { n: 'El flamenco', c: ['animales'], d: function(){
+      return L('M200 262 V354 M200 300 L222 286 L210 270') + P('M190 354 H214 L200 362 Z') + P('M240 230 Q292 200 264 150 Q248 122 270 100 L284 110 Q266 128 278 152 Q306 208 248 246 Z') +
+        E(196, 238, 64, 38) + E(180, 236, 40, 22) + C(280, 102, 18) + P('M292 98 L320 114 L296 118 Z') + K(282, 98, 4) + P('M134 230 L120 220 L126 246 Z');
+    } },
+    hamster: { n: 'El hámster', c: ['animales'], d: function(){
+      return C(150, 196, 17) + C(250, 196, 17) + E(176, 354, 20, 10) + E(224, 354, 20, 10) + E(200, 272, 78, 86) + E(200, 300, 44, 50) +
+        E(158, 254, 16, 10) + E(242, 254, 16, 10) + eyes(226, 26, 6) + E(200, 244, 7, 5) + L('M200 249 V256 M190 258 Q200 264 210 258') + E(184, 300, 12, 10) + E(216, 300, 12, 10) + E(200, 312, 10, 14);
+    } },
+    erizo: { n: 'El erizo', c: ['animales'], d: function(){
+      var s = '', i, a, r, pts = [];
+      for (i = 0; i <= 24; i++){ a = Math.PI * (1 + i / 24); r = i % 2 ? 72 : 98; pts.push((200 + r * Math.cos(a)).toFixed(1) + ' ' + (300 + r * .9 * Math.sin(a)).toFixed(1)); }
+      s = P('M' + pts.join(' L') + ' Z');
+      return s + E(172, 352, 22, 10) + E(228, 352, 22, 10) + E(200, 300, 52, 50) + eyes(290, 18, 5.5) + K(200, 312, 7) + L('M190 326 Q200 332 210 326');
+    } },
+    /* ---- fútbol ---- */
+    delantero: { n: 'El delantero', c: ['futbol', 'personas'], d: function(){ return kid({ shirt: 'stripes', num: 10, legs: 'kick' }) + C(298, 302, 20) + P('M298 294 L305 299 L302 307 H294 L291 299 Z'); } },
+    goleadora: { n: 'La goleadora', c: ['futbol', 'personas'], d: function(){ return kid({ hair: 'girl', arms: 'up', num: 9, top: P('M150 88 L132 74 L134 98 Z') + P('M250 88 L268 74 L266 98 Z'), back: C(138, 108, 20) + C(262, 108, 20) }); } },
+    portero: { n: 'El portero', c: ['futbol', 'personas'], d: function(){ return kid({ arms: 'up', glove: 1, shirt: 'rows', num: 1, top: CAP }); } },
+    arbitro: { n: 'El árbitro', c: ['futbol', 'personas'], d: function(){ return kid({ arms: 'right', body: WHISTLE + R(170, 206, 20, 14, 2), top: R(236, 64, 26, 36, 3) }); } },
+    entrenador: { n: 'La entrenadora', c: ['futbol', 'personas'], d: function(){ return kid({ hair: 'long', legs: 'pants', body: WHISTLE, top: R(238, 232, 42, 54, 4) + R(250, 226, 18, 10, 3) + L('M246 250 H272 M246 262 H272 M246 274 H264') }); } },
+    aficionado: { n: 'El aficionado', c: ['futbol', 'personas'], d: function(){
+      return kid({ arms: 'right', body: P('M164 186 Q200 208 236 186 L236 200 Q200 222 164 200 Z') + R(210, 198, 18, 54, 3) + L('M212 252 V262 M219 252 V262 M226 252 V262'),
+        top: L('M252 112 V30') + P('M252 30 L308 44 L252 60 Z') });
+    } },
+    /* ---- otros deportes ---- */
+    ciclista: { n: 'El ciclista', c: ['deportes', 'personas'], h: 'montana', d: function(){
+      return kid({ top: P('M148 118 Q150 66 200 66 Q250 66 252 118 Z') + L('M176 70 L170 116 M200 66 V116 M224 70 L230 116') }) +
+        C(122, 320, 36) + C(278, 320, 36) + C(122, 320, 6) + C(278, 320, 6) + L('M122 320 L176 272 H236 L278 320 M176 272 L200 320 L236 272 M200 320 H122 M236 272 L232 250 H254') + R(160, 262, 30, 9, 4);
+    } },
+    karateka: { n: 'La karateka', c: ['deportes', 'personas'], h: 'gimnasio', d: function(){
+      return kid({ hair: 'girl', legs: 'pants', body: L('M180 186 L200 232 L220 186') + R(158, 246, 84, 12, 3) + P('M194 258 L186 292 L198 290 Z') + P('M206 258 L214 292 L202 290 Z'),
+        top: R(150, 98, 100, 12, 4) + P('M248 100 L274 92 L270 112 Z') });
+    } },
+    gimnasta: { n: 'La gimnasta', c: ['deportes', 'personas'], h: 'gimnasio', d: function(){
+      return kid({ hair: 'girl', arms: 'right', low: 'dress', top: L('M252 108 L266 66 M266 66 Q310 54 306 96 Q302 138 334 128 Q366 118 352 160 Q340 196 312 190') });
+    } },
+    patinadora: { n: 'La patinadora', c: ['deportes', 'personas'], h: 'hielo', d: function(){ return kid({ hair: 'long', arms: 'up', low: 'dress', feet: 'skates' }); } },
+    esquiador: { n: 'El esquiador', c: ['deportes', 'personas'], h: 'nieve', d: function(){
+      return kid({ legs: 'pants', top: P('M150 116 Q150 70 200 70 Q250 70 250 116 Z') + R(146, 108, 108, 14, 6) + C(200, 64, 13), body: P('M164 186 Q200 208 236 186 L236 200 Q200 222 164 200 Z') }) +
+        L('M142 270 L118 360 M258 270 L282 360') + R(100, 360, 110, 8, 4) + R(190, 364, 110, 8, 4);
+    } },
+    surfista: { n: 'La surfista', c: ['deportes', 'personas', 'agua'], h: 'playa', d: function(){ return kid({ hair: 'long', back: E(276, 236, 28, 104, 10) + L('M262 140 L290 330') }); } },
+    atleta: { n: 'El atleta', c: ['deportes', 'personas'], h: 'atletismo', d: function(){ return kid({ arms: 'up', body: R(176, 204, 48, 38, 4) + num(3, 200, 224) }); } },
+    bailarina: { n: 'La bailarina', c: ['deportes', 'personas'], h: 'gimnasio', d: function(){ return kid({ hair: 'girl', arms: 'up', low: 'tutu', back: C(200, 70, 18) }); } },
+    /* ---- Navidad ---- */
+    papanoel: { n: 'Papá Noel', c: ['navidad'], d: function(){
+      return E(166, 352, 28, 14) + E(234, 352, 28, 14) + R(160, 312, 30, 40, 6) + R(210, 312, 30, 40, 6) + E(124, 272, 20, 40, 20) + E(276, 272, 20, 40, -20) + C(118, 304, 15) + C(282, 304, 15) +
+        E(200, 278, 76, 70) + R(124, 268, 152, 16, 4) + R(186, 262, 28, 28, 4) + L('M200 210 V268 M200 284 V346') +
+        C(200, 160, 46) + P('M148 166 Q148 244 200 250 Q252 244 252 166 Q236 192 200 192 Q164 192 148 166 Z') + P('M200 182 Q182 172 168 186 Q186 194 200 188 Q214 194 232 186 Q218 172 200 182 Z') +
+        eyes(152, 16, 5) + C(200, 170, 8) + P('M150 132 Q166 66 236 82 L276 126 Z') + C(278, 132, 13) + R(144, 124, 112, 22, 11);
+    } },
+    reno: { n: 'El reno', c: ['navidad', 'animales'], h: 'nieve', d: function(){
+      var a = P('M176 150 Q160 120 166 84 L174 86 Q170 112 182 140 Z') + P('M168 112 Q150 104 140 84 L148 80 Q156 98 172 104 Z') + P('M166 96 Q154 82 156 62 L164 62 Q164 80 172 90 Z');
+      return a + mirror(a) + R(168, 314, 20, 42, 6) + R(212, 314, 20, 42, 6) + E(178, 356, 16, 8) + E(222, 356, 16, 8) + E(200, 292, 60, 56) + E(200, 304, 32, 36) +
+        E(150, 176, 22, 11, -24) + E(250, 176, 22, 11, 24) + E(200, 192, 44, 50) + eyes(184, 18, 6) + C(200, 226, 14) + L('M188 244 Q200 252 212 244');
+    } },
+    muneco: { n: 'El muñeco de nieve', c: ['navidad'], h: 'nieve', d: function(){
+      return L('M150 260 L104 226 M118 236 L104 246 M250 260 L296 226 M282 236 L296 246') + C(200, 304, 64) + C(200, 196, 46) + K(200, 270, 5) + K(200, 296, 5) + K(200, 322, 5) +
+        P('M154 220 Q200 246 246 220 L246 236 Q200 260 154 236 Z') + R(220, 232, 18, 44, 3) + eyes(186, 15, 5) + P('M200 198 L236 206 L200 210 Z') + smile(218, 10) +
+        R(168, 106, 64, 48, 4) + R(152, 148, 96, 12, 4);
+    } },
+    elfo: { n: 'El elfo', c: ['navidad', 'fantasia'], d: function(){
+      return kid({ hair: 'none', ears: P('M146 132 L118 112 L150 144 Z') + P('M254 132 L282 112 L250 144 Z'), body: P('M166 186 L176 200 L188 188 L200 202 L212 188 L224 200 L234 186 Z'),
+        top: P('M150 100 Q162 42 220 38 Q270 42 288 74 L274 82 Q252 62 238 78 L252 100 Z') + C(284, 86, 10) + R(146, 92, 108, 16, 7) });
+    } },
+    reymago: { n: 'El rey mago', c: ['navidad'], h: 'desierto', d: function(){
+      return kid({ legs: 'pants', back: P('M162 188 L128 346 H272 L238 188 Z'), hair: 'none',
+        top: P('M154 104 L158 62 L178 84 L200 54 L222 84 L242 62 L246 104 Z') + C(200, 82, 5) + P('M156 154 Q160 204 200 212 Q240 204 244 154 Q222 174 200 172 Q178 174 156 154 Z') + R(232, 236, 44, 38, 3) + L('M254 236 V274 M232 254 H276') });
+    } },
+    /* ---- Halloween ---- */
+    bruja: { n: 'La bruja', c: ['halloween', 'fantasia'], d: function(){
+      return kid({ hair: 'long', low: 'gown', top: E(200, 92, 74, 12) + P('M164 88 L204 8 L238 88 Z') + R(166, 76, 70, 12, 2) });
+    } },
+    vampiro: { n: 'El vampiro', c: ['halloween', 'fantasia'], d: function(){
+      return kid({ legs: 'pants', hair: 'none', back: P('M156 188 L120 344 H280 L244 188 Z') + P('M150 190 L130 140 L172 168 Z') + P('M250 190 L270 140 L228 168 Z'),
+        top: P('M150 122 Q150 72 200 72 Q250 72 250 122 Q228 96 200 118 Q172 96 150 122 Z') + P('M188 156 L192 168 L196 157 Z') + P('M204 157 L208 168 L212 156 Z') });
+    } },
+    momia: { n: 'La momia', c: ['halloween'], d: function(){
+      return kid({ hair: 'none', low: 'none', legs: 'pants', body: L('M160 206 L240 196 M160 226 L240 236 M160 250 L240 244 M168 290 L232 284 M168 316 L232 324'),
+        top: L('M152 112 L248 100 M150 160 L250 150 M156 96 Q200 80 244 96') });
+    } },
+    calabazon: { n: 'La calabaza', c: ['halloween'], d: function(){
+      return E(168, 352, 24, 12) + E(232, 352, 24, 12) + R(170, 316, 18, 36, 6) + R(212, 316, 18, 36, 6) + P('M104 246 Q80 260 86 290 Q96 296 108 280 Z') + P('M296 246 Q320 260 314 290 Q304 296 292 280 Z') +
+        R(190, 140, 20, 30, 5) + P('M210 150 Q240 130 252 146 Q232 160 210 158 Z') + E(200, 248, 100, 86) + L('M200 164 Q166 248 200 334 M200 164 Q234 248 200 334 M150 172 Q118 248 150 326 M250 172 Q282 248 250 326') +
+        P('M150 218 L176 194 L186 228 Z') + P('M250 218 L224 194 L214 228 Z') + P('M140 262 L160 276 L176 262 L192 280 L208 262 L224 280 L240 262 L260 276 L246 300 Q200 316 154 300 Z');
+    } },
+    /* ---- fiestas y cuentos (personajes propios) ---- */
+    payaso: { n: 'El payaso', c: ['carnaval'], d: function(){
+      return kid({ hair: 'none', feet: 'big', back: C(150, 116, 24) + C(250, 116, 24) + C(140, 146, 18) + C(260, 146, 18),
+        body: P('M200 192 L170 178 L170 206 Z') + P('M200 192 L230 178 L230 206 Z') + C(200, 192, 7) + C(200, 228, 6) + C(200, 252, 6),
+        top: C(200, 140, 10) + P('M176 86 L200 30 L224 86 Z') + C(200, 28, 8) });
+    } },
+    princesa: { n: 'La princesa', c: ['fantasia'], d: function(){
+      return kid({ hair: 'long', low: 'gown', top: P('M168 82 L172 56 L186 70 L200 48 L214 70 L228 56 L232 82 Z') + C(200, 66, 4), body: P('M176 210 Q200 222 224 210 L220 226 Q200 236 180 226 Z') });
+    } },
+    sirena: { n: 'La sirena', c: ['fantasia', 'agua'], h: 'mar', d: function(){
+      return kid({ hair: 'long', legs: 'none', low: 'none', back: P('M164 262 Q150 314 192 338 L150 368 Q176 372 200 352 Q224 372 250 368 L208 338 Q250 314 236 262 Z') + L('M172 290 Q200 300 228 290 M180 314 Q200 322 220 314'),
+        body: C(186, 214, 10) + C(214, 214, 10) });
+    } },
+    mago: { n: 'El mago', c: ['fantasia'], d: function(){
+      return kid({ low: 'gown', hair: 'none', arms: 'right', top: E(200, 92, 70, 12) + P('M164 88 L200 4 L236 88 Z') + star(198, 52, 9) + star(214, 74, 6) +
+        P('M156 154 Q160 214 200 222 Q240 214 244 154 Q222 174 200 172 Q178 174 156 154 Z') + L('M252 112 L262 44') + star(264, 38, 12) }) + eyes(128, 18, 5.5);
+    } }
+  };
+  var B4 = {
+    estadio: { n: 'en el estadio', c: ['futbol', 'deportes'], d: function(){
+      var s = R(0, 150, 400, 122, 0) + L('M0 186 H400 M0 220 H400 M0 254 H400'), r, x;
+      for (r = 0; r < 3; r++) for (x = 14 + (r % 2) * 16; x < 400; x += 32) s += C(x, 172 + r * 34, 9);
+      return s + P('M0 272 H400 V400 H0 Z') + L('M0 300 H400 M120 400 Q200 330 280 400 M200 300 V400');
+    } },
+    atletismo: { n: 'en la pista de atletismo', c: ['deportes'], d: function(){
+      var s = R(0, 270, 400, 130, 0) + L('M0 302 H400 M0 334 H400 M0 366 H400') + R(22, 140, 12, 130, 2) + R(366, 140, 12, 130, 2) + R(22, 126, 356, 24, 3), i;
+      for (i = 0; i < 22; i++) if (i % 2) s += R(26 + i * 16, 128, 16, 10, 0); else s += R(26 + i * 16, 138, 16, 10, 0);
+      return s;
+    } },
+    hielo: { n: 'en la pista de hielo', c: ['deportes', 'navidad'], d: function(){
+      return R(0, 250, 400, 34, 4) + L('M0 266 H400 M60 250 V284 M140 250 V284 M220 250 V284 M300 250 V284 M380 250 V284') + P('M0 284 H400 V400 H0 Z') + L('M40 330 Q90 316 140 334 M250 360 Q300 346 360 362 M120 380 Q160 372 200 384');
+    } },
+    gimnasio: { n: 'en el gimnasio', c: ['deportes'], d: function(){
+      var s = R(0, 300, 400, 100, 0) + L('M0 334 H400 M0 368 H400 M100 300 V400 M200 300 V400 M300 300 V400'), i;
+      s += R(20, 110, 10, 190, 2) + R(96, 110, 10, 190, 2); for (i = 0; i < 7; i++) s += R(30, 124 + i * 26, 66, 6, 2);
+      return s + R(300, 120, 70, 56, 4) + L('M335 120 V176 M300 148 H370');
+    } },
+    salonnav: { n: 'en el salón de Navidad', c: ['navidad'], d: function(){
+      return R(0, 318, 400, 82, 0) + L('M0 350 H400 M0 380 H400') + R(58, 300, 20, 22, 2) + P('M68 120 L120 220 H16 Z') + P('M68 170 L130 280 H6 Z') + P('M68 220 L136 310 H0 Z') +
+        star(68, 112, 16) + C(54, 200, 7) + C(90, 246, 7) + C(40, 268, 7) + C(100, 292, 7) +
+        R(282, 186, 116, 16, 3) + R(292, 202, 96, 116, 0) + R(314, 236, 52, 82, 4) + P('M324 318 Q340 276 356 318 Z');
+    } },
+    casaencantada: { n: 'en la casa encantada', c: ['halloween'], d: function(){
+      return P('M20 180 L84 110 L148 180 Z') + R(30, 180, 108, 150, 0) + R(48, 204, 26, 30, 2) + R(94, 204, 26, 30, 2) + P('M68 330 V282 Q84 266 100 282 V330 Z') + L('M48 219 H74 M61 204 V234 M94 219 H120 M107 204 V234') +
+        P('M318 330 L324 200 L300 160 L312 156 L328 186 L336 140 L348 142 L340 196 L370 170 L378 180 L342 216 L338 330 Z') + ground(338) +
+        L('M150 312 V340 M170 312 V340 M190 312 V340 M140 320 H200');
+    } },
+    carnaval: { n: 'en el carnaval', c: ['carnaval'], d: function(){
+      var s = L('M0 120 Q50 160 100 120 T200 120 T300 120 T400 120 M0 170 Q50 200 100 170 T200 170 T300 170 T400 170'), i, pts = [[30, 220], [370, 230], [120, 90], [280, 96], [60, 290], [340, 300], [20, 150], [380, 150]];
+      pts.forEach(function(p, i){ s += i % 2 ? C(p[0], p[1], 7) : R(p[0] - 6, p[1] - 6, 12, 12, 2); });
+      return s + R(0, 338, 400, 62, 0) + L('M0 368 H400');
+    } }
+  };
+  var S4 = {
+    copos: { n: 'Copos de nieve', c: ['navidad'], d: function(x, y){ var s = ''; [[x - 22, y - 10, 20], [x + 24, y + 14, 14]].forEach(function(p){ var i, a, d = ''; for (i = 0; i < 6; i++){ a = i * Math.PI / 3; d += 'M' + p[0] + ' ' + p[1] + ' L' + (p[0] + p[2] * Math.cos(a)).toFixed(1) + ' ' + (p[1] + p[2] * Math.sin(a)).toFixed(1) + ' '; } s += L(d) + C(p[0], p[1], 4); }); return s; } },
+    trineo: { n: 'Trineo volando', c: ['navidad'], d: function(x, y){ return P('M' + (x - 40) + ' ' + (y - 14) + ' H' + (x + 20) + ' Q' + (x + 36) + ' ' + (y - 14) + ' ' + (x + 36) + ' ' + (y - 34) + ' L' + (x + 44) + ' ' + (y - 34) + ' Q' + (x + 44) + ' ' + (y + 14) + ' ' + (x + 14) + ' ' + (y + 14) + ' H' + (x - 34) + ' Z') + L('M' + (x - 44) + ' ' + (y + 26) + ' H' + (x + 30) + ' Q' + (x + 48) + ' ' + (y + 26) + ' ' + (x + 50) + ' ' + (y + 12) + ' M' + (x - 24) + ' ' + (y + 14) + ' V' + (y + 26) + ' M' + (x + 10) + ' ' + (y + 14) + ' V' + (y + 26)) + R(x - 30, y - 34, 26, 20, 3); } },
+    campanas: { n: 'Campanas', c: ['navidad'], d: function(x, y){ var b = function(cx){ return P('M' + (cx - 18) + ' ' + (y + 22) + ' Q' + (cx - 16) + ' ' + (y - 16) + ' ' + cx + ' ' + (y - 16) + ' Q' + (cx + 16) + ' ' + (y - 16) + ' ' + (cx + 18) + ' ' + (y + 22) + ' Z') + C(cx, y + 26, 5); }; return b(x - 16) + b(x + 16) + P('M' + x + ' ' + (y - 22) + ' l-16 -10 v18 Z') + P('M' + x + ' ' + (y - 22) + ' l16 -10 v18 Z'); } },
+    telarana: { n: 'Telaraña', c: ['halloween'], d: function(x, y){ var d = '', i, a, r; for (i = 0; i < 8; i++){ a = i * Math.PI / 4; d += 'M' + x + ' ' + y + ' L' + (x + 46 * Math.cos(a)).toFixed(1) + ' ' + (y + 46 * Math.sin(a)).toFixed(1) + ' '; }
+      [16, 30, 44].forEach(function(r){ for (i = 0; i <= 8; i++){ a = i * Math.PI / 4; d += (i ? 'L' : 'M') + (x + r * Math.cos(a)).toFixed(1) + ' ' + (y + r * Math.sin(a)).toFixed(1) + ' '; } }); return L(d) + C(x + 20, y + 30, 7); } },
+    confeti: { n: 'Confeti', c: ['carnaval', 'fiesta'], d: function(x, y){ var s = ''; [[-34, -20], [-6, -34], [24, -22], [-20, 6], [14, 4], [38, 18], [-36, 28], [0, 30]].forEach(function(p, i){ s += i % 2 ? C(x + p[0], y + p[1], 6) : R(x + p[0] - 5, y + p[1] - 5, 10, 10, 2); }); return s + L('M' + (x - 44) + ' ' + (y + 40) + ' q10 -14 20 0 t20 0 M' + (x + 10) + ' ' + (y - 44) + ' q10 -10 20 0 t20 0'); } }
+  };
+  var G4 = {
+    tarjetas: { n: 'Tarjetas', c: ['futbol'], d: function(x, y){ return G('rotate(-12 ' + x + ' ' + y + ')', R(x - 26, y - 22, 26, 38, 3)) + G('rotate(12 ' + x + ' ' + y + ')', R(x + 2, y - 22, 26, 38, 3)); } },
+    silbato: { n: 'Silbato', c: ['futbol'], d: function(x, y){ return L('M' + (x + 16) + ' ' + (y - 4) + ' Q' + (x + 40) + ' ' + (y - 30) + ' ' + (x + 10) + ' ' + (y - 36) + ' Q' + (x - 20) + ' ' + (y - 34) + ' ' + (x - 24) + ' ' + (y - 4)) + P('M' + (x - 30) + ' ' + (y - 8) + ' H' + (x + 6) + ' V' + (y + 2) + ' Q' + (x + 18) + ' ' + (y + 2) + ' ' + (x + 18) + ' ' + (y + 14) + ' Q' + (x + 18) + ' ' + (y + 28) + ' ' + x + ' ' + (y + 28) + ' Q' + (x - 14) + ' ' + (y + 28) + ' ' + (x - 16) + ' ' + (y + 6) + ' H' + (x - 30) + ' Z'); } },
+    botas: { n: 'Botas de fútbol', c: ['futbol'], d: function(x, y){ var b = function(dx, dy){ return P('M' + (x + dx - 16) + ' ' + (y + dy - 22) + ' H' + (x + dx + 2) + ' V' + (y + dy - 4) + ' Q' + (x + dx + 26) + ' ' + (y + dy - 2) + ' ' + (x + dx + 26) + ' ' + (y + dy + 10) + ' H' + (x + dx - 16) + ' Z') + K(x + dx - 10, y + dy + 14, 3) + K(x + dx + 4, y + dy + 14, 3) + K(x + dx + 18, y + dy + 14, 3); }; return b(-18, -6) + b(8, 10); } },
+    banderin: { n: 'Banderín de córner', c: ['futbol'], d: function(x, y){ return R(x - 3, y - 44, 6, 72, 2) + P('M' + (x + 3) + ' ' + (y - 44) + ' L' + (x + 38) + ' ' + (y - 32) + ' L' + (x + 3) + ' ' + (y - 18) + ' Z') + L('M' + (x - 30) + ' ' + (y + 28) + ' Q' + (x - 26) + ' ' + (y + 4) + ' ' + x + ' ' + y); } },
+    conos: { n: 'Conos', c: ['futbol', 'deportes'], d: function(x, y){ var c = function(cx, h){ return P('M' + (cx - 16) + ' ' + (y + 26) + ' L' + (cx - 5) + ' ' + (y + 26 - h) + ' H' + (cx + 5) + ' L' + (cx + 16) + ' ' + (y + 26) + ' Z') + L('M' + (cx - 11) + ' ' + (y + 26 - h * .45) + ' H' + (cx + 11)) + R(cx - 22, y + 24, 44, 6, 2); }; return c(x - 20, 44) + c(x + 22, 36); } },
+    bufanda: { n: 'Bufanda', c: ['futbol'], d: function(x, y){ return P('M' + (x - 40) + ' ' + (y - 6) + ' Q' + x + ' ' + (y - 24) + ' ' + (x + 40) + ' ' + (y - 6) + ' V' + (y + 10) + ' Q' + x + ' ' + (y - 8) + ' ' + (x - 40) + ' ' + (y + 10) + ' Z') + L('M' + (x - 20) + ' ' + (y - 12) + ' V' + (y + 4) + ' M' + x + ' ' + (y - 16) + ' V' + y + ' M' + (x + 20) + ' ' + (y - 12) + ' V' + (y + 4) + ' M' + (x - 40) + ' ' + (y + 10) + ' v12 M' + (x - 34) + ' ' + (y + 8) + ' v12 M' + (x + 40) + ' ' + (y + 10) + ' v12 M' + (x + 34) + ' ' + (y + 8) + ' v12'); } },
+    guantes: { n: 'Guantes de portero', c: ['futbol'], d: function(x, y){ var g = function(cx){ return R(cx - 12, y + 6, 24, 20, 4) + P('M' + (cx - 16) + ' ' + (y + 8) + ' V' + (y - 18) + ' Q' + (cx - 16) + ' ' + (y - 26) + ' ' + (cx - 10) + ' ' + (y - 26) + ' Q' + (cx - 4) + ' ' + (y - 26) + ' ' + (cx - 4) + ' ' + (y - 18) + ' V' + (y - 28) + ' Q' + (cx - 4) + ' ' + (y - 34) + ' ' + (cx + 2) + ' ' + (y - 34) + ' Q' + (cx + 8) + ' ' + (y - 34) + ' ' + (cx + 8) + ' ' + (y - 26) + ' V' + (y - 16) + ' Q' + (cx + 8) + ' ' + (y - 22) + ' ' + (cx + 13) + ' ' + (y - 22) + ' Q' + (cx + 18) + ' ' + (y - 22) + ' ' + (cx + 18) + ' ' + (y - 14) + ' V' + (y + 8) + ' Z'); }; return g(x - 18) + g(x + 18); } },
+    medalla: { n: 'Medalla', c: ['deportes', 'futbol'], d: function(x, y){ return P('M' + (x - 22) + ' ' + (y - 40) + ' L' + (x - 6) + ' ' + (y - 40) + ' L' + (x + 4) + ' ' + (y - 6) + ' L' + (x - 6) + ' ' + y + ' Z') + P('M' + (x + 22) + ' ' + (y - 40) + ' L' + (x + 6) + ' ' + (y - 40) + ' L' + (x - 4) + ' ' + (y - 6) + ' L' + (x + 6) + ' ' + y + ' Z') + C(x, y + 8, 20) + star(x, y + 8, 11); } },
+    tabla: { n: 'Tabla de surf', c: ['deportes', 'playa'], d: function(x, y){ return E(x, y - 6, 18, 38, 20) + L('M' + (x - 12) + ' ' + (y - 36) + ' L' + (x + 12) + ' ' + (y + 24)); } },
+    patines: { n: 'Patines', c: ['deportes'], d: function(x, y){ return P('M' + (x - 26) + ' ' + (y - 30) + ' H' + (x - 2) + ' V' + (y - 6) + ' Q' + (x + 26) + ' ' + (y - 6) + ' ' + (x + 28) + ' ' + (y + 10) + ' H' + (x - 26) + ' Z') + L('M' + (x - 26) + ' ' + (y - 18) + ' H' + (x - 2)) + C(x - 16, y + 20, 8) + C(x + 16, y + 20, 8); } },
+    comba: { n: 'Comba', c: ['deportes'], d: function(x, y){ return L('M' + (x - 30) + ' ' + (y - 26) + ' Q' + (x - 40) + ' ' + (y + 30) + ' ' + x + ' ' + (y + 24) + ' Q' + (x + 40) + ' ' + (y + 30) + ' ' + (x + 30) + ' ' + (y - 26)) + R(x - 36, y - 46, 12, 24, 5) + R(x + 24, y - 46, 12, 24, 5); } },
+    arbolito: { n: 'Árbol de Navidad', c: ['navidad'], d: function(x, y){ return R(x - 6, y + 14, 12, 14, 2) + P('M' + x + ' ' + (y - 40) + ' L' + (x + 22) + ' ' + (y - 8) + ' H' + (x - 22) + ' Z') + P('M' + x + ' ' + (y - 22) + ' L' + (x + 30) + ' ' + (y + 16) + ' H' + (x - 30) + ' Z') + star(x, y - 44, 9) + C(x - 10, y + 4, 4) + C(x + 12, y - 4, 4); } },
+    calcetin: { n: 'Calcetín de Navidad', c: ['navidad'], d: function(x, y){ return P('M' + (x - 14) + ' ' + (y - 24) + ' H' + (x + 12) + ' V' + (y + 8) + ' Q' + (x + 12) + ' ' + (y + 28) + ' ' + (x - 8) + ' ' + (y + 28) + ' H' + (x - 24) + ' Q' + (x - 34) + ' ' + (y + 28) + ' ' + (x - 34) + ' ' + (y + 18) + ' Q' + (x - 34) + ' ' + (y + 8) + ' ' + (x - 14) + ' ' + (y + 6) + ' Z') + R(x - 18, y - 36, 34, 14, 5); } },
+    baston: { n: 'Bastón de caramelo', c: ['navidad'], d: function(x, y){ return P('M' + (x + 6) + ' ' + (y + 28) + ' V' + (y - 14) + ' Q' + (x + 6) + ' ' + (y - 34) + ' ' + (x - 10) + ' ' + (y - 34) + ' Q' + (x - 26) + ' ' + (y - 34) + ' ' + (x - 26) + ' ' + (y - 16) + ' H' + (x - 14) + ' Q' + (x - 14) + ' ' + (y - 22) + ' ' + (x - 10) + ' ' + (y - 22) + ' Q' + (x - 6) + ' ' + (y - 22) + ' ' + (x - 6) + ' ' + (y - 14) + ' V' + (y + 28) + ' Z') + L('M' + (x - 6) + ' ' + (y + 4) + ' L' + (x + 6) + ' ' + (y - 4) + ' M' + (x - 6) + ' ' + (y + 20) + ' L' + (x + 6) + ' ' + (y + 12) + ' M' + (x - 6) + ' ' + (y - 12) + ' L' + (x + 4) + ' ' + (y - 24)); } },
+    calabaza: { n: 'Calabaza', c: ['halloween'], d: function(x, y){ return R(x - 4, y - 32, 8, 12, 3) + E(x, y, 34, 24) + L('M' + x + ' ' + (y - 24) + ' Q' + (x - 14) + ' ' + y + ' ' + x + ' ' + (y + 24) + ' M' + x + ' ' + (y - 24) + ' Q' + (x + 14) + ' ' + y + ' ' + x + ' ' + (y + 24)) + P('M' + (x - 18) + ' ' + (y - 6) + ' l8 -8 l4 10 Z') + P('M' + (x + 18) + ' ' + (y - 6) + ' l-8 -8 l-4 10 Z'); } },
+    caldero: { n: 'Caldero', c: ['halloween'], d: function(x, y){ return C(x - 12, y - 30, 7) + C(x + 8, y - 40, 5) + C(x + 14, y - 26, 4) + L('M' + (x - 20) + ' ' + (y + 22) + ' l-6 8 M' + (x + 20) + ' ' + (y + 22) + ' l6 8') + E(x, y + 2, 36, 26) + E(x, y - 18, 34, 8); } },
+    caramelos: { n: 'Caramelos', c: ['halloween', 'fiesta'], d: function(x, y){ var c = function(cx, cy){ return P('M' + (cx - 14) + ' ' + cy + ' l-12 -10 v20 Z') + P('M' + (cx + 14) + ' ' + cy + ' l12 -10 v20 Z') + E(cx, cy, 15, 11); }; return c(x - 12, y + 12) + c(x + 16, y - 12); } },
+    antifaz: { n: 'Antifaz', c: ['carnaval'], d: function(x, y){ return L('M' + (x + 30) + ' ' + (y - 2) + ' L' + (x + 40) + ' ' + (y + 30)) + P('M' + (x - 40) + ' ' + (y - 14) + ' Q' + x + ' ' + (y - 24) + ' ' + (x + 40) + ' ' + (y - 14) + ' Q' + (x + 44) + ' ' + (y + 12) + ' ' + (x + 16) + ' ' + (y + 12) + ' Q' + (x + 4) + ' ' + y + ' ' + x + ' ' + y + ' Q' + (x - 4) + ' ' + y + ' ' + (x - 16) + ' ' + (y + 12) + ' Q' + (x - 44) + ' ' + (y + 12) + ' ' + (x - 40) + ' ' + (y - 14) + ' Z') + E(x - 18, y - 6, 9, 6) + E(x + 18, y - 6, 9, 6); } },
+    huevos: { n: 'Huevos de Pascua', c: ['fiesta'], d: function(x, y){ var e = function(cx, cy){ return E(cx, cy, 15, 20) + L('M' + (cx - 14) + ' ' + cy + ' l7 -6 l7 6 l7 -6 l7 6'); }; return e(x - 16, y + 6) + e(x + 16, y + 2); } }
+  };
+  Object.keys(N4).forEach(function(k){ CHARS[k] = N4[k]; });
+  Object.keys(B4).forEach(function(k){ BGS[k] = B4[k]; });
+  delete SKY.nada; Object.keys(S4).forEach(function(k){ SKY[k] = S4[k]; }); SKY.nada = NEW_SKY.nada;
+  delete GND.nada; Object.keys(G4).forEach(function(k){ GND[k] = G4[k]; }); GND.nada = NEW_GND.nada;
+  CHARS.nino.c = ['personas', 'deportes', 'futbol']; CHARS.nina.c = ['personas', 'deportes', 'futbol']; CHARS.pirata.c = ['personas', 'carnaval']; CHARS.heroe.c = ['personas', 'carnaval'];
+  CHARS.fantasma.c.push('halloween'); CHARS.monstruo.c.push('halloween'); CHARS.gatito.c.push('halloween'); CHARS.tarta.c.push('fiesta'); CHARS.magdalena.c.push('fiesta');
+  BGS.futbol.c = ['futbol', 'deportes']; BGS.nieve.c = ['naturaleza', 'navidad']; BGS.cumple.c = ['fiesta']; GND.balon.c = ['futbol', 'deportes']; GND.trofeo.c = ['futbol', 'deportes'];
+  SKY.murcielago.c = ['halloween', 'fantasia']; SKY.luna.c = ['espacio', 'halloween']; GND.regalo.c = ['fiesta', 'navidad']; SKY.fuegos.c = ['fiesta', 'carnaval']; SKY.globos.c = ['fiesta', 'carnaval'];
+  CH_ORDER = Object.keys(CHARS); BG_ORDER = Object.keys(BGS);
+  SKY_ORDER = Object.keys(SKY).filter(function(k){ return k !== 'nada'; }); GND_ORDER = Object.keys(GND).filter(function(k){ return k !== 'nada'; });
+  CATS = { animales: '🐾 Animales', futbol: '⚽ Fútbol', deportes: '🏅 Deportes', personas: '🧒 Personas', navidad: '🎄 Navidad', halloween: '🎃 Halloween', carnaval: '🎭 Carnaval',
+    fiesta: '🎉 Fiesta', videojuegos: '🎮 Videojuegos', dinos: '🦖 Dinosaurios', espacio: '🚀 Espacio', fantasia: '🦄 Fantasía', dulces: '🧁 Dulces', naturaleza: '🌳 Naturaleza',
+    agua: '🌊 Agua', ciudad: '🏙️ Ciudad', playa: '🏖️ Playa', vehiculos: '✈️ Vehículos' };
+  HOME.futbol = 'estadio'; HOME.navidad = 'salonnav'; HOME.halloween = 'casaencantada'; HOME.carnaval = 'carnaval';
+  ('estadio fuegos,confeti balon,nada|atletismo sol,nube medalla,nada|hielo copos,nube patines,nada|gimnasio nada,nada comba,nada|salonnav copos,campanas regalo,calcetin|' +
+   'casaencantada luna,murcielago calabaza,caldero|carnaval confeti,globos antifaz,caramelos')
+    .split('|').forEach(function(x){ var p = x.split(' '); SCENE[p[0]] = { sky: p[1].split(','), gnd: p[2].split(',') }; });
+  var DROP = { futbolista: 1, princes: 1, medalla: 1, mago: 1, patinet: 1 };
+  WORDS = WORDS.filter(function(w){ return !DROP[w[0]]; }).concat([
+    ['panda', 'ch', 'panda'], ['tigre', 'ch', 'tigre'], ['koala', 'ch', 'koala'], ['caball', 'ch', 'caballo'], ['pony', 'ch', 'caballo'], ['yegua', 'ch', 'caballo'], ['tiburon', 'ch', 'tiburon'],
+    ['delfin', 'ch', 'delfin'], ['rana', 'ch', 'rana'], ['sapo', 'ch', 'rana'], ['cocodril', 'ch', 'cocodrilo'], ['caiman', 'ch', 'cocodrilo'], ['loro', 'ch', 'loro'], ['papagayo', 'ch', 'loro'],
+    ['flamenco', 'ch', 'flamenco'], ['hamster', 'ch', 'hamster'], ['erizo', 'ch', 'erizo'],
+    ['futbolista', 'ch', 'delantero'], ['delanter', 'ch', 'delantero'], ['goleador', 'ch', 'delantero'], ['goleadora', 'ch', 'goleadora'], ['futbolistas', 'ch', 'goleadora'], ['porter', 'ch', 'portero'], ['arquer', 'ch', 'portero'],
+    ['arbitro', 'ch', 'arbitro'], ['arbitra', 'ch', 'arbitro'], ['entrenador', 'ch', 'entrenador'], ['mister', 'ch', 'entrenador'], ['aficionad', 'ch', 'aficionado'], ['hincha', 'ch', 'aficionado'],
+    ['ciclista', 'ch', 'ciclista'], ['bici', 'ch', 'ciclista'], ['karate', 'ch', 'karateka'], ['judo', 'ch', 'karateka'], ['gimnast', 'ch', 'gimnasta'], ['ritmica', 'ch', 'gimnasta'],
+    ['patinador', 'ch', 'patinadora'], ['patinaje', 'ch', 'patinadora'], ['esqui', 'ch', 'esquiador'], ['surf', 'ch', 'surfista'], ['atleta', 'ch', 'atleta'], ['bailarin', 'ch', 'bailarina'], ['ballet', 'ch', 'bailarina'],
+    ['papanoel', 'ch', 'papanoel'], ['noel', 'ch', 'papanoel'], ['santa', 'ch', 'papanoel'], ['reno', 'ch', 'reno'], ['muneco', 'ch', 'muneco'], ['elfo', 'ch', 'elfo'], ['duende', 'ch', 'elfo'],
+    ['rey', 'ch', 'reymago'], ['reyes', 'ch', 'reymago'], ['bruja', 'ch', 'bruja'], ['vampir', 'ch', 'vampiro'], ['dracula', 'ch', 'vampiro'], ['momia', 'ch', 'momia'], ['payas', 'ch', 'payaso'],
+    ['princes', 'ch', 'princesa'], ['sirena', 'ch', 'sirena'], ['mago', 'ch', 'mago'], ['maga', 'ch', 'mago'], ['brujo', 'ch', 'mago'],
+    ['estadio', 'bg', 'estadio'], ['atletismo', 'bg', 'atletismo'], ['carrera', 'bg', 'atletismo'], ['hielo', 'bg', 'hielo'], ['gimnasio', 'bg', 'gimnasio'], ['tatami', 'bg', 'gimnasio'], ['dojo', 'bg', 'gimnasio'],
+    ['navidad', 'bg', 'salonnav'], ['halloween', 'bg', 'casaencantada'], ['encantad', 'bg', 'casaencantada'], ['terror', 'bg', 'casaencantada'], ['miedo', 'bg', 'casaencantada'], ['carnaval', 'bg', 'carnaval'], ['disfraz', 'bg', 'carnaval'],
+    ['copo', 'sky', 'copos'], ['nevando', 'sky', 'copos'], ['trineo', 'sky', 'trineo'], ['campana', 'sky', 'campanas'], ['telarana', 'sky', 'telarana'], ['arana', 'sky', 'telarana'], ['confeti', 'sky', 'confeti'], ['serpentina', 'sky', 'confeti'],
+    ['tarjeta', 'gnd', 'tarjetas'], ['silbato', 'gnd', 'silbato'], ['bota', 'gnd', 'botas'], ['banderin', 'gnd', 'banderin'], ['corner', 'gnd', 'banderin'], ['cono', 'gnd', 'conos'], ['bufanda', 'gnd', 'bufanda'],
+    ['guante', 'gnd', 'guantes'], ['medalla', 'gnd', 'medalla'], ['tabla', 'gnd', 'tabla'], ['patines', 'gnd', 'patines'], ['patinet', 'gnd', 'monopatin'], ['comba', 'gnd', 'comba'], ['cuerda', 'gnd', 'comba'],
+    ['arbolito', 'gnd', 'arbolito'], ['abeto', 'gnd', 'arbolito'], ['calcetin', 'gnd', 'calcetin'], ['baston', 'gnd', 'baston'], ['calabaza', 'gnd', 'calabaza'], ['caldero', 'gnd', 'caldero'], ['pocion', 'gnd', 'caldero'],
+    ['caramelo', 'gnd', 'caramelos'], ['golosina', 'gnd', 'caramelos'], ['chuche', 'gnd', 'caramelos'], ['antifaz', 'gnd', 'antifaz'], ['mascara', 'gnd', 'antifaz'], ['huevo', 'gnd', 'huevos'], ['pascua', 'gnd', 'huevos']
+  ]);
+  /* frases de dos palabras que hay que leer juntas */
+  var PHRASES = [[/ papa noel /g, ' papanoel '], [/ munecos? de nieve /g, ' muneco '], [/ reyes? magos? /g, ' reyes '], [/ arbol de navidad /g, ' arbolito '], [/ pista de hielo /g, ' hielo '],
+    [/ casa encantada /g, ' encantada '], [/ bastones? de caramelo /g, ' baston '], [/ huevos? de pascua /g, ' huevo '], [/ santa claus /g, ' papanoel '], [/ (una|la) futbolista /g, ' goleadora ']];
+  SKIP.push('junto', 'cerca', 'dentro', 'fuera', 'noche', 'dia', 'tambien', 'otro', 'otra', 'nuevo', 'nueva', 'mucho', 'bailando', 'nadando', 'patinando');
+  var understand0 = understand;
+  understand = function(text, base){ var t = ' ' + norm(text) + ' '; PHRASES.forEach(function(p){ t = t.replace(p[0], p[1]); }); return understand0(t, base); };
+
+  /* temas y dibujos nuevos de la biblioteca */
+  COL_THEMES.forEach(function(t){ if (t.id === 'deportes') t.icon = '🏅'; });
+  COL_THEMES.push({ id: 'futbol', name: 'Fútbol', icon: '⚽', color: '#B6EBA0' }, { id: 'navidad', name: 'Navidad', icon: '🎄', color: '#FFB3B3' },
+    { id: 'halloween', name: 'Halloween', icon: '🎃', color: '#FFC27A' }, { id: 'fiestas', name: 'Fiestas y cuentos', icon: '🎭', color: '#F3C6F0' });
+  COL_DESIGNS.forEach(function(d){ if (d.id === 'futbol') d.t = 'futbol'; });
+  [['panda', 'panda', 'bosque', 'sol,mariposa', 'arbusto,flor', 'selva', 'El panda'], ['tigre', 'tigre', 'bosque', 'sol,pajaros', 'arbusto,seta', 'selva', 'El tigre'],
+    ['koala', 'koala', 'bosque', 'nube,sol', 'flor,arbusto', 'selva', 'El koala'], ['cocodrilo', 'cocodrilo', 'prado', 'sol,pajaros', 'flor,nada', 'selva', 'El cocodrilo'],
+    ['loro', 'loro', 'bosque', 'sol,nube', 'manzana,flor', 'selva', 'El loro'], ['flamenco', 'flamenco', 'playa', 'sol,pajaros', 'concha,nada', 'selva', 'El flamenco'],
+    ['caballo', 'caballo', 'granja', 'sol,nube', 'zanahoria,flor', 'granja', 'El caballo'], ['tiburon', 'tiburon', 'mar', 'nada,nada', 'concha,estrella', 'mar', 'El tiburón'],
+    ['delfin', 'delfin', 'mar', 'nada,nada', 'estrella,concha', 'mar', 'El delfín'], ['rana', 'rana', 'prado', 'sol,mariposa', 'seta,flor', 'animales', 'La rana'],
+    ['hamster', 'hamster', 'prado', 'nube,sol', 'manzana,zanahoria', 'animales', 'El hámster'], ['erizo', 'erizo', 'bosque', 'sol,nube', 'seta,manzana', 'animales', 'El erizo'],
+    ['delantero', 'delantero', 'estadio', 'fuegos,confeti', 'nada,banderin', 'futbol', 'El delantero'], ['goleadora', 'goleadora', 'estadio', 'confeti,fuegos', 'balon,trofeo', 'futbol', 'La goleadora'],
+    ['portero', 'portero', 'futbol', 'nube,sol', 'guantes,balon', 'futbol', 'El portero'], ['arbitro', 'arbitro', 'estadio', 'nube,nada', 'tarjetas,silbato', 'futbol', 'El árbitro'],
+    ['entrenadora', 'entrenador', 'futbol', 'sol,nada', 'conos,balon', 'futbol', 'La entrenadora'], ['aficionado', 'aficionado', 'estadio', 'confeti,fuegos', 'bufanda,nada', 'futbol', 'El aficionado'],
+    ['perrofutbol', 'perrito', 'futbol', 'sol,nube', 'balon,botas', 'futbol', 'El perro futbolero'], ['dinofutbol', 'trex', 'estadio', 'fuegos,nada', 'balon,medalla', 'futbol', 'El dinosaurio campeón'],
+    ['ciclista', 'ciclista', 'montana', 'sol,pajaros', 'nada,medalla', 'deportes', 'El ciclista'], ['karateka', 'karateka', 'gimnasio', 'nada,nada', 'medalla,nada', 'deportes', 'La karateka'],
+    ['gimnasta', 'gimnasta', 'gimnasio', 'nada,nada', 'comba,nada', 'deportes', 'La gimnasta'], ['patinadora', 'patinadora', 'hielo', 'copos,nube', 'nada,patines', 'deportes', 'La patinadora'],
+    ['esquiador', 'esquiador', 'nieve', 'sol,copos', 'arbolito,nada', 'deportes', 'El esquiador'], ['surfista', 'surfista', 'playa', 'sol,pajaros', 'concha,arena', 'deportes', 'La surfista'],
+    ['atleta', 'atleta', 'atletismo', 'sol,nube', 'medalla,conos', 'deportes', 'El atleta'], ['bailarina', 'bailarina', 'gimnasio', 'nada,nada', 'flor,nada', 'deportes', 'La bailarina'],
+    ['papanoel', 'papanoel', 'salonnav', 'copos,campanas', 'regalo,calcetin', 'navidad', 'Papá Noel'], ['reno', 'reno', 'nieve', 'trineo,copos', 'arbolito,regalo', 'navidad', 'El reno'],
+    ['muneco', 'muneco', 'nieve', 'copos,luna', 'arbolito,regalo', 'navidad', 'El muñeco de nieve'], ['elfo', 'elfo', 'salonnav', 'campanas,copos', 'baston,regalo', 'navidad', 'El elfo'],
+    ['reymago', 'reymago', 'desierto', 'fugaz,estrellas', 'regalo,cofre', 'navidad', 'El rey mago'], ['ninanavidad', 'nina', 'salonnav', 'copos,campanas', 'regalo,baston', 'navidad', 'La niña en Navidad'],
+    ['bruja', 'bruja', 'casaencantada', 'luna,murcielago', 'caldero,calabaza', 'halloween', 'La bruja'], ['vampiro', 'vampiro', 'casaencantada', 'murcielago,luna', 'calabaza,caramelos', 'halloween', 'El vampiro'],
+    ['momia', 'momia', 'casaencantada', 'luna,telarana', 'calabaza,nada', 'halloween', 'La momia'], ['calabazon', 'calabazon', 'casaencantada', 'luna,murcielago', 'caramelos,calabaza', 'halloween', 'La calabaza'],
+    ['fantasmahw', 'fantasma', 'casaencantada', 'telarana,luna', 'calabaza,caldero', 'halloween', 'El fantasma de Halloween'], ['gatonegro', 'gatito', 'casaencantada', 'luna,murcielago', 'calabaza,caramelos', 'halloween', 'El gato de Halloween'],
+    ['payaso', 'payaso', 'carnaval', 'confeti,globos', 'antifaz,caramelos', 'fiestas', 'El payaso'], ['princesa', 'princesa', 'prado', 'arcoiris,corazon', 'flor,flor', 'fiestas', 'La princesa'],
+    ['sirena', 'sirena', 'mar', 'nada,nada', 'concha,estrella', 'fiestas', 'La sirena'], ['mago', 'mago', 'bosque', 'luna,estrellas', 'caldero,seta', 'fiestas', 'El mago'],
+    ['pascua', 'conejito', 'prado', 'sol,mariposa', 'huevos,huevos', 'fiestas', 'El conejo de Pascua'], ['carnavalnina', 'nina', 'carnaval', 'confeti,fuegos', 'antifaz,caramelos', 'fiestas', 'La niña en el carnaval']
   ].forEach(function(x){
     var r = { ch: x[1], bg: x[2], sky: x[3].split(','), gnd: x[4].split(',') };
     COL_DESIGNS.push({ id: x[0], t: x[5], name: x[6], draw: function(){ return compose(r); } });
