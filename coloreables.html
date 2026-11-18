@@ -46,24 +46,34 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
 .bg{stroke:none;}
 .l{fill:none; stroke:#1B1B2B; stroke-width:5; stroke-linecap:round; stroke-linejoin:round;}
 .k{fill:#1B1B2B;}
-/* pintar */
-.paint{display:grid; grid-template-columns:minmax(0,1fr); gap:12px; align-items:start;}
-.stage{position:relative; width:100%; max-width:min(640px,58vh); aspect-ratio:1; margin:0 auto; border:4px solid var(--ink); border-radius:22px; overflow:hidden; background:#FFFFFF; box-shadow:0 6px 0 rgba(43,34,80,.16); touch-action:none; cursor:crosshair; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;}
+/* pintar: el dibujo arriba y las herramientas justo debajo, todo a la vista */
+.paint{display:grid; grid-template-columns:minmax(0,1fr); gap:10px; align-items:start;}
+.stage{position:relative; width:100%; max-width:min(640px,calc(100vh - 340px)); max-width:min(640px,calc(100svh - 340px)); min-width:min(100%,240px); aspect-ratio:1; margin:0 auto; border:4px solid var(--ink); border-radius:22px; overflow:hidden; background:#FFFFFF; box-shadow:0 6px 0 rgba(43,34,80,.16); touch-action:none; cursor:crosshair; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;}
 .stage canvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
 .stage .ink{pointer-events:none;}
-.side{display:flex; flex-direction:column; gap:10px; min-width:0;}
-.tools{display:grid; grid-template-columns:repeat(auto-fill,minmax(74px,1fr)); gap:6px;}
-.tool{display:flex; flex-direction:column; align-items:center; gap:0; min-height:56px; padding:4px 2px; border-radius:14px; border:3px solid var(--ink); background:#FFFFFF; cursor:pointer; font:800 13px/1.1 var(--display);}
-.tool i{font-style:normal; font-size:22px; line-height:1.2;}
+.side{display:flex; flex-direction:column; gap:8px; min-width:0; width:100%; max-width:640px; margin:0 auto;}
+.bar{display:flex; flex-direction:column; gap:8px; padding:8px; border-radius:20px; background:var(--card); border:3px solid var(--ink); min-width:0;}
+.tools{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px;}
+.tool{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; min-height:50px; min-width:0; padding:3px 1px; border-radius:12px; border:3px solid var(--ink); background:#FFFFFF; cursor:pointer; font:800 11px/1.1 var(--display); overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+.tool i{font-style:normal; font-size:21px; line-height:1.15;}
 .tool[aria-pressed="true"]{background:var(--sun); box-shadow:0 0 0 3px var(--accent);}
-.sizes .btn{min-width:52px; justify-content:center; padding:6px 10px;}
+.pal{display:flex; gap:7px; overflow-x:auto; padding:5px 4px 7px; -webkit-overflow-scrolling:touch; scrollbar-width:thin; touch-action:pan-x;}
+.sw{flex:none; width:38px; height:38px; border-radius:50%; border:3px solid var(--ink); cursor:pointer; padding:0;}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px #FFFFFF, 0 0 0 5px var(--accent); transform:scale(.88);}
+.opts{display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr); gap:6px; align-items:stretch;}
+.opts .btn{min-height:46px; min-width:0; padding:2px 4px; font-size:13px; border-radius:12px; gap:0; flex-direction:column; justify-content:center; line-height:1.1; white-space:nowrap;}
+.opts .btn i{font-style:normal; font-size:18px;}
+.sizes{display:flex; gap:4px;}
+.sizes .btn{flex:none; width:42px; padding:2px; align-items:center;}
 .sizes .dot{display:block; border-radius:50%; background:var(--ink);}
-.pal{display:grid; grid-template-columns:repeat(auto-fill,minmax(40px,1fr)); gap:7px; padding:10px; border-radius:20px; background:var(--card); border:3px solid var(--ink);}
-.sw{aspect-ratio:1; min-height:38px; border-radius:50%; border:3px solid var(--ink); cursor:pointer; padding:0;}
-.sw[aria-pressed="true"]{box-shadow:0 0 0 3px #FFFFFF, 0 0 0 7px var(--accent); transform:scale(.9);}
 .msg{margin:0; min-height:1.4em; font-size:15px;}
 .msg a{color:var(--accent);}
-@media (min-width:860px){ .paint{grid-template-columns:minmax(0,1fr) 330px;} .stage{margin:0; max-width:min(640px,78vh);} }
+/* pantallas apaisadas (ordenador, tableta tumbada o móvil tumbado): herramientas al lado */
+@media (min-aspect-ratio:5/4) and (min-width:700px){
+  .paint{grid-template-columns:auto minmax(280px,360px); justify-content:center;}
+  .stage{margin:0; width:min(640px,calc(100vh - 150px)); width:min(640px,calc(100svh - 150px)); max-width:none; min-width:200px;}
+  .side{max-width:none;}
+}
 /* creador */
 .maker{display:grid; grid-template-columns:minmax(0,1fr); gap:14px; align-items:start;}
 .prev{position:sticky; top:calc(env(safe-area-inset-top,0px) + 66px); z-index:3; display:flex; gap:10px; align-items:center; padding:8px; border-radius:20px; background:var(--card); border:3px solid var(--ink);}
@@ -989,7 +999,7 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
   var N = 800;
   var BRUSH = [
     { id: 'lapiz', n: 'Lápiz', ic: '✏️', w: [4, 7, 12], a: .92, tex: .14 },
-    { id: 'rotu', n: 'Rotulador', ic: '🖊️', w: [14, 24, 40], a: 1 },
+    { id: 'rotu', n: 'Rotulador', s: 'Rotu', ic: '🖊️', w: [14, 24, 40], a: 1 },
     { id: 'pincel', n: 'Pincel', ic: '🖌️', w: [22, 38, 62], a: .78, soft: 1 },
     { id: 'cera', n: 'Cera', ic: '🖍️', w: [16, 28, 46], a: .95, tex: .4 },
     { id: 'spray', n: 'Espray', ic: '💨', w: [20, 34, 54], a: 1, spray: 1 },
@@ -1090,20 +1100,20 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
     function choose(g, b){ Array.prototype.forEach.call(g.children, function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); }
     var tools = group('tools', 'Pinceles');
     BRUSH.forEach(function(b){
-      var t = el('button', 'tool'); t.type = 'button'; var i = el('i', '', b.ic); i.setAttribute('aria-hidden', 'true'); t.appendChild(i); t.appendChild(document.createTextNode(b.n));
+      var t = el('button', 'tool'); t.type = 'button'; var i = el('i', '', b.ic); i.setAttribute('aria-hidden', 'true'); t.appendChild(i); t.appendChild(document.createTextNode(b.s || b.n)); t.title = b.n; if (b.s) t.setAttribute('aria-label', b.n);
       t.setAttribute('aria-pressed', PREF.b === b.id ? 'true' : 'false');
       t.addEventListener('click', function(){ PREF.b = b.id; choose(tools, t); }); tools.appendChild(t);
     });
-    var sizes = group('row sizes', 'Grosor');
+    var sizes = group('sizes', 'Grosor');
     [['Fino', 8], ['Medio', 15], ['Gordo', 24]].forEach(function(z, k){
       var b = el('button', 'btn'); b.type = 'button'; b.setAttribute('aria-label', 'Grosor ' + z[0].toLowerCase()); b.title = z[0];
       var dt = el('span', 'dot'); dt.style.width = dt.style.height = z[1] + 'px'; b.appendChild(dt);
       b.setAttribute('aria-pressed', PREF.s === k ? 'true' : 'false');
       b.addEventListener('click', function(){ PREF.s = k; choose(sizes, b); }); sizes.appendChild(b);
     });
-    var inb = button('🚧 Sin salirme', 'btn', function(){ PREF.in = !PREF.in; inb.setAttribute('aria-pressed', PREF.in ? 'true' : 'false'); });
+    var inb = button('', 'btn', function(){ PREF.in = !PREF.in; inb.setAttribute('aria-pressed', PREF.in ? 'true' : 'false'); });
     inb.setAttribute('aria-pressed', PREF.in ? 'true' : 'false'); inb.title = 'El color no se sale de la zona donde empiezas a pintar';
-    var row2 = el('div', 'row'); row2.appendChild(sizes); row2.appendChild(inb);
+
     var pal = group('pal', 'Colores');
     PALETTE.forEach(function(c){
       var b = el('button', 'sw'); b.type = 'button'; b.style.background = c[1]; b.setAttribute('aria-label', c[0]); b.title = c[0]; b.setAttribute('aria-pressed', PREF.c === c[1] ? 'true' : 'false');
@@ -1111,17 +1121,21 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
       pal.appendChild(b);
     });
     var sure = false, row3 = el('div', 'row');
-    var un = button('↩️ Deshacer', 'btn', function(){ var u = undo.pop(); if (!u) return; px.putImageData(u, 0, 0); changed(); }); un.disabled = true;
+    var un = button('', 'btn', function(){ var u = undo.pop(); if (!u) return; px.putImageData(u, 0, 0); changed(); }); un.disabled = true;
     var wipe = button('🗑️ Borrar todo', 'btn', function(){
       if (!sure){ sure = true; wipe.textContent = '¿Seguro? Toca otra vez'; setTimeout(function(){ sure = false; wipe.textContent = '🗑️ Borrar todo'; }, 4000); return; }
       sure = false; wipe.textContent = '🗑️ Borrar todo'; snap(); px.clearRect(0, 0, N, N); changed();
     });
-    row3.appendChild(un); row3.appendChild(wipe);
+    row3.appendChild(wipe);
     var row4 = el('div', 'row');
     var p1 = button('🖨️ PDF en blanco', 'btn', function(){ pdfGet(d, null, msg, p1); });
     var p2 = button('🎨 PDF con mis colores', 'btn main', function(){ pdfGet(d, pc, msg, p2); });
     row4.appendChild(p1); row4.appendChild(p2);
-    side.appendChild(tools); side.appendChild(row2); side.appendChild(pal); side.appendChild(row3); side.appendChild(row4); side.appendChild(msg);
+    [[inb, '🚧', 'Sin salirme'], [un, '↩️', 'Deshacer']].forEach(function(q){ var i = el('i', '', q[1]); i.setAttribute('aria-hidden', 'true'); q[0].appendChild(i); q[0].appendChild(document.createTextNode(q[2])); });
+    var bar = el('div', 'bar'), opts = el('div', 'opts');
+    opts.appendChild(sizes); opts.appendChild(inb); opts.appendChild(un);
+    bar.appendChild(tools); bar.appendChild(pal); bar.appendChild(opts);
+    side.appendChild(bar); side.appendChild(msg); side.appendChild(row3); side.appendChild(row4);
     side.appendChild(el('p', 'note', 'Elige pincel y color y pinta con el dedo o con el ratón. Se guarda solo.'));
     wrapEl.appendChild(stage); wrapEl.appendChild(side); app.appendChild(wrapEl);
 
