@@ -60,9 +60,9 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
 .pal{display:flex; gap:7px; overflow-x:auto; padding:5px 4px 7px; -webkit-overflow-scrolling:touch; scrollbar-width:thin; touch-action:pan-x;}
 .sw{flex:none; width:38px; height:38px; border-radius:50%; border:3px solid var(--ink); cursor:pointer; padding:0;}
 .sw[aria-pressed="true"]{box-shadow:0 0 0 2px #FFFFFF, 0 0 0 5px var(--accent); transform:scale(.88);}
-.opts{display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr); gap:6px; align-items:stretch;}
-.opts .btn{min-height:46px; min-width:0; padding:2px 4px; font-size:13px; border-radius:12px; gap:0; flex-direction:column; justify-content:center; line-height:1.1; white-space:nowrap;}
-.opts .btn i{font-style:normal; font-size:18px;}
+.popts{display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr); gap:6px; align-items:stretch;}
+.popts .btn{min-height:46px; min-width:0; padding:2px 4px; font-size:13px; border-radius:12px; gap:0; flex-direction:column; justify-content:center; line-height:1.1; white-space:nowrap;}
+.popts .btn i{font-style:normal; font-size:18px;}
 .sizes{display:flex; gap:4px;}
 .sizes .btn{flex:none; width:42px; padding:2px; align-items:center;}
 .sizes .dot{display:block; border-radius:50%; background:var(--ink);}
@@ -85,6 +85,17 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
 .opt{display:flex; flex-direction:column; align-items:center; gap:2px; padding:5px; border-radius:14px; border:3px solid var(--line); background:#FFFFFF; cursor:pointer; font:800 13px/1.1 var(--display); min-width:0;}
 .opt svg{width:100%; height:auto;}
 .opt[aria-pressed="true"]{border-color:var(--accent); background:#EFE8FF; box-shadow:0 0 0 2px var(--accent);}
+.ask{display:flex; flex-direction:column; gap:8px; padding:12px; border-radius:20px; background:var(--card); border:3px solid var(--ink);}
+.ask label{font:800 20px/1.1 var(--display);}
+.askrow{display:flex; gap:8px; flex-wrap:wrap;}
+.askrow input{flex:1 1 220px; min-width:0; min-height:48px; padding:6px 12px; border-radius:14px; border:3px solid var(--ink); font:700 17px/1.2 var(--body, inherit); background:#FFFFFF; color:var(--ink);}
+.chips{display:flex; gap:6px; flex-wrap:wrap;}
+.chip{min-height:38px; padding:4px 12px; border-radius:999px; border:2px solid var(--ink); background:#FFFFFF; font:800 14px/1.1 var(--display); cursor:pointer; color:var(--ink);}
+.chip[aria-pressed="true"]{background:var(--sun);}
+.tabs{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px;}
+.tab{min-height:48px; padding:4px; border-radius:14px; border:3px solid var(--ink); background:#FFFFFF; font:800 14px/1.1 var(--display); cursor:pointer; color:var(--ink);}
+.tab[aria-pressed="true"]{background:var(--sun); box-shadow:0 0 0 3px var(--accent);}
+.chip:focus-visible,.tab:focus-visible{outline:3px solid var(--ink); outline-offset:2px;}
 @media (min-width:860px){ .maker{grid-template-columns:300px minmax(0,1fr);} .prev{flex-direction:column; align-items:stretch;} .prev svg{width:100%;} }
 .dlg{position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(43,34,80,.6);}
 .dlg-box{width:100%; max-width:380px; max-height:100%; overflow:auto; padding:18px; border-radius:24px; background:#FFFFFF; border:4px solid var(--ink); display:flex; flex-direction:column; gap:12px; text-align:center;}
@@ -736,6 +747,262 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
     var r = { ch: x[0], bg: x[1], sky: x[2].split(','), gnd: x[3].split(',') };
     COL_DESIGNS.push({ id: x[0], t: CHARS[x[0]].t, name: CHARS[x[0]].n, draw: function(){ return compose(r); } });
   });
+  /* ================= Más piezas para el creador: personas, mascotas, deportes, videojuegos, espacio y fiesta ================= */
+  function kidBody(dress, pants){
+    var arm = P('M166 194 Q132 226 134 262 Q138 274 150 270 Q152 240 174 216 Z');
+    var legs = pants ? P('M166 268 H234 L232 346 H206 L200 290 L194 346 H168 Z') : R(172, 292, 22, 54, 6) + R(206, 292, 22, 54, 6);
+    var low = dress ? P('M164 250 H236 L264 316 Q200 330 136 316 Z') : (pants ? '' : P('M164 262 H236 L240 304 H206 L200 286 L194 304 H160 Z'));
+    return legs + E(180, 352, 23, 11) + E(220, 352, 23, 11) + arm + mirror(arm) + low +
+      P('M166 186 Q200 176 234 186 L242 268 H158 Z') + L('M188 184 Q200 198 212 184') + C(142, 270, 11) + C(258, 270, 11);
+  }
+  function kidHead(){ return C(150, 134, 10) + C(250, 134, 10) + C(200, 130, 50) + eyes(128, 18, 5.5) + smile(150, 13); }
+  var NEW_CHARS = {
+    nino: { n: 'El niño', c: ['personas', 'deportes'], d: function(){ return kidBody() + kidHead() + P('M150 124 Q146 74 200 72 Q254 74 250 124 Q240 100 214 98 Q206 110 190 100 Q164 100 150 124 Z'); } },
+    nina: { n: 'La niña', c: ['personas', 'deportes'], d: function(){
+      return C(138, 108, 20) + C(262, 108, 20) + kidBody(1) + kidHead() + P('M150 128 Q146 74 200 72 Q254 74 250 128 Q236 96 200 102 Q166 96 150 128 Z') +
+        P('M150 88 L132 74 L134 98 Z') + P('M250 88 L268 74 L266 98 Z');
+    } },
+    astronauta: { n: 'El astronauta', c: ['personas', 'espacio'], d: function(){
+      return R(148, 186, 104, 86, 14) + kidBody(0, 1) + R(182, 210, 36, 26, 5) + K(192, 223, 4) + K(208, 223, 4) +
+        C(200, 124, 64) + C(200, 128, 44) + eyes(126, 15, 5) + smile(144, 11) + L('M236 70 L250 46') + C(252, 42, 7);
+    } },
+    heroe: { n: 'El superhéroe', c: ['personas'], d: function(){
+      return P('M166 190 L118 334 Q200 350 282 334 L234 190 Z') + kidBody() + star(200, 226, 17) + kidHead() +
+        P('M150 124 Q146 74 200 72 Q254 74 250 124 Q232 94 200 96 Q168 94 150 124 Z') +
+        P('M158 118 Q200 108 242 118 Q244 138 224 140 Q212 132 200 134 Q188 132 176 140 Q156 138 158 118 Z') + eyes(128, 18, 5);
+    } },
+    pirata: { n: 'El pirata', c: ['personas'], d: function(){
+      return kidBody(0, 1) + L('M160 210 H240 M160 234 H240') + R(160, 254, 80, 12, 3) + kidHead() + K(218, 128, 11) + L('M154 116 L246 140') +
+        P('M132 108 Q200 34 268 108 Q200 92 132 108 Z') + P('M188 74 l12 -8 l12 8 l-12 8 Z');
+    } },
+    caballero: { n: 'El caballero', c: ['personas', 'videojuegos'], d: function(){
+      return kidBody(0, 1) + R(256, 152, 10, 108, 2) + R(240, 256, 42, 10, 3) + R(256, 266, 10, 22, 3) + C(258, 270, 11) +
+        kidHead() + P('M146 130 Q146 70 200 70 Q254 70 254 130 L238 130 Q234 98 200 98 Q166 98 162 130 Z') + P('M200 70 Q206 40 236 34 Q222 52 214 72 Z') +
+        P('M112 212 H172 V250 Q172 286 142 298 Q112 286 112 250 Z') + L('M142 220 V288 M118 248 H166');
+    } },
+    hada: { n: 'El hada', c: ['personas', 'fantasia'], d: function(){
+      return E(122, 196, 52, 30, -28) + E(278, 196, 52, 30, 28) + E(128, 246, 36, 20, 24) + E(272, 246, 36, 20, -24) + kidBody(1) + kidHead() +
+        P('M150 128 Q146 74 200 72 Q254 74 250 128 Q236 96 200 102 Q166 96 150 128 Z') + P('M172 80 L178 56 L192 72 L200 50 L208 72 L222 56 L228 80 Z') +
+        L('M260 268 L282 204') + star(284, 196, 15);
+    } },
+    perrito: { n: 'El perrito', c: ['animales'], d: function(){
+      return P('M248 304 Q290 296 296 258 Q300 246 288 248 Q282 280 246 284 Z') + E(200, 292, 62, 66) + E(200, 312, 34, 40) + E(168, 356, 26, 13) + E(232, 356, 26, 13) +
+        E(142, 172, 22, 44, 18) + E(258, 172, 22, 44, -18) + C(200, 170, 58) + E(200, 200, 32, 24) + E(200, 188, 10, 7) + K(200, 188, 6) +
+        eyes(158, 22, 6) + L('M200 196 V208 M186 210 Q200 220 214 210') + P('M194 214 Q200 236 206 214 Z');
+    } },
+    gatito: { n: 'El gatito', c: ['animales'], d: function(){
+      return P('M250 330 Q320 330 314 260 Q312 238 296 246 Q300 302 250 304 Z') + E(200, 296, 58, 62) + E(200, 312, 30, 38) + E(172, 356, 24, 12) + E(228, 356, 24, 12) +
+        P('M152 150 L150 92 L192 128 Z') + P('M248 150 L250 92 L208 128 Z') + C(200, 174, 56) + eyes(166, 22, 7) + P('M194 184 H206 L200 192 Z') +
+        L('M200 192 Q192 202 184 198 M200 192 Q208 202 216 198 M150 182 L178 186 M150 196 L178 192 M250 182 L222 186 M250 196 L222 192');
+    } },
+    conejito: { n: 'El conejito', c: ['animales'], d: function(){
+      return C(258, 320, 18) + E(200, 296, 60, 62) + E(200, 312, 32, 38) + E(170, 356, 26, 12) + E(230, 356, 26, 12) +
+        E(176, 98, 17, 54, -8) + E(224, 98, 17, 54, 8) + E(176, 102, 8, 38, -8) + E(224, 102, 8, 38, 8) + C(200, 184, 52) +
+        eyes(176, 20, 6) + E(200, 194, 7, 5) + L('M200 199 V206 M188 208 Q200 214 212 208') + R(194, 207, 12, 10, 2);
+    } },
+    tortuguita: { n: 'La tortuguita', c: ['animales'], d: function(){
+      return E(144, 336, 18, 20) + E(240, 336, 18, 20) + C(290, 262, 30) + K(298, 254, 5) + L('M282 276 Q294 284 306 274') +
+        P('M110 320 Q120 200 200 200 Q280 200 290 320 Z') + R(104, 312, 192, 16, 8) +
+        L('M200 216 L176 248 L200 280 L224 248 Z M176 248 H124 M224 248 H276 M200 280 V312 M176 248 L160 216 M224 248 L240 216 M176 290 L200 280 L224 290');
+    } },
+    pulpo: { n: 'El pulpo', c: ['animales'], d: function(){
+      var t = P('M150 214 Q110 260 132 300 Q146 326 120 352 Q140 360 152 340 Q170 304 152 278 Q146 254 172 230 Z') + P('M176 230 Q156 280 172 320 Q178 346 162 362 Q186 362 192 340 Q196 300 196 240 Z');
+      return t + mirror(t) + E(200, 168, 72, 78) + eyes(176, 26, 9) + smile(206, 16) + C(176, 120, 9) + C(226, 110, 7) + C(242, 140, 6);
+    } },
+    alien: { n: 'El extraterrestre', c: ['espacio', 'videojuegos'], d: function(){
+      return R(172, 300, 20, 46, 6) + R(208, 300, 20, 46, 6) + E(180, 352, 22, 10) + E(220, 352, 22, 10) + P('M166 262 Q134 270 128 300 Q140 306 150 296 Q160 282 172 280 Z') + P('M234 262 Q266 270 272 300 Q260 306 250 296 Q240 282 228 280 Z') +
+        E(200, 282, 46, 46) + L('M170 92 L150 50 M230 92 L250 50') + C(148, 44, 10) + C(252, 44, 10) + E(200, 156, 74, 66) +
+        C(166, 146, 15) + C(200, 128, 15) + C(234, 146, 15) + K(166, 148, 6) + K(200, 130, 6) + K(234, 148, 6) + smile(186, 18);
+    } },
+    monstruo: { n: 'El monstruo', c: ['fantasia', 'videojuegos'], d: function(){
+      return P('M150 140 L132 92 L168 122 Z') + P('M250 140 L268 92 L232 122 Z') + E(170, 352, 26, 12) + E(230, 352, 26, 12) +
+        P('M146 330 Q120 300 128 250 L112 240 L130 226 Q128 160 200 118 Q272 160 270 226 L288 240 L272 250 Q280 300 254 330 Z') +
+        C(200, 186, 32) + K(200, 190, 13) + P('M160 250 Q200 290 240 250 Z') + P('M176 254 l6 12 l6 -12 Z') + P('M212 254 l6 12 l6 -12 Z') + E(200, 306, 30, 18);
+    } },
+    fantasma: { n: 'El fantasma', c: ['fantasia', 'videojuegos'], d: function(){
+      return P('M128 320 V176 Q128 94 200 94 Q272 94 272 176 V320 L248 300 L224 324 L200 300 L176 324 L152 300 Z') + P('M128 220 Q100 230 104 256 Q118 256 128 244 Z') + P('M272 220 Q300 230 296 256 Q282 256 272 244 Z') +
+        E(176, 172, 11, 16) + E(224, 172, 11, 16) + K(178, 176, 5) + K(226, 176, 5) + E(200, 222, 14, 18);
+    } }
+  };
+  var NEW_BGS = {
+    futbol: { n: 'en el campo de fútbol', c: ['deportes'], d: function(){
+      return ground(338, 4) + R(78, 176, 12, 166, 2) + R(310, 176, 12, 166, 2) + R(78, 170, 244, 12, 2) +
+        L('M90 210 H310 M90 250 H310 M90 290 H310 M130 182 V338 M170 182 V338 M210 182 V338 M250 182 V338 M290 182 V338 M0 372 H400');
+    } },
+    baloncesto: { n: 'en la pista de baloncesto', c: ['deportes'], d: function(){
+      return R(0, 330, 400, 70, 0) + L('M120 400 Q200 350 280 400 M0 362 H400') + R(356, 196, 12, 136, 2) + R(290, 130, 96, 70, 6) + R(316, 152, 44, 30, 2) +
+        E(334, 206, 28, 7) + L('M310 210 L322 248 H346 L358 210 M322 210 L330 248 M346 210 L338 248 M314 228 H354');
+    } },
+    tenis: { n: 'en la pista de tenis', c: ['deportes'], d: function(){
+      return P('M0 300 H400 V400 H0 Z') + L('M0 372 H400 M200 300 V400') + R(6, 236, 8, 70, 2) + R(386, 236, 8, 70, 2) + R(14, 236, 372, 10, 2) +
+        L('M14 262 H386 M14 282 H386 M40 246 V300 M80 246 V300 M120 246 V300 M160 246 V300 M240 246 V300 M280 246 V300 M320 246 V300 M360 246 V300');
+    } },
+    piscina: { n: 'en la piscina', c: ['deportes', 'agua'], d: function(){
+      return R(0, 240, 400, 16, 4) + P('M0 256 H400 V400 H0 Z') + L('M0 290 Q25 280 50 290 T100 290 T150 290 T200 290 T250 290 T300 290 T350 290 T400 290 M0 360 Q25 350 50 360 T100 360 T150 360 T200 360 T250 360 T300 360 T350 360 T400 360') +
+        L('M20 200 V300 M44 200 V300 M20 220 H44 M20 244 H44 M20 268 H44');
+    } },
+    videojuego: { n: 'en el videojuego', c: ['videojuegos'], d: function(){
+      var s = '', i;
+      for (i = 0; i < 10; i++) s += R(i * 40, 338, 40, 31, 0) + R(i * 40, 369, 40, 31, 0);
+      for (i = 0; i < 3; i++) s += R(16 + i * 34, 196, 34, 34, 0) + R(282 + i * 34, 222, 34, 34, 0);
+      return s + L('M20 353 H380 M36 213 H114 M298 239 H376');
+    } },
+    luna: { n: 'en la luna', c: ['espacio'], d: function(){
+      return star(200, 30, 8) + C(140, 60, 3) + C(260, 80, 3) + P('M0 290 Q100 262 200 280 Q300 266 400 290 V400 H0 Z') +
+        E(70, 320, 34, 10) + E(330, 330, 28, 9) + E(200, 384, 40, 10) + E(120, 368, 16, 5) + E(286, 372, 14, 5);
+    } },
+    isla: { n: 'en la isla pirata', c: ['agua'], d: function(){
+      return P('M0 280 Q25 270 50 280 T100 280 T150 280 T200 280 T250 280 T300 280 T350 280 T400 280 V400 H0 Z') + P('M40 400 Q60 300 200 300 Q340 300 360 400 Z') +
+        P('M306 330 Q300 240 320 160 L332 162 Q316 240 322 330 Z') + P('M326 158 Q290 128 246 170 Q290 150 324 168 Z') + P('M326 158 Q366 128 400 166 Q366 150 328 168 Z') +
+        P('M326 158 Q300 106 262 104 Q300 126 320 164 Z') + P('M326 158 Q350 104 388 104 Q352 126 330 164 Z') + C(320, 172, 9) + C(336, 174, 9);
+    } },
+    cumple: { n: 'en la fiesta de cumpleaños', c: ['fiesta'], d: function(){
+      var s = L('M0 150 Q200 210 400 150'), i, x, y;
+      for (i = 0; i < 9; i++){ x = 22 + i * 44; y = 150 + 60 * (1 - Math.pow((x - 200) / 200, 2)) * .82; s += P('M' + (x - 14) + ' ' + (y - 4) + ' L' + (x + 14) + ' ' + (y - 2) + ' L' + x + ' ' + (y + 26) + ' Z'); }
+      return s + R(0, 338, 400, 62, 0) + L('M0 368 H400');
+    } },
+    montana: { n: 'en la montaña', c: ['naturaleza'], d: function(){
+      return P('M0 300 L90 160 L150 240 L250 120 L400 300 Z') + P('M72 188 L90 160 L108 188 L98 182 L90 192 L80 182 Z') + P('M224 160 L250 120 L276 160 L264 152 L250 166 L236 152 Z') + ground(338);
+    } },
+    desierto: { n: 'en el desierto', c: ['naturaleza'], d: function(){
+      return P('M10 300 L90 196 L170 300 Z') + L('M90 196 L110 300 M50 248 H130 M30 274 H150') + P('M240 300 L300 230 L360 300 Z') + L('M300 230 L314 300') +
+        P('M0 320 Q100 290 200 316 Q300 292 400 318 V400 H0 Z') + L('M40 360 Q80 350 120 362 M260 370 Q300 358 340 368');
+    } }
+  };
+  var NEW_SKY = {
+    avion: { n: 'Avión', c: ['vehiculos'], d: function(x, y){ return P('M' + (x - 10) + ' ' + y + ' L' + (x - 22) + ' ' + (y + 30) + ' H' + (x - 8) + ' L' + (x + 14) + ' ' + y + ' Z') + E(x, y, 46, 12) + P('M' + (x - 44) + ' ' + y + ' L' + (x - 54) + ' ' + (y - 22) + ' H' + (x - 38) + ' L' + (x - 26) + ' ' + (y - 6) + ' Z') + K(x + 8, y - 2, 3) + K(x + 20, y - 2, 3) + K(x + 32, y - 1, 3); } },
+    cohete: { n: 'Cohete', c: ['espacio'], d: function(x, y){ return P('M' + (x - 10) + ' ' + (y + 26) + ' L' + x + ' ' + (y + 50) + ' L' + (x + 10) + ' ' + (y + 26) + ' Z') + P('M' + (x - 14) + ' ' + (y + 6) + ' L' + (x - 28) + ' ' + (y + 30) + ' H' + (x - 12) + ' Z') + P('M' + (x + 14) + ' ' + (y + 6) + ' L' + (x + 28) + ' ' + (y + 30) + ' H' + (x + 12) + ' Z') + P('M' + x + ' ' + (y - 46) + ' Q' + (x + 20) + ' ' + (y - 22) + ' ' + (x + 15) + ' ' + (y + 28) + ' H' + (x - 15) + ' Q' + (x - 20) + ' ' + (y - 22) + ' ' + x + ' ' + (y - 46) + ' Z') + C(x, y - 8, 8); } },
+    ovni: { n: 'Platillo volante', c: ['espacio'], d: function(x, y){ return P('M' + (x - 22) + ' ' + y + ' Q' + (x - 20) + ' ' + (y - 30) + ' ' + x + ' ' + (y - 30) + ' Q' + (x + 20) + ' ' + (y - 30) + ' ' + (x + 22) + ' ' + y + ' Z') + E(x, y + 4, 48, 13) + K(x - 26, y + 5, 3.5) + K(x, y + 8, 3.5) + K(x + 26, y + 5, 3.5) + L('M' + (x - 16) + ' ' + (y + 18) + ' L' + (x - 26) + ' ' + (y + 40) + ' M' + (x + 16) + ' ' + (y + 18) + ' L' + (x + 26) + ' ' + (y + 40)); } },
+    mariposa: { n: 'Mariposa', c: ['naturaleza'], d: function(x, y){ return E(x - 18, y - 12, 18, 22, -20) + E(x + 18, y - 12, 18, 22, 20) + E(x - 14, y + 16, 12, 15, 20) + E(x + 14, y + 16, 12, 15, -20) + E(x, y + 2, 5, 26) + L('M' + (x - 2) + ' ' + (y - 22) + ' q-6 -14 -14 -16 M' + (x + 2) + ' ' + (y - 22) + ' q6 -14 14 -16'); } },
+    murcielago: { n: 'Murciélago', c: ['fantasia'], d: function(x, y){ return P('M' + x + ' ' + (y - 4) + ' Q' + (x - 24) + ' ' + (y - 28) + ' ' + (x - 50) + ' ' + (y - 14) + ' Q' + (x - 40) + ' ' + y + ' ' + (x - 44) + ' ' + (y + 14) + ' Q' + (x - 30) + ' ' + (y + 4) + ' ' + (x - 22) + ' ' + (y + 16) + ' Q' + (x - 12) + ' ' + (y + 4) + ' ' + x + ' ' + (y + 12) + ' Q' + (x + 12) + ' ' + (y + 4) + ' ' + (x + 22) + ' ' + (y + 16) + ' Q' + (x + 30) + ' ' + (y + 4) + ' ' + (x + 44) + ' ' + (y + 14) + ' Q' + (x + 40) + ' ' + y + ' ' + (x + 50) + ' ' + (y - 14) + ' Q' + (x + 24) + ' ' + (y - 28) + ' ' + x + ' ' + (y - 4) + ' Z') + E(x, y, 10, 16) + K(x - 4, y - 6, 2) + K(x + 4, y - 6, 2); } },
+    fuegos: { n: 'Fuegos artificiales', c: ['fiesta'], d: function(x, y){ var s = '', i, a, c = [[x - 18, y - 6, 26], [x + 26, y + 18, 18]]; c.forEach(function(p){ for (i = 0; i < 10; i++){ a = i * Math.PI / 5; s += 'M' + (p[0] + p[2] * .35 * Math.cos(a)).toFixed(1) + ' ' + (p[1] + p[2] * .35 * Math.sin(a)).toFixed(1) + ' L' + (p[0] + p[2] * Math.cos(a)).toFixed(1) + ' ' + (p[1] + p[2] * Math.sin(a)).toFixed(1) + ' '; } }); return L(s) + C(c[0][0], c[0][1], 6) + C(c[1][0], c[1][1], 5); } },
+    monedas: { n: 'Monedas', c: ['videojuegos'], d: function(x, y){ var s = ''; [[x - 26, y + 10], [x, y - 14], [x + 26, y + 10]].forEach(function(p){ s += E(p[0], p[1], 13, 17) + L('M' + p[0] + ' ' + (p[1] - 8) + ' V' + (p[1] + 8)); }); return s; } },
+    vidas: { n: 'Corazones de vida', c: ['videojuegos'], d: null },
+    fugaz: { n: 'Estrella fugaz', c: ['espacio'], d: function(x, y){ return L('M' + (x - 50) + ' ' + (y + 30) + ' L' + (x + 4) + ' ' + (y + 4) + ' M' + (x - 44) + ' ' + (y + 42) + ' L' + (x + 8) + ' ' + (y + 14) + ' M' + (x - 30) + ' ' + (y + 48) + ' L' + (x + 12) + ' ' + (y + 22)) + star(x + 16, y - 6, 24); } },
+    nada: { n: 'Nada', c: [], d: function(){ return ''; } }
+  };
+  /* el corazón de píxeles se dibuja con cuadraditos */
+  NEW_SKY.vidas.d = function(x, y){ var s = '';
+    [[x - 44, y - 22], [x - 4, y]].forEach(function(o){ var u = 6, ox = o[0], oy = o[1], d = 'M1 0 H3 V1 H4 V0 H6 V1 H7 V3 H6 V4 H5 V5 H4 V6 H3 V5 H2 V4 H1 V3 H0 V1 H1 Z'.replace(/([MHV])(\d)( (\d))?/g, function(m, c, a1, sp, a2){ return c === 'M' ? 'M' + (ox + a1 * u) + ' ' + (oy + a2 * u) : c === 'H' ? 'H' + (ox + a1 * u) : 'V' + (oy + a1 * u); }); s += P(d); });
+    return s; };
+  var NEW_GND = {
+    balon: { n: 'Balón de fútbol', c: ['deportes'], d: function(x, y){ return C(x, y, 24) + P('M' + x + ' ' + (y - 9) + ' L' + (x + 9) + ' ' + (y - 2) + ' L' + (x + 6) + ' ' + (y + 9) + ' H' + (x - 6) + ' L' + (x - 9) + ' ' + (y - 2) + ' Z') + L('M' + x + ' ' + (y - 9) + ' V' + (y - 24) + ' M' + (x + 9) + ' ' + (y - 2) + ' L' + (x + 23) + ' ' + (y - 6) + ' M' + (x + 6) + ' ' + (y + 9) + ' L' + (x + 14) + ' ' + (y + 20) + ' M' + (x - 6) + ' ' + (y + 9) + ' L' + (x - 14) + ' ' + (y + 20) + ' M' + (x - 9) + ' ' + (y - 2) + ' L' + (x - 23) + ' ' + (y - 6)); } },
+    basket: { n: 'Balón de baloncesto', c: ['deportes'], d: function(x, y){ return C(x, y, 24) + L('M' + (x - 24) + ' ' + y + ' H' + (x + 24) + ' M' + x + ' ' + (y - 24) + ' V' + (y + 24) + ' M' + (x - 17) + ' ' + (y - 17) + ' Q' + (x - 6) + ' ' + y + ' ' + (x - 17) + ' ' + (y + 17) + ' M' + (x + 17) + ' ' + (y - 17) + ' Q' + (x + 6) + ' ' + y + ' ' + (x + 17) + ' ' + (y + 17)); } },
+    raqueta: { n: 'Raqueta', c: ['deportes'], d: function(x, y){ return G('rotate(-25 ' + x + ' ' + y + ')', R(x - 5, y + 8, 10, 30, 4) + E(x, y - 14, 18, 24) + L('M' + (x - 10) + ' ' + (y - 30) + ' V' + (y + 2) + ' M' + x + ' ' + (y - 37) + ' V' + (y + 9) + ' M' + (x + 10) + ' ' + (y - 30) + ' V' + (y + 2) + ' M' + (x - 16) + ' ' + (y - 24) + ' H' + (x + 16) + ' M' + (x - 18) + ' ' + (y - 14) + ' H' + (x + 18) + ' M' + (x - 16) + ' ' + (y - 4) + ' H' + (x + 16))) + C(x + 24, y + 22, 9); } },
+    trofeo: { n: 'Trofeo', c: ['deportes'], d: function(x, y){ return L('M' + (x - 20) + ' ' + (y - 26) + ' q-16 2 -12 16 q4 10 16 8 M' + (x + 20) + ' ' + (y - 26) + ' q16 2 12 16 q-4 10 -16 8') + P('M' + (x - 22) + ' ' + (y - 32) + ' H' + (x + 22) + ' Q' + (x + 22) + ' ' + (y + 2) + ' ' + x + ' ' + (y + 4) + ' Q' + (x - 22) + ' ' + (y + 2) + ' ' + (x - 22) + ' ' + (y - 32) + ' Z') + R(x - 5, y + 4, 10, 12, 0) + R(x - 18, y + 16, 36, 10, 2) + star(x, y - 16, 8); } },
+    monopatin: { n: 'Monopatín', c: ['deportes'], d: function(x, y){ return P('M' + (x - 40) + ' ' + (y + 2) + ' Q' + (x - 44) + ' ' + (y - 8) + ' ' + (x - 34) + ' ' + (y - 6) + ' H' + (x + 34) + ' Q' + (x + 44) + ' ' + (y - 8) + ' ' + (x + 40) + ' ' + (y + 2) + ' Q' + (x + 36) + ' ' + (y + 6) + ' ' + (x + 30) + ' ' + (y + 6) + ' H' + (x - 30) + ' Q' + (x - 36) + ' ' + (y + 6) + ' ' + (x - 40) + ' ' + (y + 2) + ' Z') + C(x - 24, y + 16, 8) + C(x + 24, y + 16, 8); } },
+    mando: { n: 'Mando de consola', c: ['videojuegos'], d: function(x, y){ return P('M' + (x - 36) + ' ' + (y - 14) + ' H' + (x + 36) + ' Q' + (x + 50) + ' ' + (y - 14) + ' ' + (x + 46) + ' ' + (y + 16) + ' Q' + (x + 42) + ' ' + (y + 30) + ' ' + (x + 28) + ' ' + (y + 22) + ' L' + (x + 18) + ' ' + (y + 12) + ' H' + (x - 18) + ' L' + (x - 28) + ' ' + (y + 22) + ' Q' + (x - 42) + ' ' + (y + 30) + ' ' + (x - 46) + ' ' + (y + 16) + ' Q' + (x - 50) + ' ' + (y - 14) + ' ' + (x - 36) + ' ' + (y - 14) + ' Z') + P('M' + (x - 30) + ' ' + (y - 4) + ' h6 v-6 h6 v6 h6 v6 h-6 v6 h-6 v-6 h-6 Z') + C(x + 24, y - 4, 5) + C(x + 34, y + 4, 5); } },
+    cofre: { n: 'Cofre del tesoro', c: ['videojuegos', 'playa'], d: function(x, y){ return R(x - 30, y - 6, 60, 34, 3) + P('M' + (x - 30) + ' ' + (y - 6) + ' Q' + (x - 30) + ' ' + (y - 34) + ' ' + x + ' ' + (y - 34) + ' Q' + (x + 30) + ' ' + (y - 34) + ' ' + (x + 30) + ' ' + (y - 6) + ' Z') + R(x - 6, y - 10, 12, 16, 2) + L('M' + (x - 18) + ' ' + (y - 30) + ' V' + (y + 28) + ' M' + (x + 18) + ' ' + (y - 30) + ' V' + (y + 28)); } },
+    gema: { n: 'Diamante', c: ['videojuegos'], d: function(x, y){ return P('M' + (x - 26) + ' ' + (y - 8) + ' L' + (x - 14) + ' ' + (y - 24) + ' H' + (x + 14) + ' L' + (x + 26) + ' ' + (y - 8) + ' L' + x + ' ' + (y + 26) + ' Z') + L('M' + (x - 26) + ' ' + (y - 8) + ' H' + (x + 26) + ' M' + (x - 8) + ' ' + (y - 24) + ' L' + (x - 12) + ' ' + (y - 8) + ' L' + x + ' ' + (y + 26) + ' L' + (x + 12) + ' ' + (y - 8) + ' L' + (x + 8) + ' ' + (y - 24)); } },
+    escudo: { n: 'Espada y escudo', c: ['videojuegos'], d: function(x, y){ return R(x + 12, y - 40, 8, 52, 2) + R(x + 4, y + 10, 24, 7, 3) + R(x + 12, y + 17, 8, 12, 3) + P('M' + (x - 34) + ' ' + (y - 22) + ' H' + (x + 6) + ' V' + (y + 2) + ' Q' + (x + 6) + ' ' + (y + 22) + ' ' + (x - 14) + ' ' + (y + 30) + ' Q' + (x - 34) + ' ' + (y + 22) + ' ' + (x - 34) + ' ' + (y + 2) + ' Z') + star(x - 14, y + 2, 9); } },
+    cactus: { n: 'Cactus', c: ['naturaleza'], d: function(x, y){ return P('M' + (x - 22) + ' ' + (y - 4) + ' V' + (y - 20) + ' Q' + (x - 22) + ' ' + (y - 28) + ' ' + (x - 16) + ' ' + (y - 28) + ' Q' + (x - 10) + ' ' + (y - 28) + ' ' + (x - 10) + ' ' + (y - 20) + ' V' + (y + 4) + ' Z') + P('M' + (x + 22) + ' ' + (y - 14) + ' V' + (y - 30) + ' Q' + (x + 22) + ' ' + (y - 38) + ' ' + (x + 16) + ' ' + (y - 38) + ' Q' + (x + 10) + ' ' + (y - 38) + ' ' + (x + 10) + ' ' + (y - 30) + ' V' + (y - 6) + ' Z') + R(x - 12, y - 44, 24, 72, 12) + L('M' + x + ' ' + (y - 36) + ' V' + (y + 22)); } },
+    arena: { n: 'Castillo de arena', c: ['playa'], d: function(x, y){ return R(x - 30, y - 6, 60, 32, 2) + P('M' + (x - 30) + ' ' + (y - 6) + ' V' + (y - 30) + ' h8 v6 h6 v-6 h6 V' + (y - 6) + ' Z') + P('M' + (x + 10) + ' ' + (y - 6) + ' V' + (y - 30) + ' h6 v6 h6 v-6 h8 V' + (y - 6) + ' Z') + P('M' + (x - 8) + ' ' + (y + 26) + ' V' + (y + 10) + ' Q' + x + ' ' + (y + 2) + ' ' + (x + 8) + ' ' + (y + 10) + ' V' + (y + 26) + ' Z') + L('M' + x + ' ' + (y - 40) + ' V' + (y - 6)) + P('M' + x + ' ' + (y - 40) + ' l14 5 l-14 5 Z'); } },
+    hueso: { n: 'Hueso', c: ['naturaleza'], d: function(x, y){ return G('rotate(-12 ' + x + ' ' + y + ')', P('M' + (x - 24) + ' ' + (y - 4) + ' H' + (x + 24) + ' A9 9 0 1 1 ' + (x + 32) + ' ' + (y + 4) + ' A9 9 0 1 1 ' + (x + 24) + ' ' + (y + 12) + ' H' + (x - 24) + ' A9 9 0 1 1 ' + (x - 32) + ' ' + (y + 4) + ' A9 9 0 1 1 ' + (x - 24) + ' ' + (y - 4) + ' Z')); } },
+    zanahoria: { n: 'Zanahoria', c: ['naturaleza'], d: function(x, y){ return P('M' + (x - 4) + ' ' + (y - 22) + ' q-14 -16 -6 -22 q6 6 10 16 q2 -18 12 -18 q2 12 -6 24 Z') + P('M' + (x - 12) + ' ' + (y - 22) + ' H' + (x + 12) + ' L' + x + ' ' + (y + 28) + ' Z') + L('M' + (x - 6) + ' ' + (y - 8) + ' h6 M' + (x + 2) + ' ' + (y + 6) + ' h-5'); } },
+    nada: { n: 'Nada', c: [], d: function(){ return ''; } }
+  };
+  /* categorías de lo que ya había */
+  var OLD_CAT = { selva: 'animales', granja: 'animales', dinos: 'dinos', fantasia: 'fantasia', dulces: 'dulces' };
+  Object.keys(CHARS).forEach(function(k){ CHARS[k].c = [OLD_CAT[CHARS[k].t] || 'animales']; });
+  CHARS.robot.c = ['fantasia', 'videojuegos', 'espacio']; CHARS.castillo.c = ['fantasia'];
+  var BG_CAT0 = { prado: ['naturaleza'], playa: ['agua'], espacio: ['espacio'], bosque: ['naturaleza'], ciudad: ['ciudad'], mar: ['agua'], nieve: ['naturaleza'], granja: ['naturaleza'] };
+  Object.keys(BG_CAT0).forEach(function(k){ if (BGS[k]) BGS[k].c = BG_CAT0[k]; });
+  var IT_CAT0 = { sol: 'naturaleza', nube: 'naturaleza', luna: 'espacio', estrellas: 'espacio', arcoiris: 'naturaleza', globos: 'fiesta', cometa: 'fiesta', corazon: 'fiesta', planeta: 'espacio', pajaros: 'naturaleza',
+    flor: 'naturaleza', seta: 'naturaleza', pelota: 'deportes', regalo: 'fiesta', arbusto: 'naturaleza', concha: 'playa', manzana: 'naturaleza', estrella: 'playa' };
+  [SKY, GND].forEach(function(m){ Object.keys(m).forEach(function(k){ m[k].c = [IT_CAT0[k] || 'naturaleza']; }); });
+  Object.keys(NEW_CHARS).forEach(function(k){ CHARS[k] = NEW_CHARS[k]; });
+  Object.keys(NEW_BGS).forEach(function(k){ BGS[k] = NEW_BGS[k]; });
+  Object.keys(NEW_SKY).forEach(function(k){ SKY[k] = NEW_SKY[k]; });
+  Object.keys(NEW_GND).forEach(function(k){ GND[k] = NEW_GND[k]; });
+  CH_ORDER = Object.keys(CHARS); BG_ORDER = Object.keys(BGS);
+  SKY_ORDER = Object.keys(SKY).filter(function(k){ return k !== 'nada'; }); GND_ORDER = Object.keys(GND).filter(function(k){ return k !== 'nada'; });
+  var CATS = { animales: '🐾 Animales', dinos: '🦖 Dinosaurios', personas: '🧒 Personas', deportes: '⚽ Deportes', videojuegos: '🎮 Videojuegos', espacio: '🚀 Espacio', fantasia: '🦄 Fantasía',
+    dulces: '🧁 Dulces', naturaleza: '🌳 Naturaleza', agua: '🌊 Agua', ciudad: '🏙️ Ciudad', fiesta: '🎉 Fiesta', playa: '🏖️ Playa', vehiculos: '✈️ Vehículos' };
+
+  /* palabras que entiende «Pide tu dibujo» (sin tildes, en minúscula; vale el principio de la palabra) */
+  var WORDS = [
+    ['leon', 'ch', 'leon'], ['elefant', 'ch', 'elefante'], ['jiraf', 'ch', 'jirafa'], ['mono', 'ch', 'mono'], ['monit', 'ch', 'mono'], ['pinguin', 'ch', 'pinguino'], ['buho', 'ch', 'buho'], ['lechuz', 'ch', 'buho'],
+    ['zorr', 'ch', 'zorro'], ['oso', 'ch', 'oso'], ['osit', 'ch', 'oso'], ['vaca', 'ch', 'vaca'], ['cerd', 'ch', 'cerdo'], ['gallin', 'ch', 'gallina'], ['pollit', 'ch', 'gallina'], ['ovej', 'ch', 'oveja'], ['pato', 'ch', 'pato'], ['patit', 'ch', 'pato'],
+    ['dino', 'ch', 'trex'], ['tiranosaur', 'ch', 'trex'], ['rex', 'ch', 'trex'], ['trex', 'ch', 'trex'], ['cuellilarg', 'ch', 'cuellilargo'], ['diplodoc', 'ch', 'cuellilargo'], ['braquiosaur', 'ch', 'cuellilargo'],
+    ['triceratop', 'ch', 'triceratops'], ['estegosaur', 'ch', 'estegosaurio'], ['unicorni', 'ch', 'unicornio'], ['dragon', 'ch', 'dragon'], ['robot', 'ch', 'robot'], ['castillo', 'ch', 'castillo'],
+    ['helado', 'ch', 'helado'], ['magdalen', 'ch', 'magdalena'], ['cupcake', 'ch', 'magdalena'], ['tarta', 'ch', 'tarta'], ['pastel', 'ch', 'tarta'],
+    ['nino', 'ch', 'nino'], ['chico', 'ch', 'nino'], ['futbolista', 'ch', 'nino'], ['jugador', 'ch', 'nino'], ['yo', 'ch', 'nino'], ['nina', 'ch', 'nina'], ['chica', 'ch', 'nina'], ['jugadora', 'ch', 'nina'],
+    ['astronaut', 'ch', 'astronauta'], ['superheroe', 'ch', 'heroe'], ['superheroina', 'ch', 'heroe'], ['heroe', 'ch', 'heroe'], ['heroina', 'ch', 'heroe'], ['pirat', 'ch', 'pirata'],
+    ['caballero', 'ch', 'caballero'], ['guerrer', 'ch', 'caballero'], ['princip', 'ch', 'caballero'], ['hada', 'ch', 'hada'], ['princes', 'ch', 'hada'], ['perr', 'ch', 'perrito'], ['cachorr', 'ch', 'perrito'],
+    ['gat', 'ch', 'gatito'], ['michi', 'ch', 'gatito'], ['conej', 'ch', 'conejito'], ['tortug', 'ch', 'tortuguita'], ['pulpo', 'ch', 'pulpo'], ['extraterrestre', 'ch', 'alien'], ['alien', 'ch', 'alien'], ['marcian', 'ch', 'alien'],
+    ['monstru', 'ch', 'monstruo'], ['fantasm', 'ch', 'fantasma'],
+    ['prado', 'bg', 'prado'], ['pradera', 'bg', 'prado'], ['jardin', 'bg', 'prado'], ['parque', 'bg', 'prado'], ['playa', 'bg', 'playa'], ['espacio', 'bg', 'espacio'], ['bosque', 'bg', 'bosque'], ['selva', 'bg', 'bosque'],
+    ['ciudad', 'bg', 'ciudad'], ['calle', 'bg', 'ciudad'], ['mar', 'bg', 'mar'], ['oceano', 'bg', 'mar'], ['submarin', 'bg', 'mar'], ['nieve', 'bg', 'nieve'], ['invierno', 'bg', 'nieve'], ['polo', 'bg', 'nieve'], ['granja', 'bg', 'granja'],
+    ['futbol', 'bg', 'futbol'], ['porteri', 'bg', 'futbol'], ['gol', 'bg', 'futbol'], ['baloncesto', 'bg', 'baloncesto'], ['basket', 'bg', 'baloncesto'], ['canasta', 'bg', 'baloncesto'], ['tenis', 'bg', 'tenis'],
+    ['piscina', 'bg', 'piscina'], ['nadar', 'bg', 'piscina'], ['nadando', 'bg', 'piscina'], ['natacion', 'bg', 'piscina'], ['videojuego', 'bg', 'videojuego'], ['juego', 'bg', 'videojuego'], ['consola', 'bg', 'videojuego'], ['pixel', 'bg', 'videojuego'],
+    ['isla', 'bg', 'isla'], ['cumple', 'bg', 'cumple'], ['fiesta', 'bg', 'cumple'], ['montan', 'bg', 'montana'], ['monte', 'bg', 'montana'], ['desierto', 'bg', 'desierto'], ['piramide', 'bg', 'desierto'],
+    ['sol', 'sky', 'sol'], ['nube', 'sky', 'nube'], ['estrellas', 'sky', 'estrellas'], ['arcoiris', 'sky', 'arcoiris'], ['globo', 'sky', 'globos'], ['cometa', 'sky', 'cometa'], ['corazon', 'sky', 'corazon'],
+    ['planeta', 'sky', 'planeta'], ['pajar', 'sky', 'pajaros'], ['avion', 'sky', 'avion'], ['cohete', 'sky', 'cohete'], ['ovni', 'sky', 'ovni'], ['nave', 'sky', 'ovni'], ['platillo', 'sky', 'ovni'], ['mariposa', 'sky', 'mariposa'],
+    ['murcielag', 'sky', 'murcielago'], ['fuegos', 'sky', 'fuegos'], ['artificial', 'sky', 'fuegos'], ['moneda', 'sky', 'monedas'], ['vida', 'sky', 'vidas'], ['fugaz', 'sky', 'fugaz'],
+    ['flor', 'gnd', 'flor'], ['seta', 'gnd', 'seta'], ['champinon', 'gnd', 'seta'], ['pelota', 'gnd', 'pelota'], ['regalo', 'gnd', 'regalo'], ['arbust', 'gnd', 'arbusto'], ['planta', 'gnd', 'arbusto'], ['concha', 'gnd', 'concha'],
+    ['manzana', 'gnd', 'manzana'], ['balon', 'gnd', 'balon'], ['raqueta', 'gnd', 'raqueta'], ['trofeo', 'gnd', 'trofeo'], ['copa', 'gnd', 'trofeo'], ['medalla', 'gnd', 'trofeo'], ['monopatin', 'gnd', 'monopatin'], ['skate', 'gnd', 'monopatin'], ['patinet', 'gnd', 'monopatin'],
+    ['mando', 'gnd', 'mando'], ['cofre', 'gnd', 'cofre'], ['tesoro', 'gnd', 'cofre'], ['diamante', 'gnd', 'gema'], ['gema', 'gnd', 'gema'], ['joya', 'gnd', 'gema'], ['espada', 'gnd', 'escudo'], ['escudo', 'gnd', 'escudo'],
+    ['cactus', 'gnd', 'cactus'], ['arena', 'gnd', 'arena'], ['hueso', 'gnd', 'hueso'], ['zanahori', 'gnd', 'zanahoria']
+  ];
+  var SKIP = ('un una unos unas uno el la los las lo en con de del al a y e o u que por para su sus mi mis tu tus me te se le les muy mas pero sin sobre encima debajo delante detras ' +
+    'quiero quieres dibujo dibuja dibujame dibujar haz hazme pon ponle pinta pintame dame crea creame quisiera puedes podrias favor porfa porfavor gracias hola ' +
+    'esta estan estoy hay tiene tienen lleva llevan es son va van hace jugar juega jugando volar vuela volando comer come comiendo saltar salta saltando correr corre corriendo ' +
+    'grande grandes pequeno pequena pequenos pequenas bonito bonita feliz contento contenta lado izquierda derecha cielo suelo fondo arriba abajo dos tres cuatro varios varias mucho mucha muchos muchas ' +
+    'gigante gigantes enorme chiquito chiquita guapo guapa divertido divertida rapido super rojo roja azul verde amarillo amarilla rosa morado morada naranja negro negra blanco blanca de-de').split(' ');
+  function norm(s){ return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ñ ]+/g, ' ').replace(/ñ/g, 'n'); }
+  /* lo que suele haber en cada lugar y el lugar de cada tipo de personaje */
+  var SCENE = {}, HOME = { animales: 'prado', dinos: 'prado', fantasia: 'bosque', dulces: 'cumple', personas: 'prado', videojuegos: 'videojuego', espacio: 'luna', deportes: 'futbol' };
+  ('prado sol,nube flor,arbusto|playa sol,nube concha,arena|espacio planeta,estrellas nada,nada|bosque sol,pajaros seta,arbusto|ciudad nube,sol pelota,nada|mar nada,nada concha,estrella|' +
+   'nieve nube,sol regalo,nada|granja sol,nube flor,manzana|futbol sol,nube balon,nada|baloncesto nube,nada basket,nada|tenis sol,pajaros raqueta,nada|piscina sol,nube pelota,nada|' +
+   'videojuego monedas,vidas gema,cofre|luna cohete,planeta gema,nada|isla sol,pajaros cofre,nada|cumple globos,fuegos regalo,nada|montana sol,pajaros flor,arbusto|desierto sol,nada cactus,nada')
+    .split('|').forEach(function(x){ var p = x.split(' '); SCENE[p[0]] = { sky: p[1].split(','), gnd: p[2].split(',') }; });
+  function fill(got, def){ var out = got.slice(); def.forEach(function(k){ if (out.length < 2 && (k === 'nada' || out.indexOf(k) < 0)) out.push(k); }); while (out.length < 2) out.push('nada'); return out; }
+  /* convierte lo que escribe el niño en una receta; devuelve también lo que no ha entendido */
+  function understand(text, base){
+    var t = ' ' + norm(text) + ' ', r = { ch: null, bg: null, sky: [], gnd: [] }, unknown = [], words;
+    if (/ en la luna /.test(t)){ r.bg = 'luna'; t = t.replace(/ en la luna /g, ' '); }
+    if (/ estrellas? de mar /.test(t)){ r.gnd.push('estrella'); t = t.replace(/ estrellas? de mar /g, ' '); }
+    if (/ estrellas? fugaz /.test(t)){ r.sky.push('fugaz'); t = t.replace(/ estrellas? fugaz /g, ' '); }
+    if (/ castillo de arena /.test(t)){ r.gnd.push('arena'); t = t.replace(/ castillo de arena /g, ' '); }
+    if (/ fondo del mar /.test(t)){ r.bg = r.bg || 'mar'; t = t.replace(/ fondo del mar /g, ' '); }
+    words = t.split(' ').filter(Boolean);
+    words.forEach(function(w){
+      if (w === 'luna'){ r.sky.push('luna'); return; }
+      if (w === 'estrella'){ r.sky.push('estrellas'); return; }
+      var hit = null;
+      WORDS.forEach(function(x){
+        var ok = w === x[0] || (x[0].length >= 3 && w.indexOf(x[0]) === 0 && (x[0].length >= 4 || w.length <= x[0].length + 4));
+        if (ok && (!hit || x[0].length > hit[0].length)) hit = x;
+      });
+      if (!hit){ if (w.length > 2 && SKIP.indexOf(w) < 0 && !/(ando|iendo|ar|er|ir)$/.test(w)) unknown.push(w); return; }
+      if (hit[1] === 'ch'){ if (!r.ch) r.ch = hit[2]; else if (r.ch !== hit[2]) unknown.push(w + '*'); }
+      else if (hit[1] === 'bg'){
+        if (!r.bg) r.bg = hit[2];
+      }
+      else if (r[hit[1]].indexOf(hit[2]) < 0) r[hit[1]].push(hit[2]);
+    });
+    var found = !!(r.ch || r.bg || r.sky.length || r.gnd.length), ch = r.ch || base.ch;
+    var bg = r.bg || (r.ch ? HOME[(CHARS[ch].c || [])[0]] || base.bg : base.bg);
+    var out = { ch: ch, bg: bg, sky: fill(r.sky.slice(0, 2), SCENE[bg].sky), gnd: fill(r.gnd.slice(0, 2), SCENE[bg].gnd) };
+    return { r: out, found: found, unknown: unknown, extra: r.sky.length > 2 || r.gnd.length > 2 };
+  }
+
+  /* temas nuevos de la biblioteca */
+  COL_THEMES.push({ id: 'deportes', name: 'Deportes', icon: '⚽', color: '#9EE6A8' }, { id: 'juegos', name: 'Videojuegos', icon: '🎮', color: '#A9C3FF' }, { id: 'aventuras', name: 'Aventuras', icon: '🏴‍☠️', color: '#FFD0A8' });
+  [['futbol', 'nino', 'futbol', 'sol,nube', 'balon,trofeo', 'deportes', 'El futbolista'], ['baloncesto', 'nina', 'baloncesto', 'nube,nada', 'basket,nada', 'deportes', 'La jugadora de baloncesto'],
+    ['tenis', 'nino', 'tenis', 'sol,pajaros', 'raqueta,nada', 'deportes', 'El tenista'], ['natacion', 'nina', 'piscina', 'sol,nube', 'nada,pelota', 'deportes', 'La nadadora'],
+    ['skater', 'nino', 'ciudad', 'nube,sol', 'monopatin,nada', 'deportes', 'El skater'], ['campeona', 'nina', 'prado', 'globos,fuegos', 'trofeo,flor', 'deportes', 'La campeona'],
+    ['heroepixel', 'caballero', 'videojuego', 'monedas,vidas', 'gema,cofre', 'juegos', 'El héroe del videojuego'], ['monstruopx', 'monstruo', 'videojuego', 'vidas,monedas', 'gema,nada', 'juegos', 'El monstruo del nivel'],
+    ['fantasmapx', 'fantasma', 'videojuego', 'luna,murcielago', 'cofre,nada', 'juegos', 'El fantasma del castillo'], ['jugadora', 'nina', 'cumple', 'vidas,monedas', 'mando,regalo', 'juegos', 'La jugadora'],
+    ['alienigena', 'alien', 'luna', 'ovni,planeta', 'gema,nada', 'juegos', 'El extraterrestre'], ['robotpx', 'robot', 'videojuego', 'monedas,fugaz', 'mando,nada', 'juegos', 'El robot del juego'],
+    ['pirata', 'pirata', 'isla', 'sol,pajaros', 'cofre,nada', 'aventuras', 'El pirata'], ['astroluna', 'astronauta', 'luna', 'cohete,planeta', 'nada,gema', 'aventuras', 'El astronauta'],
+    ['superheroe', 'heroe', 'ciudad', 'fugaz,avion', 'nada,nada', 'aventuras', 'El superhéroe'], ['hada', 'hada', 'bosque', 'luna,mariposa', 'seta,flor', 'aventuras', 'El hada del bosque'],
+    ['pulpomar', 'pulpo', 'mar', 'nada,nada', 'concha,cofre', 'aventuras', 'El pulpo'], ['explorador', 'nino', 'desierto', 'sol,nada', 'cactus,cofre', 'aventuras', 'El explorador'],
+    ['perrito', 'perrito', 'prado', 'sol,mariposa', 'hueso,pelota', 'animales', 'El perrito'], ['conejito', 'conejito', 'prado', 'nube,mariposa', 'zanahoria,flor', 'animales', 'El conejito']
+  ].forEach(function(x){
+    var r = { ch: x[1], bg: x[2], sky: x[3].split(','), gnd: x[4].split(',') };
+    COL_DESIGNS.push({ id: x[0], t: x[5], name: x[6], draw: function(){ return compose(r); } });
+  });
   var PRICE = 10;
   var BY = {}; COL_DESIGNS.forEach(function(d){ BY[d.id] = d; });
   var TBY = {}; COL_THEMES.forEach(function(t){ TBY[t.id] = t; });
@@ -850,7 +1117,7 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
     var g = el('div', 'grid');
     var mk = el('button', 'tcard make'); mk.type = 'button';
     var mi = el('span', 'ic', '✨'); mi.setAttribute('aria-hidden', 'true'); mk.appendChild(mi);
-    var mt = el('span'); mt.appendChild(el('b', '', 'Crea tu dibujo')); mt.appendChild(el('br')); mt.appendChild(document.createTextNode('Elige personaje, lugar y adornos: ¡hay miles!')); mk.appendChild(mt);
+    var mt = el('span'); mt.appendChild(el('b', '', 'Crea tu dibujo')); mt.appendChild(el('br')); mt.appendChild(document.createTextNode('Escribe lo que quieres o elige: deportes, videojuegos, animales…')); mk.appendChild(mt);
     mk.addEventListener('click', function(){ go('#crear'); }); g.appendChild(mk);
     COL_THEMES.forEach(function(t){
       var list = ofTheme(t), mine = list.filter(owned).length;
@@ -906,37 +1173,84 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
   }
 
   /* ---------- creador de dibujos ---------- */
-  var MK = null;
+  var MK = null, MKT = 'ch', MKC = '', MKS = 0, MKQ = '';
   function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
   function randomRecipe(){ return { ch: pick(CH_ORDER), bg: pick(BG_ORDER), sky: [pick(SKY_ORDER), pick(SKY_ORDER)], gnd: [pick(GND_ORDER), pick(GND_ORDER)] }; }
+  function shortName(n){ return n.replace(/^(El|La) /, '').replace(/^en (el|la) /, '').replace(/^./, function(x){ return x.toUpperCase(); }); }
+  var TABS = [
+    { id: 'ch', n: '🐾 Personaje', map: function(){ return CHARS; }, order: function(){ return CH_ORDER; }, box: '70 20 260 360', draw: function(k){ return CHARS[k].d(); }, get: function(){ return MK.ch; }, set: function(k){ MK.ch = k; } },
+    { id: 'bg', n: '🏞️ Lugar', map: function(){ return BGS; }, order: function(){ return BG_ORDER; }, box: '0 100 400 300', draw: function(k){ return BG() + BGS[k].d(); }, get: function(){ return MK.bg; }, set: function(k){ MK.bg = k; } },
+    { id: 'sky', n: '☁️ Cielo', slots: 1, map: function(){ return SKY; }, order: function(){ return ['nada'].concat(SKY_ORDER); }, box: '0 0 120 120', draw: function(k){ return SKY[k].d(60, 60); }, get: function(){ return MK.sky[MKS]; }, set: function(k){ MK.sky[MKS] = k; } },
+    { id: 'gnd', n: '🌼 Suelo', slots: 1, map: function(){ return GND; }, order: function(){ return ['nada'].concat(GND_ORDER); }, box: '0 0 120 120', draw: function(k){ return GND[k].d(60, 56); }, get: function(){ return MK.gnd[MKS]; }, set: function(k){ MK.gnd[MKS] = k; } }
+  ];
   function maker(){
     clear(); view = 'crear';
-    if (!okRecipe(MK)) MK = { ch: 'leon', bg: 'playa', sky: ['sol', 'nube'], gnd: ['concha', 'pelota'] };
+    if (!okRecipe(MK)) MK = { ch: 'perrito', bg: 'futbol', sky: ['sol', 'nube'], gnd: ['balon', 'nada'] };
     var r = el('div', 'row'); r.appendChild(button('← Temas', 'btn', function(){ go('#'); })); app.appendChild(r);
     app.appendChild(el('h2', '', '✨ Crea tu dibujo'));
     var wrapEl = el('div', 'maker'), prev = el('div', 'prev'), pic = el('span'), info = el('div'), nm = el('b'), lists = el('div', 'side');
     function refresh(){ pic.innerHTML = wrap(compose(MK), recipeName(MK)); nm.textContent = recipeName(MK); }
     info.appendChild(nm);
-    info.appendChild(button('🎲 Sorpresa', 'btn', function(){ MK = randomRecipe(); maker(); }));
+    info.appendChild(button('🎲 Sorpresa', 'btn', function(){ MK = randomRecipe(); refresh(); draw(); }));
     info.appendChild(button('Lo quiero · ' + PRICE + ' ⭐', 'btn main', function(){ var rc = JSON.parse(JSON.stringify(MK)); buy({ id: 'nuevo', name: recipeName(rc), draw: function(){ return compose(rc); } }, rc); }));
     prev.appendChild(pic); prev.appendChild(info);
-    function section(title, order, map, draw, box, get, set){
-      lists.appendChild(el('h3', '', title));
-      var g = el('div', 'opts');
-      order.forEach(function(k){
-        var b = el('button', 'opt'); b.type = 'button'; b.innerHTML = wrap(draw(k), map[k].n, box);
-        b.appendChild(el('span', '', map[k].n.replace(/^(El|La) /, '').replace(/^en (el|la) /, '').replace(/^./, function(x){ return x.toUpperCase(); })));
-        b.setAttribute('aria-pressed', get() === k ? 'true' : 'false');
-        b.addEventListener('click', function(){ set(k); Array.prototype.forEach.call(g.children, function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); refresh(); });
-        g.appendChild(b);
-      });
-      lists.appendChild(g);
+
+    /* pide tu dibujo con palabras */
+    var ask = el('form', 'ask'); ask.setAttribute('role', 'search');
+    var lab = el('label', '', '💬 Pide tu dibujo'); lab.setAttribute('for', 'mkAsk');
+    var inp = el('input'); inp.id = 'mkAsk'; inp.type = 'text'; inp.maxLength = 140; inp.autocomplete = 'off'; inp.value = MKQ;
+    inp.placeholder = 'Ej.: un perrito jugando al fútbol con globos';
+    var go2 = el('button', 'btn main', '✨ ¡Dibújalo!'); go2.type = 'submit';
+    var line = el('div', 'askrow'); line.appendChild(inp); line.appendChild(go2);
+    var said = el('p', 'msg'); said.setAttribute('aria-live', 'polite');
+    var ex = el('div', 'chips');
+    ['un dinosaurio en el videojuego con monedas', 'una niña jugando al baloncesto', 'un pirata en la isla con un cofre', 'un astronauta en la luna con un cohete'].forEach(function(t){
+      var b = button(t, 'chip', function(){ inp.value = t; doAsk(); }); ex.appendChild(b);
+    });
+    function doAsk(){
+      var q = inp.value.trim(); MKQ = q; if (!q){ said.textContent = 'Escribe qué quieres dibujar.'; return; }
+      var u = understand(q, MK), bits = [];
+      if (!u.found){ said.textContent = 'Todavía no sé dibujar ' + (u.unknown.length ? u.unknown.slice(0, 3).join(', ') : 'eso') + '. Prueba con animales, dinosaurios, deportes, videojuegos, el espacio o piratas.'; return; }
+      MK = u.r; refresh(); draw();
+      bits.push(CHARS[MK.ch].n.toLowerCase(), BGS[MK.bg].n);
+      var extras = MK.sky.concat(MK.gnd).filter(function(k){ return k !== 'nada'; }).map(function(k){ return ((SKY[k] && MK.sky.indexOf(k) >= 0) ? SKY[k] : GND[k]).n.toLowerCase(); });
+      var msg = '¡Hecho! ' + bits.join(' ') + (extras.length ? ', con ' + extras.join(', ') : '') + '.';
+      var unk = u.unknown.filter(function(w){ return !/\*$/.test(w); });
+      if (unk.length) msg += ' Todavía no sé dibujar: ' + unk.slice(0, 4).join(', ') + '.';
+      if (u.unknown.some(function(w){ return /\*$/.test(w); })) msg += ' Solo cabe un personaje.';
+      if (u.extra) msg += ' Solo caben dos cosas en el cielo y dos en el suelo.';
+      said.textContent = msg + ' Puedes cambiar cualquier cosa abajo.';
     }
-    section('1. Personaje', CH_ORDER, CHARS, function(k){ return CHARS[k].d(); }, '70 20 260 360', function(){ return MK.ch; }, function(k){ MK.ch = k; });
-    section('2. Lugar', BG_ORDER, BGS, function(k){ return BG() + BGS[k].d(); }, '0 150 400 250', function(){ return MK.bg; }, function(k){ MK.bg = k; });
-    [0, 1].forEach(function(i){ section('Cielo: lado ' + (i ? 'derecho' : 'izquierdo'), SKY_ORDER, SKY, function(k){ return SKY[k].d(60, 60); }, '0 0 120 120', function(){ return MK.sky[i]; }, function(k){ MK.sky[i] = k; }); });
-    [0, 1].forEach(function(i){ section('Suelo: lado ' + (i ? 'derecho' : 'izquierdo'), GND_ORDER, GND, function(k){ return GND[k].d(60, 56); }, '0 0 120 120', function(){ return MK.gnd[i]; }, function(k){ MK.gnd[i] = k; }); });
-    refresh(); wrapEl.appendChild(prev); wrapEl.appendChild(lists); app.appendChild(wrapEl);
+    ask.addEventListener('submit', function(e){ e.preventDefault(); doAsk(); });
+    ask.appendChild(lab); ask.appendChild(line); ask.appendChild(ex); ask.appendChild(said);
+    lists.appendChild(ask);
+
+    /* elegir pieza a pieza */
+    lists.appendChild(el('h3', '', 'O elígelo tú'));
+    var tabs = el('div', 'tabs'), slots = el('div', 'chips'), cats = el('div', 'chips'), grid = el('div', 'opts');
+    tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Qué quieres cambiar');
+    TABS.forEach(function(t){ var b = button(t.n, 'tab', function(){ MKT = t.id; MKC = ''; MKS = 0; draw(); }); b.dataset.id = t.id; tabs.appendChild(b); });
+    lists.appendChild(tabs); lists.appendChild(slots); lists.appendChild(cats); lists.appendChild(grid);
+    function draw(){
+      var t = TABS.filter(function(x){ return x.id === MKT; })[0], map = t.map(), order = t.order();
+      Array.prototype.forEach.call(tabs.children, function(b){ b.setAttribute('aria-pressed', b.dataset.id === MKT ? 'true' : 'false'); });
+      slots.textContent = ''; slots.hidden = !t.slots;
+      if (t.slots) ['⬅️ Lado izquierdo', 'Lado derecho ➡️'].forEach(function(n, i){ var b = button(n, 'chip', function(){ MKS = i; draw(); }); b.setAttribute('aria-pressed', MKS === i ? 'true' : 'false'); slots.appendChild(b); });
+      var have = {}; order.forEach(function(k){ (map[k].c || []).forEach(function(c){ have[c] = 1; }); });
+      cats.textContent = '';
+      [''].concat(Object.keys(CATS).filter(function(c){ return have[c]; })).forEach(function(c){
+        var b = button(c ? CATS[c] : '✨ Todo', 'chip', function(){ MKC = c; draw(); }); b.setAttribute('aria-pressed', MKC === c ? 'true' : 'false'); cats.appendChild(b);
+      });
+      grid.textContent = '';
+      order.filter(function(k){ return !MKC || k === 'nada' || (map[k].c || []).indexOf(MKC) >= 0; }).forEach(function(k){
+        var b = el('button', 'opt'); b.type = 'button'; b.innerHTML = wrap(t.draw(k), map[k].n, t.box);
+        b.appendChild(el('span', '', shortName(map[k].n)));
+        b.setAttribute('aria-pressed', t.get() === k ? 'true' : 'false');
+        b.addEventListener('click', function(){ t.set(k); Array.prototype.forEach.call(grid.children, function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); refresh(); });
+        grid.appendChild(b);
+      });
+    }
+    refresh(); draw(); wrapEl.appendChild(prev); wrapEl.appendChild(lists); app.appendChild(wrapEl);
   }
 
   /* ---------- PDF hecho en el navegador: una hoja A4 con el dibujo ---------- */
@@ -1132,7 +1446,7 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
     var p2 = button('🎨 PDF con mis colores', 'btn main', function(){ pdfGet(d, pc, msg, p2); });
     row4.appendChild(p1); row4.appendChild(p2);
     [[inb, '🚧', 'Sin salirme'], [un, '↩️', 'Deshacer']].forEach(function(q){ var i = el('i', '', q[1]); i.setAttribute('aria-hidden', 'true'); q[0].appendChild(i); q[0].appendChild(document.createTextNode(q[2])); });
-    var bar = el('div', 'bar'), opts = el('div', 'opts');
+    var bar = el('div', 'bar'), opts = el('div', 'popts');
     opts.appendChild(sizes); opts.appendChild(inb); opts.appendChild(un);
     bar.appendChild(tools); bar.appendChild(pal); bar.appendChild(opts);
     side.appendChild(bar); side.appendChild(msg); side.appendChild(row3); side.appendChild(row4);
