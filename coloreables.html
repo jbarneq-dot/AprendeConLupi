@@ -74,6 +74,24 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
   .stage{margin:0; width:min(640px,calc(100vh - 150px)); width:min(640px,calc(100svh - 150px)); max-width:none; min-width:200px;}
   .side{max-width:none;}
 }
+/* pantalla completa para pintar */
+body.fs{overflow:hidden; overscroll-behavior:none;}
+body.fs .top{display:none;}
+.fsv{position:fixed; top:0; left:0; right:0; bottom:0; z-index:6; box-sizing:border-box; display:flex; flex-direction:column; gap:6px; padding:calc(env(safe-area-inset-top,0px) + 6px) 8px calc(env(safe-area-inset-bottom,0px) + 6px); background:var(--bg);}
+.fsbar{flex:none; display:flex; align-items:center; gap:6px; min-width:0;}
+.fsbar b{flex:1 1 auto; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font:800 18px/1.1 var(--display);}
+.fsb{flex:none; display:inline-flex; align-items:center; gap:4px; min-height:40px; padding:0 12px; border-radius:999px; border:3px solid var(--ink); background:#FFFFFF; color:var(--ink); font:800 15px/1 var(--display); text-decoration:none; cursor:pointer;}
+.fsb.out{background:var(--coral); color:#FFFFFF; border-color:var(--coral);}
+.fsv .paint{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;}
+.fsv .stage{flex:none; max-width:none; min-width:0; margin:0; aspect-ratio:auto; width:200px; height:200px; box-shadow:none; border-width:3px; border-radius:16px;}
+.fsv .side{flex:none; width:100%; max-width:640px; gap:5px; margin:0;}
+.fsv .bar{padding:6px; gap:6px; border-radius:16px;}
+.fsv .note{display:none;}
+.fsv .msg{font-size:13px; min-height:1.2em; line-height:1.2; text-align:center;}
+.acts{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px;}
+.acts .btn{min-height:40px; padding:2px 4px; font-size:13px; border-radius:12px; justify-content:center; white-space:nowrap; gap:3px; overflow:hidden;}
+.fsv.wide .paint{flex-direction:row; align-items:flex-start; justify-content:center;}
+.fsv.wide .side{width:min(360px,46vw); max-height:100%; overflow-y:auto;}
 /* creador */
 .maker{display:grid; grid-template-columns:minmax(0,1fr); gap:14px; align-items:start;}
 .prev{position:sticky; top:calc(env(safe-area-inset-top,0px) + 66px); z-index:3; display:flex; gap:10px; align-items:center; padding:8px; border-radius:20px; background:var(--card); border:3px solid var(--ink);}
@@ -1661,7 +1679,14 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
   }
   function paint(d){
     clear(); view = 'dibujo';
-    var top = el('div', 'row'); top.appendChild(button('← Dibujos', 'btn', function(){ go(d.custom ? '#' : '#tema-' + d.t); })); top.appendChild(el('h2', '', d.name)); app.appendChild(top);
+    document.body.classList.add('fs');
+    var fsv = el('div', 'fsv'), tb = el('div', 'fsbar');
+    var out = el('a', 'fsb out', '🏠 Salir'); out.href = './'; out.setAttribute('aria-label', 'Salir a la portada');
+    tb.appendChild(out); tb.appendChild(button('🎨 Temas', 'fsb', function(){ go('#'); }));
+    tb.appendChild(el('b', '', d.name));
+    var de = document.documentElement, canFs = !!(document.fullscreenEnabled && de.requestFullscreen);
+    if (canFs){ var fb = button('⛶', 'fsb', function(){ if (document.fullscreenElement) document.exitFullscreen().catch(function(){}); else de.requestFullscreen().catch(function(){}); }); fb.setAttribute('aria-label', 'Pantalla completa'); fb.title = 'Pantalla completa'; tb.appendChild(fb); }
+    fsv.appendChild(tb);
     var wrapEl = el('div', 'paint'), stage = el('div', 'stage'), side = el('div', 'side');
     var pc = el('canvas'), lc = el('canvas'), ic = el('canvas', 'ink');
     [pc, lc, ic].forEach(function(c){ c.width = c.height = N; stage.appendChild(c); });
@@ -1680,7 +1705,18 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
     }
     function changed(){ dirty = true; clearTimeout(timer); timer = setTimeout(flush, 900); un.disabled = !undo.length; }
     function snap(){ try { undo.push(px.getImageData(0, 0, N, N)); if (undo.length > 8) undo.shift(); } catch (e) {} }
-    leave = function(){ alive = false; flush(); };
+    function fit(){
+      if (!alive) return;
+      var W = fsv.clientWidth, H = fsv.clientHeight, wide = W > H * 1.15 && W >= 560;
+      fsv.classList.toggle('wide', wide);
+      var a = wrapEl.getBoundingClientRect(), sd = side.getBoundingClientRect();
+      var z = wide ? Math.min(a.height, a.width - sd.width - 8) : Math.min(a.width, a.height - sd.height - 6);
+      z = Math.max(160, Math.floor(z)); stage.style.width = stage.style.height = z + 'px';
+    }
+    function refit(){ requestAnimationFrame(fit); }
+    var vv = window.visualViewport;
+    window.addEventListener('resize', refit); document.addEventListener('fullscreenchange', refit); if (vv) vv.addEventListener('resize', refit);
+    leave = function(){ alive = false; flush(); document.body.classList.remove('fs'); window.removeEventListener('resize', refit); document.removeEventListener('fullscreenchange', refit); if (vv) vv.removeEventListener('resize', refit); };
 
     /* la zona cerrada por las líneas que contiene el punto (para el cubo y para no salirse) */
     function region(sx, sy){
@@ -1764,24 +1800,24 @@ h3{margin:6px 0 0; font:800 20px/1.1 var(--display);}
       b.addEventListener('click', function(){ PREF.c = c[1]; choose(pal, b); if (PREF.b === 'goma'){ PREF.b = 'rotu'; choose(tools, tools.children[1]); } });
       pal.appendChild(b);
     });
-    var sure = false, row3 = el('div', 'row');
+    var sure = false, row3 = el('div', 'acts');
     var un = button('', 'btn', function(){ var u = undo.pop(); if (!u) return; px.putImageData(u, 0, 0); changed(); }); un.disabled = true;
-    var wipe = button('🗑️ Borrar todo', 'btn', function(){
-      if (!sure){ sure = true; wipe.textContent = '¿Seguro? Toca otra vez'; setTimeout(function(){ sure = false; wipe.textContent = '🗑️ Borrar todo'; }, 4000); return; }
-      sure = false; wipe.textContent = '🗑️ Borrar todo'; snap(); px.clearRect(0, 0, N, N); changed();
+    var wipe = button('🗑️ Borrar', 'btn', function(){
+      if (!sure){ sure = true; wipe.textContent = '¿Seguro?'; setTimeout(function(){ sure = false; wipe.textContent = '🗑️ Borrar'; }, 4000); return; }
+      sure = false; wipe.textContent = '🗑️ Borrar'; snap(); px.clearRect(0, 0, N, N); changed();
     });
+    wipe.setAttribute('aria-label', 'Borrar todo lo pintado');
     row3.appendChild(wipe);
-    var row4 = el('div', 'row');
-    var p1 = button('🖨️ PDF en blanco', 'btn', function(){ pdfGet(d, null, msg, p1); });
-    var p2 = button('🎨 PDF con mis colores', 'btn main', function(){ pdfGet(d, pc, msg, p2); });
-    row4.appendChild(p1); row4.appendChild(p2);
+    var p1 = button('🖨️ PDF blanco', 'btn', function(){ pdfGet(d, null, msg, p1); });
+    var p2 = button('🎨 PDF color', 'btn main', function(){ pdfGet(d, pc, msg, p2); });
+    p1.setAttribute('aria-label', 'Descargar PDF en blanco'); p2.setAttribute('aria-label', 'Descargar PDF con mis colores');
+    row3.appendChild(p1); row3.appendChild(p2);
     [[inb, '🚧', 'Sin salirme'], [un, '↩️', 'Deshacer']].forEach(function(q){ var i = el('i', '', q[1]); i.setAttribute('aria-hidden', 'true'); q[0].appendChild(i); q[0].appendChild(document.createTextNode(q[2])); });
     var bar = el('div', 'bar'), opts = el('div', 'popts');
     opts.appendChild(sizes); opts.appendChild(inb); opts.appendChild(un);
     bar.appendChild(tools); bar.appendChild(pal); bar.appendChild(opts);
-    side.appendChild(bar); side.appendChild(msg); side.appendChild(row3); side.appendChild(row4);
-    side.appendChild(el('p', 'note', 'Elige pincel y color y pinta con el dedo o con el ratón. Se guarda solo.'));
-    wrapEl.appendChild(stage); wrapEl.appendChild(side); app.appendChild(wrapEl);
+    side.appendChild(bar); side.appendChild(row3); side.appendChild(msg);
+    wrapEl.appendChild(stage); wrapEl.appendChild(side); fsv.appendChild(wrapEl); app.appendChild(fsv); fit(); refit();
 
     /* líneas del dibujo y lo que ya estuviera pintado */
     raster(d.draw(), N).then(function(art){
